@@ -32,16 +32,23 @@
         .dot-pulse { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; animation: blink 1s infinite; }
         @keyframes blink { 0% {opacity:1;} 50% {opacity:0.2;} 100% {opacity:1;} }
 
-        /* MAP AREA (FULL SCREEN) */
+        /* MAP AREA (PUTIH BERSIH OPENSTREETMAP) */
         #map { width: 100vw; height: 100vh; z-index: 1; background: #E5E3DF; }
 
         /* MARKERS */
+        .custom-div-icon { background: transparent; border: none; }
         .fc-marker { width: 40px; height: 40px; background: #000; border: 3px solid var(--kc-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--kc-yellow); font-size: 18px; box-shadow: 0 0 20px rgba(212,255,0,0.8); z-index: 1000 !important;}
-        .member-normal { width: 15px; height: 15px; background: var(--info); border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .member-label { background: rgba(0,0,0,0.8); color: white; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; font-family: 'Outfit'; white-space: nowrap; margin-top: -5px; margin-left: 10px;}
-        .member-sos { width: 25px; height: 25px; background: var(--danger); border: 3px solid white; border-radius: 50%; box-shadow: 0 0 20px rgba(239,68,68,0.8); animation: pulseSOS 1s infinite; }
-        .sos-label { background: var(--danger); color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; font-family: 'Outfit'; white-space: nowrap; margin-top: -10px; margin-left: 15px; box-shadow: 0 0 10px rgba(239,68,68,0.5);}
-        @keyframes pulseSOS { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { transform: scale(1.2); box-shadow: 0 0 0 20px rgba(239,68,68,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        
+        /* FOTO MARKER NORMAL */
+        .normal-photo-wrap { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--info); overflow: hidden; box-shadow: 0 0 10px rgba(59,130,246,0.8); background: #000; position: relative; margin: 0 auto;}
+        .normal-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .member-label { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; font-family: 'Outfit'; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+        
+        /* FOTO MARKER SOS (DARURAT) */
+        .sos-photo-wrap { width: 45px; height: 45px; border-radius: 50%; border: 3px solid white; overflow: hidden; box-shadow: 0 0 25px rgba(239,68,68,0.9); animation: pulseSOS 1s infinite; background: #000; position: relative; margin: 0 auto;}
+        .sos-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .sos-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; font-family: 'Outfit'; white-space: nowrap; box-shadow: 0 0 10px rgba(239,68,68,0.5);}
+        @keyframes pulseSOS { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.7); border-color: var(--danger);} 70% { transform: scale(1.15); box-shadow: 0 0 0 20px rgba(239,68,68,0); border-color: white;} 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0); border-color: var(--danger);} }
 
         /* PANEL KIRI BAWAH (DAFTAR SOS & AGEN TERDEKAT) */
         .sos-panel { position: absolute; bottom: 30px; left: 20px; width: 340px; max-width: calc(100% - 40px); background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border: 1px solid var(--danger); border-radius: 16px; padding: 15px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; gap: 10px; max-height: 80vh; overflow-y: auto;}
@@ -106,7 +113,7 @@
         try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
         
         if (!uData) {
-            window.location.href = 'index.html';
+            window.location.href = 'index_kc.html';
         } else {
             const role = (uData.role || "").toUpperCase();
             const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
@@ -150,7 +157,7 @@
 
         // RUMUS HAVERSINE UNTUK HITUNG JARAK (Dalam Meter)
         function hitungJarak(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Radius bumi dalam meter
+            const R = 6371e3;
             const p1 = lat1 * Math.PI/180;
             const p2 = lat2 * Math.PI/180;
             const dp = (lat2-lat1) * Math.PI/180;
@@ -162,7 +169,7 @@
         }
 
         // ==========================================
-        // 3. SISTEM RADAR LIVE TRACKING
+        // 3. SISTEM RADAR LIVE TRACKING (FOTO MEMBER)
         // ==========================================
         let activeMarkers = {}; 
 
@@ -184,17 +191,40 @@
                 }
             });
 
-            // UPDATE MARKER DI MAP
+            // UPDATE MARKER DI MAP (MENGGUNAKAN FOTO)
             const allUsers = [...sosUsers, ...normalUsers];
             allUsers.forEach(data => {
                 const isSOS = data.isSOS === true;
+                
+                // Ambil foto dari database, jika tidak ada gunakan avatar default
+                const photoUrl = (data.foto && data.foto.length > 50) ? data.foto : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+                const shortName = (data.nama || data.plat || "Unknown").split(' ')[0];
+
+                // Bikin Icon HTML dengan foto
+                let iconHtml = "";
+                let iSize, iAnchor;
+
+                if(isSOS) {
+                    iconHtml = `
+                        <div class="sos-photo-wrap"><img src="${photoUrl}"></div>
+                        <div class="sos-label">SOS: ${shortName}</div>
+                    `;
+                    iSize = [45, 45];
+                    iAnchor = [22, 22]; // Center anchor
+                } else {
+                    iconHtml = `
+                        <div class="normal-photo-wrap"><img src="${photoUrl}"></div>
+                        <div class="member-label">${shortName}</div>
+                    `;
+                    iSize = [32, 32];
+                    iAnchor = [16, 16]; // Center anchor
+                }
+
                 const userIcon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: isSOS 
-                        ? `<div class='member-sos'></div><div class='sos-label'>SOS: ${data.nama || data.plat}</div>` 
-                        : `<div class='member-normal'></div><div class='member-label'>${data.nama || data.plat}</div>`,
-                    iconSize: isSOS ? [25, 25] : [15, 15],
-                    iconAnchor: isSOS ? [12, 12] : [7, 7]
+                    html: iconHtml,
+                    iconSize: iSize,
+                    iconAnchor: iAnchor
                 });
 
                 if(activeMarkers[data.id]) {
@@ -205,6 +235,15 @@
                     activeMarkers[data.id] = L.marker([data.lat, data.lng], {icon: userIcon, zIndexOffset: isSOS ? 999 : 1}).addTo(map);
                 }
             });
+
+            // Hapus marker user yang udah nggak memancarkan sinyal
+            const currentIds = allUsers.map(u => u.id);
+            for(let id in activeMarkers) {
+                if(!currentIds.includes(id)) {
+                    map.removeLayer(activeMarkers[id]);
+                    delete activeMarkers[id];
+                }
+            }
 
             // BUILD UI UNTUK PANEL SOS
             sosUsers.forEach(sos => {
@@ -218,23 +257,18 @@
                     };
                 });
                 
-                // Urutkan dari yang terdekat
                 distances.sort((a, b) => a.jarakMeter - b.jarakMeter);
-                let top3 = distances.slice(0, 3); // Ambil 3 teratas
+                let top3 = distances.slice(0, 3); 
 
-                // Buat list HTML untuk 3 terdekat
                 let nearestHTML = "";
                 if (top3.length === 0) {
                     nearestHTML = `<div style="font-size:10px; color:#aaa;">Tidak ada member lain yang aktif di radar.</div>`;
                 } else {
                     top3.forEach((n, index) => {
                         let distText = n.jarakMeter > 1000 ? (n.jarakMeter/1000).toFixed(1) + " KM" : Math.round(n.jarakMeter) + " METER";
-                        
-                        // Nomor WA Agent (Hapus angka 0 di depan, ganti 62)
                         let rawHp = n.hp || n.wa || n.whatsapp || "";
                         let cleanHp = rawHp.replace(/^0+/, '62');
                         
-                        // Pesan WA Otomatis
                         let waLink = cleanHp ? `https://wa.me/${cleanHp}?text=*URC%20COMMAND%20CENTER*%0A%0AInstruksi%20Intersep!%0ATolong%20merapat%20ke%20lokasi%20SOS%20milik%20*${sos.nama}*.%0AJarak%20dari%20posisi%20lu%20sekarang%20sekitar%20*${distText}*.%0A%0ACek%20map%20di%20aplikasi%20lu%20sekarang!` : '#';
 
                         nearestHTML += `
@@ -294,7 +328,7 @@
             });
         };
 
-        // 5. FUNGSI RESOLVE (Matikan SOS dari Command Center jika sudah ditangani)
+        // 5. FUNGSI RESOLVE (Matikan SOS dari Command Center)
         window.resolveSOS = async (userId) => {
             if(confirm("Yakin situasi sudah aman dan ingin mematikan sinyal SOS ini?")) {
                 try {

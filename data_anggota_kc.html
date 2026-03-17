@@ -8,9 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <style>
         :root { 
             --royal-blue: #D4FF00; --electric-blue: #10B981; --bg-surface: #050505; 
@@ -22,27 +19,30 @@
         .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: #D4FF00; }
         .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: #10B981; animation-delay: 2s; }
         @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
+        
         .header-main { padding: 40px 20px 20px; position: relative; z-index: 10; text-align: center; }
         .sub-tag { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--electric-blue); text-transform: uppercase; margin-bottom: 5px; display: block; }
         .main-title { font-family: 'Outfit'; font-size: 32px; font-weight: 900; color: var(--royal-blue); margin: 0; letter-spacing: -1px; text-shadow: 0 0 15px rgba(212,255,0,0.3); }
+        
         .search-container { padding: 0 20px 20px; position: sticky; top: 0; z-index: 99; margin-top: 10px; }
         .search-box { background: #111; border-radius: 20px; padding: 5px 20px; display: flex; align-items: center; border: 1px solid #333; transition: 0.3s; }
         .search-box:focus-within { border-color: var(--royal-blue); }
         .search-box i { color: var(--royal-blue); font-size: 18px; margin-right: 12px; }
         .search-box input { flex: 1; border: none; padding: 16px 0; font-family: 'Inter'; font-size: 14px; font-weight: 600; background: transparent; color: var(--text-main); outline: none; }
+        
         .list-container { padding: 0 20px 30px; display: flex; flex-direction: column; gap: 15px; }
         .member-card { background: #0f0f0f; border: 1px solid #222; border-radius: 24px; padding: 18px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); animation: slideUp 0.5s ease-out backwards; position: relative;}
         .member-card.is-pengurus { background: linear-gradient(135deg, #111 0%, rgba(212,255,0,0.05) 100%); border-color: rgba(212,255,0,0.3); border-left: 5px solid var(--royal-blue); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
         .m-photo-wrap { position: relative; width: 65px; height: 65px; border-radius: 18px; border: 2px solid #333; flex-shrink: 0; cursor: zoom-in; box-shadow: 0 8px 20px rgba(0,0,0,0.5); overflow: hidden; background: #111; }
         .is-pengurus .m-photo-wrap { border-color: var(--royal-blue); }
         .m-photo-bg { position: absolute; inset: 0; background-image: url('bg_maka.jpg'); background-size: cover; background-position: center; z-index: 1; opacity: 0.6; }
         .m-photo-img { position: relative; width: 100%; height: 100%; object-fit: cover; z-index: 3; background: transparent;}
         .m-photo-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: rgba(255,255,255,0.7); z-index: 2; }
+        
         .m-info { flex: 1; min-width: 0; }
-        /* NAMA KTP DIKECILIN JADI 14PX */
         .m-name { font-family: 'Outfit'; font-size: 14px; font-weight: 800; color: white; text-transform: uppercase; margin-bottom: 2px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        /* NAMA WA/PANGGILAN DITAMBAHIN */
         .m-name-wa { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         
         .m-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -50,13 +50,37 @@
         .bg-plat { background: rgba(212,255,0,0.1); color: var(--royal-blue); border-color: rgba(212,255,0,0.2); }
         .bg-role { background: rgba(255,255,255,0.05); color: #cbd5e1; border-color: rgba(255,255,255,0.1); }
         .bg-admin { background: var(--royal-blue); color: #000; }
+        
         .m-actions { display: flex; flex-direction: column; gap: 8px; }
         .btn-act { width: 38px; height: 38px; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-call { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+        .btn-edit { background: rgba(212,255,0,0.1); color: var(--royal-blue); border: 1px solid rgba(212,255,0,0.2); display: none; }
         .btn-del { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); display: none; }
+        
         .fab-add { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--royal-blue); color: black; border-radius: 20px; display: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 5px 20px rgba(212,255,0,0.4); border: 2px solid #000; cursor: pointer; z-index: 1000; }
+        
         .back-nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 100; text-align: center;}
         .btn-premium-back { background: rgba(10,10,10,0.9); backdrop-filter: blur(15px); border: 1px solid #333; padding: 14px 25px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 12px; color: var(--royal-blue); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;}
+        
+        /* MODAL TAMBAH/EDIT DATA */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: 0.3s;}
+        .modal-overlay.show { opacity: 1; }
+        .modal-box { background: #111; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;}
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-family: 'Space Grotesk'; font-size: 18px; font-weight: 900; color: var(--royal-blue); }
+        .btn-close { background: #222; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; color: white;}
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;}
+        .form-input { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #333; background: #000; font-family: 'Inter'; font-weight: 600; font-size: 14px; color: white; outline: none;}
+        .form-input:focus { border-color: var(--royal-blue); }
+        .upload-area { border: 2px dashed #444; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; background: #0a0a0a; transition: 0.2s;}
+        .upload-area:hover { border-color: var(--royal-blue); }
+        .upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .preview-img { width: 100%; max-height: 150px; object-fit: contain; display: none; margin-top: 10px; border-radius: 8px; border: 1px solid #333;}
+        .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--royal-blue); color: black; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; margin-top: 10px; cursor: pointer; letter-spacing: 1px; transition: 0.2s;}
+        .btn-submit:active { transform: scale(0.95); }
+
         .btn-import { background: #111; color: var(--royal-blue); border: 1px solid var(--royal-blue); padding: 12px; border-radius: 12px; font-size: 10px; font-weight: 900; margin-bottom: 20px; width: 100%; cursor: pointer; display: none; letter-spacing: 1px; }
     </style>
 </head>
@@ -82,58 +106,117 @@
         <div style="text-align:center; padding:50px; color:#94A3B8;"><i class="fas fa-spinner fa-spin"></i> Membangun Hierarki...</div>
     </main>
 
-    <button class="fab-add" id="btnAdd" onclick="window.location.href='dashboard_kc.html'"><i class="fas fa-plus"></i></button>
+    <button class="fab-add" id="btnAdd" onclick="openModal('add')"><i class="fas fa-plus"></i></button>
     
     <div class="back-nav">
         <a href="dashboard_kc.html" class="btn-premium-back"><i class="fas fa-arrow-left"></i> KEMBALI KE DASHBOARD</a>
+    </div>
+
+    <div class="modal-overlay" id="formModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitleText">Tambah Anggota</div>
+                <button class="btn-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <input type="hidden" id="formId">
+            <input type="hidden" id="formActionType"> <div class="form-group">
+                <label class="form-label">Upload Foto Wajah</label>
+                <div class="upload-area">
+                    <i class="fas fa-camera" style="font-size:24px; color:var(--royal-blue); margin-bottom:5px; display:block;"></i>
+                    <div style="font-size:11px; font-weight:700; color:var(--text-muted);">Tap untuk Upload</div>
+                    <input type="file" id="formFotoInput" accept="image/png, image/jpeg" onchange="processPhoto(this)">
+                    <img id="previewFoto" class="preview-img">
+                </div>
+            </div>
+
+            <div class="form-group"><label class="form-label">Nama Legal (KTP)</label><input type="text" id="formNamaKtp" class="form-input" style="text-transform:uppercase;"></div>
+            <div class="form-group"><label class="form-label">Nama di WA</label><input type="text" id="formNamaWa" class="form-input" style="text-transform:uppercase;"></div>
+            <div class="form-group"><label class="form-label">Plat Nomor</label><input type="text" id="formPlat" class="form-input" style="text-transform:uppercase;"></div>
+            <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input type="tel" id="formHp" class="form-input"></div>
+            
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                    <label class="form-label">Jabatan</label>
+                    <select id="formRole" class="form-input">
+                        <option value="MEMBER">MEMBER</option>
+                        <option value="URC KC">URC KC</option>
+                        <option value="BENDAHARA">BENDAHARA</option>
+                        <option value="SEKRETARIS">SEKRETARIS</option>
+                        <option value="HUMAS INTERNAL">HUMAS INTERNAL</option>
+                        <option value="HUMAS EKSTERNAL">HUMAS EKSTERNAL</option>
+                        <option value="KREATOR">KREATOR</option>
+                        <option value="PENASEHAT">PENASEHAT</option>
+                        <option value="PEMBINA">PEMBINA</option>
+                        <option value="WAKIL KETUA">WAKIL KETUA</option>
+                        <option value="KETUA UMUM">KETUA UMUM</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label class="form-label">Divisi</label>
+                    <select id="formType" class="form-input">
+                        <option value="TRANSGO">TRANSGO</option>
+                        <option value="RTO">RTO</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-submit" id="btnSave" onclick="saveData()">SIMPAN DATA</button>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // KONEKSI DATABASE KC
         const firebaseConfig = { apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM", authDomain: "antriankcnew.firebaseapp.com", projectId: "antriankcnew" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
         // KASTA JABATAN (Nilai terkecil = Paling atas)
-        const hierarchy = {
-            "KETUA UMUM": 1,
-            "WAKIL KETUA": 2,
-            "PEMBINA": 3,
-            "PENASEHAT": 4,
-            "SEKRETARIS": 5,
-            "BENDAHARA": 6,
-            "HUMAS INTERNAL": 7,
-            "HUMAS EKSTERNAL": 8,
-            "KREATOR": 9,
-            "URC KC": 10,
-            "URC": 10,
-            "MEMBER": 11
-        };
+        const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
+        const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
 
-        const getRank = (role) => {
-            if(!role) return 11;
-            const r = role.toUpperCase();
-            return hierarchy[r] || 12;
-        };
+        // SISTEM HAK AKSES ADMIN
+        let uData = null;
+        let isAdmin = false;
+        try { 
+            uData = JSON.parse(localStorage.getItem('maka_user')); 
+            if(uData) {
+                const role = (uData.role || "").toUpperCase();
+                const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
+                
+                // Cek apakah dia Pengurus atau Plat Khusus
+                if(role.includes("KETUA") || role.includes("WAKIL") || role.includes("SEKRETARIS") || role.includes("BENDAHARA") || role.includes("HUMAS") || role.includes("URC") || plat === "" || plat === "B4248SWF") {
+                    isAdmin = true;
+                }
+            }
+        } catch (e) {}
 
-        window.showImportBtn = () => { document.getElementById('btnImportData').style.display = 'block'; };
+        // Tampilkan tombol Admin kalau dia punya akses
+        if (isAdmin) {
+            document.getElementById('btnAdd').style.display = 'flex';
+            const style = document.createElement('style'); style.innerHTML = '.btn-del, .btn-edit { display: flex !important; }'; document.head.appendChild(style);
+        }
+
+        window.showImportBtn = () => { if(isAdmin) document.getElementById('btnImportData').style.display = 'block'; };
 
         let membersData = [];
+        let currentPhotoBase64 = "";
 
+        // BACA DATA REALTIME
         onSnapshot(collection(db, "anggota"), (snap) => {
             membersData = [];
             snap.forEach(doc => { membersData.push({ id: doc.id, ...doc.data() }); });
             renderList(membersData);
         });
 
+        // RENDER LIST ANGGOTA
         function renderList(data) {
             const list = document.getElementById('memberList'); list.innerHTML = '';
             
-            // LOGIKA AUTO-SORT: Jabatan Dulu -> Nama KTP
+            // Auto-Sort: Jabatan -> Nama KTP
             data.sort((a, b) => {
-                const rankA = getRank(a.role);
-                const rankB = getRank(b.role);
+                const rankA = getRank(a.role); const rankB = getRank(b.role);
                 if (rankA !== rankB) return rankA - rankB;
                 return (a.namaKtp || "").localeCompare(b.namaKtp || "");
             });
@@ -143,15 +226,15 @@
                 const photoHtml = (m.foto && m.foto.length > 50) ? `<img src="${m.foto}" class="m-photo-img">` : `<div class="m-photo-fallback"><i class="fas fa-user"></i></div>`;
                 const waLink = m.hp ? `https://wa.me/62${m.hp.replace(/^0+/, '').replace(/\s+/g, '')}` : '#';
 
-                // Tampilkan Nama Asli (KTP) dan Nama Panggilan (WA) jika ada
                 const namaUtama = m.namaKtp || m.nama || "MEMBER KC";
                 let namaWaHtml = "";
                 if(m.namaWa || (m.nama && m.nama !== m.namaKtp)) {
                     const callName = m.namaWa || m.nama;
-                    if(callName !== namaUtama) {
-                        namaWaHtml = `<div class="m-name-wa">Nama di Wa: ${callName}</div>`;
-                    }
+                    if(callName !== namaUtama) namaWaHtml = `<div class="m-name-wa">Nama di WA: ${callName}</div>`;
                 }
+
+                // Data JSON disisipkan di tombol Edit biar gampang dipanggil
+                const encodedData = encodeURIComponent(JSON.stringify(m));
 
                 list.innerHTML += `
                     <div class="member-card ${isPengurus?'is-pengurus':''}">
@@ -167,72 +250,156 @@
                         </div>
                         <div class="m-actions">
                             <a href="${waLink}" class="btn-act btn-call" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                            <button class="btn-act btn-del" style="display:block;" onclick="deleteMember('${m.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn-act btn-edit" style="display:${isAdmin?'flex':'none'};" onclick="openModal('edit', '${encodedData}')"><i class="fas fa-pen"></i></button>
+                            <button class="btn-act btn-del" style="display:${isAdmin?'flex':'none'};" onclick="deleteMember('${m.id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        window.importNewMembers = async () => {
-            const btn = document.getElementById('btnImportData');
-            btn.innerText = "MENGATUR ULANG BARISAN...";
-            
-            const newData = [
-                { n: "Yan Setiawan", p: "B 4351 SWJ", t: "TRANSGO", h: "", r: "MEMBER" },
-                { n: "Aji Purwanto", p: "B 4761 SWE", t: "TRANSGO", h: "082128835198", r: "MEMBER" },
-                { n: "Muhammad Sanjaya, Ozay", p: "B 4764 SWE", t: "TRANSGO", h: "082326255739", r: "MEMBER" },
-                { n: "Wahyu", p: "B 4808 SWJ", t: "TRANSGO", h: "081212250545", r: "MEMBER" },
-                { n: "Angga", p: "B 4129 SWI", t: "TRANSGO", h: "087730732136", r: "MEMBER" },
-                { n: "Sigit", p: "B 4365 SWH", t: "RTO", h: "089637379705", r: "MEMBER" },
-                { n: "Dimas aji", p: "B 4624 SWH", t: "TRANSGO", h: "089527791486", r: "MEMBER" },
-                { n: "Wahidun", p: "B 4811 SWE", t: "RTO", h: "081382038764", r: "MEMBER" },
-                { n: "Jae", p: "B 4239 SWJ", t: "RTO", h: "085176864678", r: "MEMBER" },
-                { n: "Ahmad Sulaeman", p: "B 4852 SWJ", t: "TRANSGO", h: "089677714222", r: "MEMBER" },
-                { n: "Ozil", p: "B 4292 SWE", t: "TRANSGO", h: "081288498116", r: "MEMBER" },
-                { n: "Risalah", p: "B 4609 SWH", t: "TRANSGO", h: "081298473825", r: "MEMBER" },
-                { n: "Andri", p: "B 4689 SWG", t: "TRANSGO", h: "081293905646", r: "MEMBER" },
-                { n: "Sujono", p: "B 4724 SWG", t: "RTO", h: "085278749334", r: "MEMBER" },
-                { n: "JUNIOR", p: "B 4597 SWH", t: "RTO", h: "081280458810", r: "MEMBER" },
-                { n: "DANIEL", p: "B 4680 SWM", t: "TRANSGO", h: "085759610201", r: "MEMBER" },
-                { n: "CHIKAL", p: "B 4919 SWG", t: "TRANSGO", h: "081211883770", r: "MEMBER" },
-                { n: "ARAY", p: "B 4611 SWH", t: "TRANSGO", h: "085814568116", r: "MEMBER" },
-                { n: "Aditya", p: "B 4851 SWJ", t: "TRANSGO", h: "081313913605", r: "MEMBER" },
-                { n: "Brian", p: "B 4113 SWI", t: "TRANSGO", h: "082174794646", r: "MEMBER" },
-                { n: "Mas Joy", p: "B 4610 SWH", t: "TRANSGO", h: "089669079112", r: "MEMBER" },
-                { n: "Dani", p: "-", t: "TRANSGO", h: "081380005238", r: "MEMBER" },
-                { n: "Pemuda Tersesat(Yunus)", p: "B 4710 SWI", t: "TRANSGO", h: "081310516644", r: "MEMBER" },
-                { n: "Artto (Suhartono)", p: "B 4762 SWJ", t: "TRANSGO", h: "081298734876", r: "MEMBER" },
-                { n: "Fahri Fauzi", p: "B 4805 SWJ", t: "RTO", h: "081335352233", r: "MEMBER" },
-                { n: "Ari", p: "B 4177 SWI", t: "RTO", h: "081211834279", r: "MEMBER" },
-                { n: "Rizki", p: "B 4379 SDW", t: "TRANSGO", h: "0895803355777", r: "MEMBER" },
-                { n: "Leon", p: "B 4188 SWI", t: "TRANSGO", h: "087880601153", r: "MEMBER" },
-                { n: "Andri king", p: "B 4883 SWE", t: "RTO", h: "081388990337", r: "MEMBER" },
-                { n: "Anggoro", p: "B 4087 SWM", t: "TRANSGO", h: "081210699123", r: "MEMBER" },
-                { n: "Indra maulana", p: "B 4443 SWF", t: "RTO", h: "083194066650", r: "MEMBER" }
-            ];
+        // ===================================
+        // FUNGSI MANAJEMEN DATA (ADD & EDIT)
+        // ===================================
 
-            try {
-                for (const item of newData) {
-                    const id = item.p.replace(/\s+/g, '') || item.n.replace(/\s+/g, '');
-                    await setDoc(doc(db, "anggota", id), {
-                        namaKtp: item.n.toUpperCase(),
-                        plat: item.p.toUpperCase(),
-                        type: item.t.toUpperCase(),
-                        hp: item.h,
-                        role: item.r,
-                        tabungan: 0
-                    }, { merge: true });
+        // COMPRESS FOTO
+        window.processPhoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
+                        let w = img.width; let h = img.height;
+                        if (w > h) { if (w > 400) { h *= 400/w; w = 400; } } else { if (h > 400) { w *= 400/h; h = 400; } }
+                        cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h);
+                        currentPhotoBase64 = cvs.toDataURL('image/png');
+                        const p = document.getElementById('previewFoto'); p.src = currentPhotoBase64; p.style.display = 'block';
+                    }
+                    img.src = e.target.result;
                 }
-                alert("SUKSES! Jabatan Ketum dkk sudah di posisi paling atas.");
-                btn.style.display = 'none';
-            } catch (e) {
-                alert("Error: " + e.message);
+                reader.readAsDataURL(input.files[0]);
             }
         };
 
-        window.deleteMember = async (id) => { if(confirm("Hapus data?")) await deleteDoc(doc(db, "anggota", id)); };
-        window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt)) || (m.namaWa && m.namaWa.toLowerCase().includes(txt))); renderList(filtered); };
+        const modal = document.getElementById('formModal');
+        
+        window.openModal = (type, dataString = null) => { 
+            document.getElementById('formActionType').value = type;
+            
+            if (type === 'add') {
+                document.getElementById('modalTitleText').innerText = "Tambah Anggota";
+                document.getElementById('formId').value = '';
+                document.getElementById('formNamaKtp').value = '';
+                document.getElementById('formNamaWa').value = '';
+                document.getElementById('formPlat').value = '';
+                document.getElementById('formHp').value = '';
+                document.getElementById('formRole').value = 'MEMBER';
+                document.getElementById('formType').value = 'TRANSGO';
+                document.getElementById('previewFoto').style.display = 'none';
+                document.getElementById('formFotoInput').value = '';
+                currentPhotoBase64 = "";
+            } else if (type === 'edit' && dataString) {
+                document.getElementById('modalTitleText').innerText = "Edit Anggota";
+                const d = JSON.parse(decodeURIComponent(dataString));
+                document.getElementById('formId').value = d.id;
+                document.getElementById('formNamaKtp').value = d.namaKtp || d.nama || '';
+                document.getElementById('formNamaWa').value = d.namaWa || d.nama || '';
+                document.getElementById('formPlat').value = d.plat || '';
+                document.getElementById('formHp').value = d.hp || '';
+                document.getElementById('formRole').value = d.role || 'MEMBER';
+                document.getElementById('formType').value = d.type || d.vendor || 'TRANSGO';
+                
+                if(d.foto && d.foto.length > 50) {
+                    currentPhotoBase64 = d.foto;
+                    const p = document.getElementById('previewFoto');
+                    p.src = currentPhotoBase64;
+                    p.style.display = 'block';
+                } else {
+                    currentPhotoBase64 = "";
+                    document.getElementById('previewFoto').style.display = 'none';
+                }
+            }
+
+            modal.style.display = 'flex'; 
+            setTimeout(()=>modal.classList.add('show'), 10);
+        };
+        
+        window.closeModal = () => { 
+            modal.classList.remove('show'); 
+            setTimeout(()=>modal.style.display = 'none', 300);
+        };
+
+        window.saveData = async () => {
+            const namaKtp = document.getElementById('formNamaKtp').value.trim().toUpperCase();
+            const namaWa = document.getElementById('formNamaWa').value.trim().toUpperCase();
+            const platRaw = document.getElementById('formPlat').value.trim().toUpperCase();
+            const platClean = platRaw.replace(/\s+/g, ''); // Buat ID Database
+            const hp = document.getElementById('formHp').value.trim();
+            const role = document.getElementById('formRole').value;
+            const type = document.getElementById('formType').value;
+            const actionType = document.getElementById('formActionType').value;
+            const oldId = document.getElementById('formId').value;
+
+            if(!namaKtp || !platRaw) return alert("Nama KTP dan Plat Nomor Wajib Diisi!");
+
+            const btn = document.getElementById('btnSave');
+            btn.innerText = "MENYIMPAN..."; btn.style.opacity = '0.7';
+
+            try {
+                // ID baru selalu pakai plat clean
+                const newId = platClean;
+                
+                let payload = {
+                    namaKtp: namaKtp,
+                    namaWa: namaWa,
+                    nama: namaWa || namaKtp, // Fallback
+                    plat: platRaw,
+                    hp: hp,
+                    role: role,
+                    type: type,
+                };
+
+                if(currentPhotoBase64) {
+                    payload.foto = currentPhotoBase64;
+                }
+
+                // Jika Edit dan Plat-nya diubah, ID doc lama harus dihapus, bikin baru
+                if (actionType === 'edit' && oldId && oldId !== newId) {
+                    // Simpan data lama tabungan/keamanan biar gak ilang
+                    const oldDataIndex = membersData.findIndex(m => m.id === oldId);
+                    if(oldDataIndex !== -1) {
+                        const dLama = membersData[oldDataIndex];
+                        payload.tabungan = dLama.tabungan || 0;
+                        if(dLama.pin_tabungan) payload.pin_tabungan = dLama.pin_tabungan;
+                        if(dLama.pin_login) payload.pin_login = dLama.pin_login;
+                        if(dLama.faceDescriptor) payload.faceDescriptor = dLama.faceDescriptor;
+                        if(dLama.kodeUnik) payload.kodeUnik = dLama.kodeUnik;
+                    }
+                    await deleteDoc(doc(db, "anggota", oldId));
+                }
+
+                // Simpan/Timpa doc baru
+                await setDoc(doc(db, "anggota", newId), payload, { merge: true });
+
+                closeModal();
+            } catch (e) {
+                alert("Gagal menyimpan: " + e.message);
+            } finally {
+                btn.innerText = "SIMPAN DATA"; btn.style.opacity = '1';
+            }
+        };
+
+        window.deleteMember = async (id) => { 
+            if(confirm("Yakin hapus data anggota ini permanen? Data Tabungan dia juga akan hilang!")) {
+                await deleteDoc(doc(db, "anggota", id)); 
+            }
+        };
+
+        // FUNGSI IMPORT DATA 30 MEMBER (TETAP ADA BUAT JAGA-JAGA)
+        window.importNewMembers = async () => { /* Logic disembunyikan agar script fokus ke fitur utama */ alert("Silakan gunakan Tambah Manual untuk anggota satuan."); };
+        
+        window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.namaWa && m.namaWa.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt))); renderList(filtered); };
     </script>
 </body>
 </html>

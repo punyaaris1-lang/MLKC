@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC - Secure Login</title>
     
+    <script>
+        if (localStorage.getItem('maka_user')) {
+            window.location.replace('dashboard_kc.html');
+        }
+    </script>
+    
     <link rel="manifest" href="manifest_kc.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,26 +37,19 @@
         #btnInstallPwa { background: black; color: var(--kc-yellow); border: none; padding: 8px 16px; border-radius: 10px; font-weight: 900; font-family: 'Space Grotesk'; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.2s;}
         #btnInstallPwa:active { transform: scale(0.9); }
 
-        /* === LOADING SCREEN SETELAH LOGIN (LOGO SORE YANG UDAH DIGEDEIN) === */
+        /* === LOADING SCREEN SETELAH LOGIN === */
         #loader { position: fixed; inset: 0; background: #000; z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; }
         
         .loader-img { 
-            width: 80vw; /* MENTOK GEDE SAMPE 80% LEBAR HP LU */
-            max-width: 350px; 
-            height: auto; 
-            animation: floatSore 1.5s ease-in-out infinite alternate; 
-            margin-bottom: 25px;
+            width: 80vw; max-width: 350px; height: auto; 
+            animation: floatSore 1.5s ease-in-out infinite alternate; margin-bottom: 25px;
         }
         
         .loader-text { margin-top: 15px; font-family: 'Space Grotesk'; font-weight: 800; color: var(--kc-yellow); letter-spacing: 4px; font-size: 16px; text-transform: uppercase; text-shadow: 0 0 10px rgba(212,255,0,0.5);}
         .loading-bar { width: 220px; height: 6px; background: #222; border-radius: 6px; overflow: hidden; margin-top: 20px; box-shadow: 0 0 15px rgba(212,255,0,0.2); border: 1px solid #333;}
         .loading-progress { width: 0%; height: 100%; background: var(--kc-yellow); box-shadow: 0 0 10px var(--kc-yellow); animation: fillBar 2.5s ease forwards; }
         
-        /* EFEK MENTUL-MENTUL DAN GLOW MAKSIMAL */
-        @keyframes floatSore { 
-            0% { transform: translateY(0) scale(0.95); filter: drop-shadow(0 0 20px rgba(212,255,0,0.4)); } 
-            100% { transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 50px rgba(212,255,0,1)); } 
-        }
+        @keyframes floatSore { 0% { transform: translateY(0) scale(0.95); filter: drop-shadow(0 0 20px rgba(212,255,0,0.4)); } 100% { transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 50px rgba(212,255,0,1)); } }
         @keyframes fillBar { to { width: 100%; } }
 
         /* BACKGROUND AMBIENT */
@@ -62,11 +61,10 @@
         /* MAIN LOGIN WRAPPER */
         .login-wrapper { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
-        /* LOGO KC AWAL DIGEDEIN */
         .logo-main { width: 180px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.9)); animation: zoomIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
         @keyframes zoomIn { from {transform: scale(0.5); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         
-        .app-title { font-family: 'Outfit'; font-size: 24px; font-weight: 900; color: white; margin: 0; text-transform: uppercase; letter-spacing: 1px;}
+        .app-title { font-family: 'Outfit'; font-size: 32px; font-weight: 900; color: white; margin: 0; text-transform: uppercase; letter-spacing: 1px;}
         .app-subtitle { font-family: 'Space Grotesk'; font-size: 12px; font-weight: 800; color: var(--kc-yellow); letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase;}
 
         .login-box { width: 100%; max-width: 350px; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 30px 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
@@ -96,10 +94,7 @@
 <body>
 
     <div id="pwaInstallBanner" class="pwa-banner">
-        <div class="pwa-info">
-            <i class="fas fa-download"></i>
-            <span>Install Aplikasi KC ke Layar Utama</span>
-        </div>
+        <div class="pwa-info"><i class="fas fa-download"></i><span>Install Aplikasi KC ke Layar Utama</span></div>
         <button id="btnInstallPwa">INSTALL</button>
     </div>
 
@@ -114,32 +109,19 @@
 
     <div class="login-wrapper">
         <img src="logo_kc.png" class="logo-main" alt="KC Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
-        <h1 class="app-title">FC KARTIKA CHANDRA</h1>
-        <div class="app-subtitle">Maka Lintas Kartika Chandra</div>
+        <h1 class="app-title">KARTIKA CHANDRA</h1>
+        <div class="app-subtitle">Maka Lintas Utara</div>
 
         <div class="login-box">
             <div class="form-group">
                 <label class="form-label">Plat Nomor Kendaraan</label>
-                <div class="input-icon-wrap">
-                    <input type="text" id="platInput" class="form-input" placeholder="Contoh: B 1234 ABC">
-                    <i class="fas fa-motorcycle"></i>
-                </div>
+                <div class="input-icon-wrap"><input type="text" id="platInput" class="form-input" placeholder="Contoh: B 1234 ABC"><i class="fas fa-motorcycle"></i></div>
             </div>
-
             <div class="form-group" style="margin-bottom: 10px;">
                 <label class="form-label">PIN Login App</label>
-                <div class="input-icon-wrap">
-                    <input type="password" id="pinInput" class="form-input" placeholder="Masukkan PIN Login">
-                    <i class="fas fa-lock"></i>
-                    <button class="btn-eye" onclick="togglePin()"><i class="fas fa-eye" id="eyeIcon"></i></button>
-                </div>
+                <div class="input-icon-wrap"><input type="password" id="pinInput" class="form-input" placeholder="Masukkan PIN Login"><i class="fas fa-lock"></i><button class="btn-eye" onclick="togglePin()"><i class="fas fa-eye" id="eyeIcon"></i></button></div>
             </div>
-
-            <div class="pin-warning">
-                <i class="fas fa-exclamation-circle"></i>
-                <p><b>PERHATIAN:</b> Ini adalah PIN Khusus untuk masuk aplikasi. <b>BUKAN</b> PIN Tabungan Anda.</p>
-            </div>
-
+            <div class="pin-warning"><i class="fas fa-exclamation-circle"></i><p><b>PERHATIAN:</b> Ini adalah PIN Khusus untuk masuk aplikasi. <b>BUKAN</b> PIN Tabungan Anda.</p></div>
             <button class="btn-login" id="btnLogin" onclick="prosesLogin()">MASUK SYSTEM</button>
         </div>
     </div>
@@ -147,27 +129,19 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw_kc.js?v=2', { scope: './' })
+                navigator.serviceWorker.register('sw_kc.js')
                 .then(registration => { console.log('PWA KC Berhasil jalan!'); })
                 .catch(err => { console.log('PWA KC Gagal:', err); });
             });
         }
-
-        // LOGIKA MEMUNCULKAN BANNER INSTALL APP
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+            e.preventDefault(); deferredPrompt = e;
             const banner = document.getElementById('pwaInstallBanner');
-            banner.style.display = 'flex';
-            setTimeout(() => banner.classList.add('show'), 100);
-
+            banner.style.display = 'flex'; setTimeout(() => banner.classList.add('show'), 100);
             document.getElementById('btnInstallPwa').addEventListener('click', async () => {
-                banner.classList.remove('show');
-                setTimeout(() => banner.style.display = 'none', 500);
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
+                banner.classList.remove('show'); setTimeout(() => banner.style.display = 'none', 500);
+                deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null;
             });
         });
     </script>
@@ -176,106 +150,54 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // KONEKSI MURNI DATABASE KC (antriankcnew)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
-            authDomain: "antriankcnew.firebaseapp.com",
-            projectId: "antriankcnew"
-        };
-        const app = initializeApp(firebaseConfig); 
-        const db = getFirestore(app);
+        const firebaseConfig = { apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM", authDomain: "antriankcnew.firebaseapp.com", projectId: "antriankcnew" };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
-        // FUNGSI LIHAT PIN
         window.togglePin = () => {
-            const input = document.getElementById('pinInput');
-            const icon = document.getElementById('eyeIcon');
-            if(input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            const input = document.getElementById('pinInput'); const icon = document.getElementById('eyeIcon');
+            if(input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); } 
+            else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
         };
 
-        // PROSES LOGIN
         window.prosesLogin = async () => {
             const platRaw = document.getElementById('platInput').value;
             const pinRaw = document.getElementById('pinInput').value;
-            
             const platBersih = platRaw.replace(/\s+/g, '').toUpperCase();
-
             if(!platBersih || !pinRaw) return alert("Plat Nomor dan PIN wajib diisi!");
 
             const btn = document.getElementById('btnLogin');
-            btn.innerText = "MEMVERIFIKASI...";
-            btn.style.opacity = "0.7";
+            btn.innerText = "MEMVERIFIKASI..."; btn.style.opacity = "0.7";
 
             try {
                 const snap = await getDocs(collection(db, "anggota"));
-                let userDoc = null;
-                let userId = null;
-
+                let userDoc = null; let userId = null;
                 snap.forEach(d => {
                     const platDB = (d.data().plat || "").replace(/\s+/g, '').toUpperCase();
-                    if(platDB === platBersih) {
-                        userDoc = d.data();
-                        userId = d.id;
-                    }
+                    if(platDB === platBersih) { userDoc = d.data(); userId = d.id; }
                 });
 
                 if(userDoc) {
                     const dbPinLogin = userDoc.pin_login || userDoc.pin;
-
                     if(!dbPinLogin) {
-                        // KONDISI 1: MEMBER BELUM BIKIN PIN LOGIN
                         if(confirm(`Anda belum memiliki PIN Login Aplikasi.\n\nApakah Anda ingin menyimpan [ ${pinRaw} ] sebagai PIN Login Anda sekarang?`)) {
                             await updateDoc(doc(db, "anggota", userId), { pin_login: pinRaw });
                             berhasilLogin(userId, userDoc);
-                        } else {
-                            btn.innerText = "MASUK SYSTEM";
-                            btn.style.opacity = "1";
-                        }
+                        } else { btn.innerText = "MASUK SYSTEM"; btn.style.opacity = "1"; }
                     } else {
-                        // KONDISI 2: MEMBER SUDAH PUNYA PIN LOGIN
-                        if(dbPinLogin === pinRaw) {
-                            berhasilLogin(userId, userDoc);
-                        } else {
-                            alert("❌ PIN LOGIN SALAH!\n\nPastikan Anda tidak terbalik memasukkan PIN Tabungan ke sini.");
-                            btn.innerText = "MASUK SYSTEM";
-                            btn.style.opacity = "1";
-                        }
+                        if(dbPinLogin === pinRaw) { berhasilLogin(userId, userDoc); } 
+                        else { alert("❌ PIN LOGIN SALAH!\n\nPastikan Anda tidak terbalik memasukkan PIN Tabungan ke sini."); btn.innerText = "MASUK SYSTEM"; btn.style.opacity = "1"; }
                     }
-                } else {
-                    alert("❌ Plat Nomor tidak ditemukan di database KC!\nPastikan Anda sudah terdaftar.");
-                    btn.innerText = "MASUK SYSTEM";
-                    btn.style.opacity = "1";
-                }
-
-            } catch(e) {
-                alert("Terjadi kesalahan jaringan: " + e.message);
-                btn.innerText = "MASUK SYSTEM";
-                btn.style.opacity = "1";
-            }
+                } else { alert("❌ Plat Nomor tidak ditemukan di database KC!\nPastikan Anda sudah terdaftar."); btn.innerText = "MASUK SYSTEM"; btn.style.opacity = "1"; }
+            } catch(e) { alert("Terjadi kesalahan jaringan: " + e.message); btn.innerText = "MASUK SYSTEM"; btn.style.opacity = "1"; }
         };
 
-        // FUNGSI JIKA LOGIN SUKSES - MEMUNCULKAN LAYAR LOADING SORE
         function berhasilLogin(id, data) {
             data.id = id;
             localStorage.setItem('maka_user', JSON.stringify(data));
             localStorage.setItem('myPlat', data.plat);
-            
-            // 1. Munculkan Layar Animasi SORE (UKURAN RAKSASA)
-            const loader = document.getElementById('loader');
-            loader.style.display = 'flex';
+            const loader = document.getElementById('loader'); loader.style.display = 'flex';
             setTimeout(() => { loader.style.opacity = '1'; }, 10);
-            
-            // 2. Arahin ke Dashboard setelah animasi loading bar selesai (2.5 detik)
-            setTimeout(() => {
-                window.location.href = 'dashboard_kc.html';
-            }, 2500);
+            setTimeout(() => { window.location.href = 'dashboard_kc.html'; }, 2500);
         }
     </script>
 </body>

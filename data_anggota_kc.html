@@ -80,8 +80,6 @@
         .preview-img { width: 100%; max-height: 150px; object-fit: contain; display: none; margin-top: 10px; border-radius: 8px; border: 1px solid #333;}
         .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--royal-blue); color: black; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; margin-top: 10px; cursor: pointer; letter-spacing: 1px; transition: 0.2s;}
         .btn-submit:active { transform: scale(0.95); }
-
-        .btn-import { background: #111; color: var(--royal-blue); border: 1px solid var(--royal-blue); padding: 12px; border-radius: 12px; font-size: 10px; font-weight: 900; margin-bottom: 20px; width: 100%; cursor: pointer; display: none; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -91,11 +89,10 @@
 
     <header class="header-main">
         <span class="sub-tag">DATABASE KOMUNITAS</span>
-        <h1 class="main-title" ondblclick="showImportBtn()">DATA ANGGOTA KC</h1>
+        <h1 class="main-title">DATA ANGGOTA KC</h1>
     </header>
 
     <div class="search-container">
-        <button id="btnImportData" class="btn-import" onclick="importNewMembers()">⚡ SYNC & AUTO-SORT JABATAN (31 ANGGOTA BARU)</button>
         <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Cari nama, plat, atau jabatan..." onkeyup="filterList()">
@@ -120,18 +117,26 @@
             </div>
             
             <input type="hidden" id="formId">
-            <input type="hidden" id="formActionType"> <div class="form-group">
+            <input type="hidden" id="formActionType">
+
+            <div class="form-group" id="mataDewaGroup" style="display:none; background:rgba(212,255,0,0.05); padding:15px; border-radius:12px; border:1px dashed var(--royal-blue); margin-bottom:20px;">
+                <label class="form-label" style="color: var(--royal-blue);"><i class="fas fa-eye"></i> MATA DEWA: PIN LOGIN (BISA DI-EDIT)</label>
+                <input type="text" id="formPinLogin" class="form-input" placeholder="Set PIN Baru" style="border-color: var(--royal-blue); font-family: 'Space Grotesk'; letter-spacing: 3px; font-size: 16px; font-weight: 900; color: var(--royal-blue);">
+                <div style="font-size:9px; color:#94A3B8; margin-top:5px;">*Fitur ini hanya bisa dilihat oleh Super Admin.</div>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Upload Foto Wajah</label>
                 <div class="upload-area">
                     <i class="fas fa-camera" style="font-size:24px; color:var(--royal-blue); margin-bottom:5px; display:block;"></i>
-                    <div style="font-size:11px; font-weight:700; color:var(--text-muted);">Tap untuk Upload</div>
+                    <div style="font-size:11px; font-weight:700; color:var(--text-muted);">Tap untuk Upload (Opsional)</div>
                     <input type="file" id="formFotoInput" accept="image/png, image/jpeg" onchange="processPhoto(this)">
                     <img id="previewFoto" class="preview-img">
                 </div>
             </div>
 
             <div class="form-group"><label class="form-label">Nama Legal (KTP)</label><input type="text" id="formNamaKtp" class="form-input" style="text-transform:uppercase;"></div>
-            <div class="form-group"><label class="form-label">Nama di WA</label><input type="text" id="formNamaWa" class="form-input" style="text-transform:uppercase;"></div>
+            <div class="form-group"><label class="form-label">Nama di WA (Opsional)</label><input type="text" id="formNamaWa" class="form-input" style="text-transform:uppercase;"></div>
             <div class="form-group"><label class="form-label">Plat Nomor</label><input type="text" id="formPlat" class="form-input" style="text-transform:uppercase;"></div>
             <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input type="tel" id="formHp" class="form-input"></div>
             
@@ -168,37 +173,39 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // KONEKSI DATABASE KC
         const firebaseConfig = { apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM", authDomain: "antriankcnew.firebaseapp.com", projectId: "antriankcnew" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
-        // KASTA JABATAN (Nilai terkecil = Paling atas)
         const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
         const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
 
-        // SISTEM HAK AKSES ADMIN
+        // SISTEM HAK AKSES ADMIN & SUPER ADMIN (MATA DEWA)
         let uData = null;
         let isAdmin = false;
+        let isSuperAdmin = false;
+
         try { 
             uData = JSON.parse(localStorage.getItem('maka_user')); 
             if(uData) {
                 const role = (uData.role || "").toUpperCase();
                 const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
                 
-                // Cek apakah dia Pengurus atau Plat Khusus
-                if(role.includes("KETUA") || role.includes("WAKIL") || role.includes("SEKRETARIS") || role.includes("BENDAHARA") || role.includes("HUMAS") || role.includes("URC") || plat === "" || plat === "B4248SWF") {
+                if(role.includes("KETUA") || role.includes("WAKIL") || role.includes("SEKRETARIS") || role.includes("BENDAHARA") || role.includes("HUMAS") || role.includes("URC") || plat === "B4124SWI" || plat === "B4248SWF") {
                     isAdmin = true;
+                }
+
+                // KHUSUS PLAT LU (B4248SWF) BISA MATA DEWA
+                if(plat === "B4248SWF") {
+                    isSuperAdmin = true;
+                    document.getElementById('mataDewaGroup').style.display = 'block';
                 }
             }
         } catch (e) {}
 
-        // Tampilkan tombol Admin kalau dia punya akses
         if (isAdmin) {
             document.getElementById('btnAdd').style.display = 'flex';
             const style = document.createElement('style'); style.innerHTML = '.btn-del, .btn-edit { display: flex !important; }'; document.head.appendChild(style);
         }
-
-        window.showImportBtn = () => { if(isAdmin) document.getElementById('btnImportData').style.display = 'block'; };
 
         let membersData = [];
         let currentPhotoBase64 = "";
@@ -210,11 +217,9 @@
             renderList(membersData);
         });
 
-        // RENDER LIST ANGGOTA
         function renderList(data) {
             const list = document.getElementById('memberList'); list.innerHTML = '';
             
-            // Auto-Sort: Jabatan -> Nama KTP
             data.sort((a, b) => {
                 const rankA = getRank(a.role); const rankB = getRank(b.role);
                 if (rankA !== rankB) return rankA - rankB;
@@ -233,7 +238,6 @@
                     if(callName !== namaUtama) namaWaHtml = `<div class="m-name-wa">Nama di WA: ${callName}</div>`;
                 }
 
-                // Data JSON disisipkan di tombol Edit biar gampang dipanggil
                 const encodedData = encodeURIComponent(JSON.stringify(m));
 
                 list.innerHTML += `
@@ -258,11 +262,6 @@
             });
         }
 
-        // ===================================
-        // FUNGSI MANAJEMEN DATA (ADD & EDIT)
-        // ===================================
-
-        // COMPRESS FOTO
         window.processPhoto = (input) => {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -298,6 +297,7 @@
                 document.getElementById('formType').value = 'TRANSGO';
                 document.getElementById('previewFoto').style.display = 'none';
                 document.getElementById('formFotoInput').value = '';
+                document.getElementById('formPinLogin').value = '';
                 currentPhotoBase64 = "";
             } else if (type === 'edit' && dataString) {
                 document.getElementById('modalTitleText').innerText = "Edit Anggota";
@@ -309,6 +309,11 @@
                 document.getElementById('formHp').value = d.hp || '';
                 document.getElementById('formRole').value = d.role || 'MEMBER';
                 document.getElementById('formType').value = d.type || d.vendor || 'TRANSGO';
+                
+                // MATA DEWA: BACA PIN LOGIN
+                if (isSuperAdmin) {
+                    document.getElementById('formPinLogin').value = d.pin_login || d.pin || '';
+                }
                 
                 if(d.foto && d.foto.length > 50) {
                     currentPhotoBase64 = d.foto;
@@ -334,7 +339,7 @@
             const namaKtp = document.getElementById('formNamaKtp').value.trim().toUpperCase();
             const namaWa = document.getElementById('formNamaWa').value.trim().toUpperCase();
             const platRaw = document.getElementById('formPlat').value.trim().toUpperCase();
-            const platClean = platRaw.replace(/\s+/g, ''); // Buat ID Database
+            const platClean = platRaw.replace(/\s+/g, ''); 
             const hp = document.getElementById('formHp').value.trim();
             const role = document.getElementById('formRole').value;
             const type = document.getElementById('formType').value;
@@ -347,39 +352,46 @@
             btn.innerText = "MENYIMPAN..."; btn.style.opacity = '0.7';
 
             try {
-                // ID baru selalu pakai plat clean
                 const newId = platClean;
                 
                 let payload = {
                     namaKtp: namaKtp,
                     namaWa: namaWa,
-                    nama: namaWa || namaKtp, // Fallback
+                    nama: namaWa || namaKtp, 
                     plat: platRaw,
                     hp: hp,
                     role: role,
                     type: type,
                 };
 
+                // JIKA SUPER ADMIN (MATA DEWA) MENGISI PIN, SIMPAN PIN-NYA
+                if (isSuperAdmin) {
+                    const inputPin = document.getElementById('formPinLogin').value.trim();
+                    if (inputPin !== "") {
+                        payload.pin_login = inputPin;
+                    }
+                }
+
                 if(currentPhotoBase64) {
                     payload.foto = currentPhotoBase64;
                 }
 
-                // Jika Edit dan Plat-nya diubah, ID doc lama harus dihapus, bikin baru
                 if (actionType === 'edit' && oldId && oldId !== newId) {
-                    // Simpan data lama tabungan/keamanan biar gak ilang
                     const oldDataIndex = membersData.findIndex(m => m.id === oldId);
                     if(oldDataIndex !== -1) {
                         const dLama = membersData[oldDataIndex];
                         payload.tabungan = dLama.tabungan || 0;
                         if(dLama.pin_tabungan) payload.pin_tabungan = dLama.pin_tabungan;
-                        if(dLama.pin_login) payload.pin_login = dLama.pin_login;
+                        
+                        // JIKA BUKAN SUPER ADMIN, JANGAN TIMPA PIN LAMA YANG UDAH ADA
+                        if(!isSuperAdmin && dLama.pin_login) payload.pin_login = dLama.pin_login;
+                        
                         if(dLama.faceDescriptor) payload.faceDescriptor = dLama.faceDescriptor;
                         if(dLama.kodeUnik) payload.kodeUnik = dLama.kodeUnik;
                     }
                     await deleteDoc(doc(db, "anggota", oldId));
                 }
 
-                // Simpan/Timpa doc baru
                 await setDoc(doc(db, "anggota", newId), payload, { merge: true });
 
                 closeModal();
@@ -396,9 +408,6 @@
             }
         };
 
-        // FUNGSI IMPORT DATA 30 MEMBER (TETAP ADA BUAT JAGA-JAGA)
-        window.importNewMembers = async () => { /* Logic disembunyikan agar script fokus ke fitur utama */ alert("Silakan gunakan Tambah Manual untuk anggota satuan."); };
-        
         window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.namaWa && m.namaWa.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt))); renderList(filtered); };
     </script>
 </body>

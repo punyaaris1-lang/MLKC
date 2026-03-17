@@ -40,7 +40,11 @@
         .m-photo-img { position: relative; width: 100%; height: 100%; object-fit: cover; z-index: 3; background: transparent;}
         .m-photo-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: rgba(255,255,255,0.7); z-index: 2; }
         .m-info { flex: 1; min-width: 0; }
-        .m-name { font-family: 'Outfit'; font-size: 16px; font-weight: 800; color: white; text-transform: uppercase; margin-bottom: 6px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        /* NAMA KTP DIKECILIN JADI 14PX */
+        .m-name { font-family: 'Outfit'; font-size: 14px; font-weight: 800; color: white; text-transform: uppercase; margin-bottom: 2px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        /* NAMA WA/PANGGILAN DITAMBAHIN */
+        .m-name-wa { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        
         .m-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
         .badge { font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
         .bg-plat { background: rgba(212,255,0,0.1); color: var(--royal-blue); border-color: rgba(212,255,0,0.2); }
@@ -126,7 +130,7 @@
         function renderList(data) {
             const list = document.getElementById('memberList'); list.innerHTML = '';
             
-            // LOGIKA AUTO-SORT: Jabatan Dulu -> Nama
+            // LOGIKA AUTO-SORT: Jabatan Dulu -> Nama KTP
             data.sort((a, b) => {
                 const rankA = getRank(a.role);
                 const rankB = getRank(b.role);
@@ -139,11 +143,22 @@
                 const photoHtml = (m.foto && m.foto.length > 50) ? `<img src="${m.foto}" class="m-photo-img">` : `<div class="m-photo-fallback"><i class="fas fa-user"></i></div>`;
                 const waLink = m.hp ? `https://wa.me/62${m.hp.replace(/^0+/, '').replace(/\s+/g, '')}` : '#';
 
+                // Tampilkan Nama Asli (KTP) dan Nama Panggilan (WA) jika ada
+                const namaUtama = m.namaKtp || m.nama || "MEMBER KC";
+                let namaWaHtml = "";
+                if(m.namaWa || (m.nama && m.nama !== m.namaKtp)) {
+                    const callName = m.namaWa || m.nama;
+                    if(callName !== namaUtama) {
+                        namaWaHtml = `<div class="m-name-wa">A.k.a: ${callName}</div>`;
+                    }
+                }
+
                 list.innerHTML += `
                     <div class="member-card ${isPengurus?'is-pengurus':''}">
                         <div class="m-photo-wrap"><div class="m-photo-bg"></div>${photoHtml}</div>
                         <div class="m-info">
-                            <div class="m-name">${m.namaKtp}</div>
+                            <div class="m-name">${namaUtama}</div>
+                            ${namaWaHtml}
                             <div class="m-badges">
                                 <span class="badge bg-plat">${m.plat}</span>
                                 <span class="badge bg-role">${m.type || m.vendor || 'TRANSGO'}</span>
@@ -217,7 +232,7 @@
         };
 
         window.deleteMember = async (id) => { if(confirm("Hapus data?")) await deleteDoc(doc(db, "anggota", id)); };
-        window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt))); renderList(filtered); };
+        window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt)) || (m.namaWa && m.namaWa.toLowerCase().includes(txt))); renderList(filtered); };
     </script>
 </body>
 </html>

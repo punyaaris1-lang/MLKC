@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KC - Pusat Informasi</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@700;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* === TEMA HITAM PEKAT (KC) === */
+        :root { 
+            --kc-yellow: #D4FF00; 
+            --bg-black: #050505;
+            --danger: #EF4444;
+            --text-muted: #94A3B8;
+        }
+        body { margin: 0; background: var(--bg-black); font-family: 'Inter', sans-serif; color: #fff; padding-bottom: 100px; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; text-decoration: none; outline: none; }
+
+        /* HEADER */
+        .header { position: sticky; top: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); padding: 20px; display: flex; align-items: center; gap: 15px; z-index: 100; border-bottom: 1px solid rgba(212,255,0,0.2); }
+        .btn-back { color: black; font-size: 18px; width: 35px; height: 35px; background: var(--kc-yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; transition: 0.2s;}
+        .btn-back:active { transform: scale(0.9); }
+        .header-title h1 { margin: 0; font-family: 'Space Grotesk'; font-size: 20px; color: var(--kc-yellow); letter-spacing: 1px; }
+        .header-title p { margin: 0; font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase;}
+
+        .container { padding: 20px; }
+
+        /* INFO CARDS */
+        .info-list { display: flex; flex-direction: column; gap: 15px; }
+        .info-card { background: #111; border: 1px solid #222; border-left: 4px solid var(--kc-yellow); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;}
+        
+        .info-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 10px;}
+        .info-title { font-family: 'Outfit'; font-size: 16px; font-weight: 900; color: white; margin: 0;}
+        .info-date { font-family: 'Space Grotesk'; font-size: 9px; color: var(--kc-yellow); background: rgba(212,255,0,0.1); padding: 4px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap;}
+        
+        /* IMAGE POSTER */
+        .info-img-wrapper { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 15px; border: 1px solid #333; background: #000;}
+        .info-img { width: 100%; max-height: 250px; object-fit: contain; display: block; }
+
+        .info-body { font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0 0 15px 0; white-space: pre-wrap;}
+        
+        .info-footer { display: flex; justify-content: space-between; align-items: center; }
+        .info-author { font-size: 10px; color: var(--text-muted); font-weight: 700; display: flex; align-items: center; gap: 5px;}
+        .btn-del { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s;}
+        .btn-del:active { transform: scale(0.9); background: var(--danger); color: white;}
+
+        /* FAB ADMIN TULIS INFO */
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--kc-yellow); color: black; border-radius: 20px; display: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 10px 30px rgba(212,255,0,0.4); border: 2px solid #000; cursor: pointer; z-index: 1000; transition: 0.2s;}
+        .fab-add:active { transform: scale(0.9); }
+
+        /* MODAL TULIS INFO */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: 0.3s;}
+        .modal-overlay.show { opacity: 1; }
+        .modal-box { background: #111; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;}
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-family: 'Space Grotesk'; font-size: 18px; font-weight: 900; color: var(--kc-yellow); }
+        .btn-close { background: #222; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; color: white;}
+
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;}
+        .form-input { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #333; background: #000; font-family: 'Inter'; font-weight: 600; font-size: 14px; color: white; outline: none;}
+        .form-input:focus { border-color: var(--kc-yellow); }
+        
+        /* UPLOAD AREA */
+        .upload-area { border: 2px dashed #444; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; position: relative; background: #0a0a0a; transition: 0.2s;}
+        .upload-area:hover { border-color: var(--kc-yellow); }
+        .upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .preview-img { width: 100%; max-height: 150px; object-fit: contain; display: none; margin-top: 10px; border-radius: 8px; border: 1px solid #333;}
+
+        .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--kc-yellow); color: black; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; margin-top: 10px; cursor: pointer; letter-spacing: 1px; transition: 0.2s;}
+        .btn-submit:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="dashboard_kc.html" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+        <div class="header-title">
+            <h1>INFO KC</h1>
+            <p>Pusat Informasi Anggota</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="info-list" id="infoListContainer">
+            <div style="text-align:center; padding:50px; color:#94A3B8;"><i class="fas fa-spinner fa-spin"></i> Memuat Informasi...</div>
+        </div>
+    </div>
+
+    <button class="fab-add" id="btnAddInfo" onclick="openModal()"><i class="fas fa-pen"></i></button>
+
+    <div class="modal-overlay" id="formModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">TULIS PENGUMUMAN</div>
+                <button class="btn-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Judul Info</label>
+                <input type="text" id="infoTitle" class="form-input" placeholder="Contoh: Jadwal Kopdar Wajib">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload Foto / Poster (Opsional)</label>
+                <div class="upload-area">
+                    <i class="fas fa-image" style="font-size:30px; color:var(--text-muted); margin-bottom:10px; display:block;"></i>
+                    <div style="font-size:11px; color:var(--text-muted); font-weight:600;">Klik untuk upload gambar</div>
+                    <input type="file" id="infoPhotoInput" accept="image/*" onchange="processPhoto(this)">
+                    <img id="previewInfoImg" class="preview-img">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Isi Pengumuman</label>
+                <textarea id="infoContent" class="form-input" rows="6" placeholder="Tulis detail informasi di sini..."></textarea>
+            </div>
+            
+            <button class="btn-submit" id="btnSave" onclick="saveInfo()">POSTING INFO</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // KONEKSI DATABASE KC (antriankcnew)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
+            authDomain: "antriankcnew.firebaseapp.com",
+            projectId: "antriankcnew"
+        };
+        const app = initializeApp(firebaseConfig); 
+        const db = getFirestore(app);
+
+        // CEK USER & ROLE ADMIN
+        let uData = null;
+        try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
+        
+        if (!uData) {
+            window.location.href = 'index.html';
+        }
+        
+        const myName = uData.namaKtp || uData.namaWa || uData.nama || "Pengurus";
+        const role = (uData.role || "").toUpperCase();
+        const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
+        
+        // HAK AKSES ADMIN (Bisa nulis info & hapus)
+        const isAdmin = role.includes("KETUA") || role.includes("WAKIL") || role.includes("SEKRETARIS") || role.includes("HUMAS") || plat === "B4124SWI" || plat === "B4248SWF";
+        
+        if(isAdmin) {
+            document.getElementById('btnAddInfo').style.display = 'flex';
+        }
+
+        // VARIABEL MENYIMPAN FOTO
+        let base64Photo = "";
+
+        // COMPRESS FOTO
+        window.processPhoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const cvs = document.createElement('canvas'); 
+                        const ctx = cvs.getContext('2d');
+                        
+                        let w = img.width; 
+                        let h = img.height;
+                        
+                        // Resize max width 800px biar enteng di database
+                        if(w > 800) { 
+                            h *= 800 / w; 
+                            w = 800; 
+                        } 
+                        
+                        cvs.width = w; 
+                        cvs.height = h; 
+                        ctx.drawImage(img, 0, 0, w, h);
+                        
+                        // Konversi ke format JPEG kualitas 80%
+                        base64Photo = cvs.toDataURL('image/jpeg', 0.8);
+                        
+                        const previewEl = document.getElementById('previewInfoImg');
+                        previewEl.src = base64Photo;
+                        previewEl.style.display = 'block';
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        // LOAD DATA DARI FIREBASE
+        onSnapshot(query(collection(db, "info_kc"), orderBy("timestamp", "desc")), (snap) => {
+            const listContainer = document.getElementById('infoListContainer');
+            listContainer.innerHTML = '';
+            
+            if(snap.empty) {
+                listContainer.innerHTML = `<div style="text-align:center; padding:50px; color:#94A3B8; font-size:12px;"><i class="fas fa-box-open" style="font-size:30px; margin-bottom:10px; display:block;"></i> Belum ada informasi terbaru.</div>`;
+                return;
+            }
+
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const id = docSnap.id;
+                const dateObj = new Date(d.timestamp);
+                const dateStr = dateObj.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+                
+                const btnDelete = isAdmin ? `<button class="btn-del" onclick="hapusInfo('${id}')"><i class="fas fa-trash"></i> Hapus</button>` : '';
+
+                // CEK APAKAH ADA FOTONYA
+                let imageHtml = "";
+                if(d.image && d.image.length > 50) {
+                    imageHtml = `
+                        <div class="info-img-wrapper">
+                            <img src="${d.image}" class="info-img" alt="Poster Info">
+                        </div>
+                    `;
+                }
+
+                const card = `
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h2 class="info-title">${d.title}</h2>
+                            <div class="info-date">${dateStr}</div>
+                        </div>
+                        
+                        ${imageHtml}
+                        
+                        <p class="info-body">${d.content}</p>
+                        <div class="info-footer">
+                            <div class="info-author"><i class="fas fa-user-check"></i> ${d.author}</div>
+                            ${btnDelete}
+                        </div>
+                    </div>
+                `;
+                listContainer.innerHTML += card;
+            });
+        });
+
+        // MODAL KONTROL
+        const modal = document.getElementById('formModal');
+        window.openModal = () => { 
+            // Reset input
+            document.getElementById('infoTitle').value = '';
+            document.getElementById('infoContent').value = '';
+            document.getElementById('infoPhotoInput').value = '';
+            document.getElementById('previewInfoImg').style.display = 'none';
+            base64Photo = "";
+
+            modal.style.display = 'flex'; 
+            setTimeout(()=>modal.classList.add('show'), 10);
+        };
+        
+        window.closeModal = () => { 
+            modal.classList.remove('show'); 
+            setTimeout(()=>modal.style.display = 'none', 300);
+        };
+
+        // SIMPAN PENGUMUMAN
+        window.saveInfo = async () => {
+            const title = document.getElementById('infoTitle').value.trim();
+            const content = document.getElementById('infoContent').value.trim();
+
+            if(!title || !content) return alert("Judul dan Isi pengumuman harus diisi!");
+
+            const btn = document.getElementById('btnSave');
+            btn.innerText = "MENGIRIM...";
+            btn.style.opacity = '0.7';
+
+            try {
+                let payload = {
+                    title: title,
+                    content: content,
+                    author: myName,
+                    timestamp: Date.now()
+                };
+
+                // Kalau ada foto, masukin ke payload
+                if(base64Photo) {
+                    payload.image = base64Photo;
+                }
+
+                await addDoc(collection(db, "info_kc"), payload);
+                closeModal();
+            } catch (e) {
+                alert("Gagal memposting: " + e.message);
+            } finally {
+                btn.innerText = "POSTING INFO";
+                btn.style.opacity = '1';
+            }
+        };
+
+        // HAPUS PENGUMUMAN
+        window.hapusInfo = async (id) => {
+            if(confirm("Yakin ingin menghapus informasi ini?")) {
+                try {
+                    await deleteDoc(doc(db, "info_kc", id));
+                } catch(e) {
+                    alert("Gagal menghapus: " + e.message);
+                }
+            }
+        };
+
+    </script>
+</body>
+</html>

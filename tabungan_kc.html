@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KC - Secure Savings</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+    <style>
+        /* === TEMA KARTIKA CHANDRA (DARK NEON) === */
+        :root { 
+            --royal-blue: #D4FF00; /* Neon Lime */
+            --electric-blue: #10B981; 
+            --gold-lux: #D4FF00; 
+            --bg-surface: #050505; 
+            --text-main: #FFFFFF; 
+            --white: #FFFFFF; 
+            --danger: #EF4444; 
+            --success: #10B981; 
+            --warning: #F59E0B;
+            --text-muted: #94A3B8;
+        }
+        body { margin:0; background:var(--bg-surface); font-family:'Inter',sans-serif; color:var(--text-main); overflow-x:hidden; user-select:none; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; outline: none; }
+        
+        /* SECURITY UI */
+        #securityScreen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; transition: opacity 0.5s; }
+        .sec-icon-box { width: 90px; height: 90px; border-radius: 50%; background: #111; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px rgba(212,255,0,0.15); margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid #333;}
+        .sec-icon-box i { font-size: 35px; color: var(--royal-blue); z-index: 2; }
+        .scan-laser { position: absolute; width: 100%; height: 3px; background: var(--success); top: 0; animation: scanDown 1.5s infinite; opacity: 0.7; box-shadow: 0 0 15px var(--success); z-index: 1; }
+        @keyframes scanDown { 0% {top:0;} 50% {top:100%;} 100% {top:0;} }
+        
+        .camera-container { width: 220px; height: 220px; border-radius: 40px; overflow: hidden; position: relative; border: 4px solid #222; box-shadow: 0 20px 60px rgba(0,0,0,0.8); background: #000; display: none; margin-bottom: 20px; }
+        #videoInput { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        /* ANIMASI FRAME VERMUK ALA GOJEK */
+        .face-frame { position: absolute; inset: 15px; border: 3px dashed rgba(255,255,255,0.4); border-radius: 30px; transition: all 0.3s; pointer-events: none; }
+        .face-frame.scanning { border: 4px solid var(--royal-blue); box-shadow: 0 0 30px rgba(212,255,0,0.5), inset 0 0 30px rgba(212,255,0,0.5); animation: facePulse 0.8s infinite alternate; }
+        @keyframes facePulse { 0% { transform: scale(0.98); opacity: 0.7;} 100% { transform: scale(1.02); opacity: 1;} }
+
+        .btn-action { width: 100%; max-width: 250px; padding: 16px; border: none; border-radius: 16px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 10px 30px rgba(212,255,0,0.2); background: var(--royal-blue); color: black; transition: 0.2s;}
+        .btn-action:active { transform: scale(0.95); }
+        .btn-outline { background: rgba(212,255,0,0.05); color: var(--royal-blue); border: 2px solid var(--royal-blue); box-shadow: none; padding: 14px; }
+        .btn-ghost { background: transparent; color: var(--text-muted); box-shadow: none; font-size: 12px; margin-top: 5px; }
+
+        /* PIN PAD */
+        .pin-area { display: none; width: 100%; max-width: 280px; flex-direction: column; align-items: center; }
+        .pin-display { display: flex; gap: 10px; margin-bottom: 30px; }
+        .pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--royal-blue); }
+        .pin-dot.filled { background: var(--royal-blue); box-shadow: 0 0 10px var(--royal-blue); }
+        .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
+        .pin-key { width: 65px; height: 65px; border-radius: 50%; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 800; color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s;}
+        .pin-key:active { background: #222; transform: scale(0.95); border-color: var(--royal-blue);}
+
+        /* APP UI */
+        #mainApp { display: none; padding-bottom: 90px; }
+        .header-main { background: linear-gradient(160deg, #111 0%, #050505 100%); padding: 35px 20px 80px; border-bottom-left-radius:30px; border-bottom-right-radius:30px; color:white; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8); border-bottom: 1px solid #222;}
+        .main-title { font-family:'Outfit'; font-size:24px; font-weight:900; margin:0; color: var(--royal-blue);}
+        .sub-tag { font-size:11px; opacity:0.8; font-weight:600; display:block; margin-top:5px; font-family:'Space Grotesk'; letter-spacing:2px; color: var(--text-muted);}
+
+        .tab-container { display:flex; justify-content:center; gap:10px; margin-top:-40px; padding:0 20px; position:relative; z-index:10; }
+        .tab-btn { background:#111; border:1px solid #333; padding:12px 15px; border-radius:25px; font-weight:800; font-size:11px; color:var(--text-muted); box-shadow:0 5px 15px rgba(0,0,0,0.5); cursor:pointer; flex:1; transition:0.3s; }
+        .tab-btn.active { background:var(--royal-blue); color:black; box-shadow:0 5px 20px rgba(212,255,0,0.3); transform:scale(1.05); border-color: var(--royal-blue);}
+        .content-area { padding:20px; display:none; margin-top: 10px;}
+        .content-area.active { display:block; }
+        
+        .saldo-card { background: linear-gradient(135deg, #111 0%, #0a0a0a 100%); padding: 25px; border-radius: 24px; color: white; text-align: center; margin-bottom: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid #333;}
+        
+        /* KOTAK TOTAL GLOBAL */
+        .global-vault-card { background: #0f0f0f; border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #222; color: white; }
+        .gvc-icon { width: 45px; height: 45px; border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--warning); border: 1px solid rgba(255,255,255,0.1); }
+
+        .trx-item { background: #0f0f0f; padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid #222; }
+        
+        .member-row { background:#0f0f0f; padding:15px; border-radius:16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid #222; box-shadow:0 5px 15px rgba(0,0,0,0.3); transition: 0.3s background;}
+        .member-row.updated { background: rgba(16,185,129,0.1); border-color: var(--success); } 
+        
+        .btn-plus { width:40px; height:40px; background:linear-gradient(135deg, var(--royal-blue), #8DAA00); color:black; border-radius:12px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; font-size:16px; box-shadow:0 5px 15px rgba(212,255,0,0.2);}
+        .btn-reset { width:40px; height:40px; background:rgba(245,158,11,0.1); color:var(--warning); border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(245,158,11,0.3); cursor:pointer; font-size:16px; margin-right: 8px;}
+        
+        .app-card { background:#0f0f0f; padding:15px; border-radius:16px; margin-bottom:12px; box-shadow:0 5px 15px rgba(0,0,0,0.3); display:flex; justify-content:space-between; align-items:center; border: 1px solid #222;}
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-box { background: #111; width: 100%; max-width: 380px; border-radius: 25px; padding: 30px 25px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); max-height: 85vh; overflow-y: auto; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #333;}
+        @keyframes zoomIn { from {transform:scale(0.8); opacity:0;} to {transform:scale(1); opacity:1;} }
+
+        .form-group { margin-bottom:20px; text-align: left;}
+        .form-label { display:block; font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;}
+        .form-input { width:100%; padding:15px; border:1px solid #333; border-radius:14px; font-family:'Space Grotesk'; font-weight:700; font-size:16px; background:#000; color: white; outline:none; transition: 0.2s;}
+        .form-input:focus { border-color: var(--royal-blue); box-shadow: 0 0 10px rgba(212,255,0,0.1); }
+        .btn-submit { width:100%; padding:16px; border:none; border-radius:16px; font-weight:800; color:black; cursor:pointer; margin-top:10px; font-family:'Space Grotesk'; font-size:13px; transition: 0.2s;}
+        .btn-submit:active { transform: scale(0.95); }
+        .bg-sukses { background:var(--royal-blue); box-shadow: 0 10px 25px rgba(212,255,0,0.2); } 
+        .bg-cancel { background:#222; color:#fff; border: 1px solid #333; box-shadow:none; }
+        
+        /* ADMIN TRX LIST ITEM */
+        .admin-hist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px dashed #222; text-align: left; }
+        .admin-hist-item:last-child { border-bottom: none; }
+        .btn-edit { background: #1a1a1a; border: 1px solid #333; color: var(--royal-blue); cursor: pointer; width: 35px; height: 35px; border-radius: 10px; font-size: 14px; display:flex; align-items:center; justify-content:center; transition:0.2s;}
+        .btn-edit:active { transform:scale(0.9); }
+        
+        .btn-nabung { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 50px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 15px auto 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; }
+        .btn-nabung:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+
+        .btn-danger-reset { display: none; width: 100%; padding: 15px; margin-top: 30px; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 11px; letter-spacing: 1px; }
+
+        .back-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 100;}
+        .btn-premium-back { background: #111; border: 1px solid #333; padding: 16px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--royal-blue); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    </style>
+</head>
+<body>
+
+    <div id="loaderOverlay" style="position:fixed; inset:0; background:#000; z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="width:40px; height:40px; border:4px solid #222; border-top:4px solid var(--royal-blue); border-radius:50%; animation:spin 1s infinite linear;"></div>
+        <div style="margin-top:15px; font-weight:800; color:var(--royal-blue); font-size:12px;">MEMUAT SISTEM...</div>
+        <style>@keyframes spin{100%{transform:rotate(360deg)}}</style>
+    </div>
+
+    <div id="securityScreen">
+        <div class="sec-icon-box"><div class="scan-laser"></div><i class="fas fa-wallet" id="secIcon"></i></div>
+        <div class="sec-title" id="secTitle" style="font-family:'Outfit'; font-weight:900; font-size:22px; color:var(--royal-blue);">DOMPET TABUNGAN</div>
+        <div class="sec-desc" id="secDesc" style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Keamanan 6 Digit PIN KC.</div>
+        
+        <div class="camera-container" id="camWrap">
+            <video id="videoInput" autoplay muted playsinline></video>
+            <div class="face-frame" id="faceFrame"></div>
+        </div>
+
+        <button class="btn-action" id="btnMainAction" style="display:none;" onclick="handleAction()">MULAI SCAN</button>
+        <div id="scanStatus" style="font-size:12px; font-weight:800; color:var(--royal-blue); height:20px;"></div>
+        
+        <div class="pin-area" id="pinArea">
+            <div class="pin-display"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
+            <div class="pin-grid">
+                <div class="pin-key" onclick="pressPin(1)">1</div><div class="pin-key" onclick="pressPin(2)">2</div><div class="pin-key" onclick="pressPin(3)">3</div>
+                <div class="pin-key" onclick="pressPin(4)">4</div><div class="pin-key" onclick="pressPin(5)">5</div><div class="pin-key" onclick="pressPin(6)">6</div>
+                <div class="pin-key" onclick="pressPin(7)">7</div><div class="pin-key" onclick="pressPin(8)">8</div><div class="pin-key" onclick="pressPin(9)">9</div>
+                <div class="pin-key" style="color:var(--danger);" onclick="clearPin()">C</div>
+                <div class="pin-key" onclick="pressPin(0)">0</div>
+                <div class="pin-key" style="color:var(--danger);" onclick="delPin()"><i class="fas fa-backspace"></i></div>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:5px; width:100%; max-width:250px; margin-top:20px;" id="btnBawahKamera">
+            <button class="btn-action btn-outline" id="btnSwitch" onclick="switchMode()">Gunakan PIN (6 Digit)</button>
+            <button class="btn-action btn-ghost" onclick="window.location.href='dashboard_kc.html'">BATAL / KEMBALI</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customAlertModal" style="z-index: 30000;">
+        <div class="modal-box" style="padding: 30px;">
+            <div id="camTitle" style="font-family:'Outfit'; font-size:20px; color:var(--royal-blue); margin-bottom:10px; font-weight:900;"></div>
+            <div id="camMsg" style="font-size:13px; color:var(--text-main); margin-bottom:25px; line-height:1.6;"></div>
+            <input type="password" id="camInput" class="form-input" style="display:none; margin-bottom:20px; text-align:center; font-size:20px; letter-spacing:5px;" placeholder="Password">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-submit bg-cancel" id="camBtnCancel">BATAL</button>
+                <button class="btn-submit bg-sukses" id="camBtnOk" style="background:var(--royal-blue); color:black;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="agreeModal">
+        <div class="modal-box">
+            <div style="font-family:'Outfit'; font-weight:900; font-size:18px; color:var(--royal-blue); margin-bottom:15px;">AKTIVASI DOMPET KC</div>
+            <div style="height:150px; overflow-y:auto; text-align:left; font-size:11px; color:#ccc; margin-bottom:20px; background:#000; border:1px solid #333; padding:15px; border-radius:12px;">
+                <b>PENTING:</b><br><br>1. PIN KHUSUS TABUNGAN (6 Digit).<br>2. BEDA DENGAN PIN LOGIN (4 Digit).<br>3. Wajah direkam sebagai kunci ganda.<br>4. Saldo Anda Dijamin Aman.
+            </div>
+            <button class="btn-submit" style="background:var(--success); color:black;" onclick="acceptAgreement()">BUAT KUNCI SEKARANG</button>
+        </div>
+    </div>
+
+    <div id="mainApp">
+        <div class="header-main">
+            <h1 class="main-title">DOMPET TABUNGAN</h1>
+            <span class="sub-tag">Kelola masa depan finansialmu</span>
+        </div>
+
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('member')">SAYA</button>
+            <button class="tab-btn" onclick="switchTab('admin')" id="btnTabAdmin" style="display:none; color:var(--royal-blue); border:1px solid var(--royal-blue);">INPUT SETORAN</button>
+            <button class="tab-btn" onclick="switchTab('approval')" id="btnTabApprove" style="display:none; color:var(--warning); border:1px solid var(--warning);">VALIDASI</button>
+        </div>
+
+        <div id="viewMember" class="content-area active">
+            
+            <div class="saldo-card">
+                <button onclick="changePinSelf()" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); color:white; padding:5px 10px; border-radius:12px; font-size:9px; font-weight:800; cursor:pointer; border:1px solid rgba(255,255,255,0.2);">GANTI PIN</button>
+                <div style="font-size:10px; opacity:0.8; letter-spacing:2px; cursor:pointer; color:var(--text-muted);" ondblclick="toggleStealthAdmin()">SALDO PRIBADI SAYA</div>
+                <div class="saldo-val" id="myBalance" style="font-family:'Space Grotesk'; font-size:36px; font-weight:900; margin:10px 0; color: white;">Rp 0</div>
+                <div style="font-size:10px; font-weight:700; background:rgba(16,185,129,0.2); color:var(--success); padding:5px 10px; border-radius:20px; display:inline-block; border: 1px solid rgba(16,185,129,0.3);">
+                    <i class="fas fa-shield-alt"></i> TERVERIFIKASI
+                </div>
+                
+                <button class="btn-nabung" onclick="document.getElementById('modalQris').style.display='flex'">
+                    <i class="fas fa-qrcode" style="font-size:18px;"></i> TAMBAH SETORAN (NABUNG)
+                </button>
+                <div id="adminIndicator" style="display:none; font-size:9px; margin-top:8px; color:var(--royal-blue); font-weight:900;">★ ADMIN MODE ★</div>
+            </div>
+
+            <div class="global-vault-card">
+                <div>
+                    <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 5px;">
+                        <i class="fas fa-globe" style="color: var(--royal-blue);"></i> TOTAL ASET KC
+                    </div>
+                    <div id="globalBalance" style="font-family: 'Space Grotesk'; font-size: 22px; font-weight: 900; color: var(--success); letter-spacing: 0.5px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:16px;"></i> Menghitung...
+                    </div>
+                </div>
+                <div class="gvc-icon">
+                    <i class="fas fa-vault"></i>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('videoModal').style.display='flex'" style="width: 100%; margin-bottom: 20px; padding: 15px; border-radius: 16px; border: 1px solid #333; font-family: 'Outfit'; font-weight: 800; font-size: 13px; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; background: #111; cursor: pointer; transition: 0.2s;">
+                <i class="fab fa-tiktok" style="font-size: 20px; color: #fff; filter: drop-shadow(2px 0px 0px #00f2fe) drop-shadow(-2px 0px 0px #fe0979);"></i> LIHAT TUTORIAL MENABUNG
+            </button>
+            
+            <div style="font-family:'Outfit'; font-size:16px; font-weight:800; color:white; margin-bottom:15px; padding-left:5px;">Mutasi Terakhir</div>
+            <div class="trx-list" id="historyList">
+                <div style="text-align:center; padding:30px; color:#94A3B8; font-size:12px;">Memuat riwayat...</div>
+            </div>
+        </div>
+
+        <div id="viewAdmin" class="content-area">
+            <div style="background:rgba(212,255,0,0.1); padding:15px; border-radius:16px; border:1px solid rgba(212,255,0,0.2); font-size:11px; color:var(--royal-blue); margin-bottom:20px;">
+                <b>AREA PENGURUS:</b> Gunakan tombol IKON KUNCI untuk melakukan Reset PIN / Wajah member.
+            </div>
+            <input type="text" id="searchMem" class="form-input" placeholder="Cari Nama / Plat Anggota..." style="margin-bottom:15px;" onkeyup="filterMembers()">
+            <div id="adminMemberList"></div>
+
+            <button id="btnResetData" class="btn-danger-reset" onclick="resetAllSystem()">
+                ⚠️ RESET SEMUA DATA (HAPUS SALDO & RIWAYAT PERMANEN)
+            </button>
+        </div>
+
+        <div id="viewApproval" class="content-area">
+            <div id="approvalList">
+                <div style="text-align:center; padding:30px; color:#94A3B8; font-size:11px;">Memuat antrean validasi...</div>
+            </div>
+        </div>
+
+        <div class="back-nav"><a href="dashboard_kc.html" class="btn-premium-back"><i class="fas fa-arrow-left"></i> KEMBALI KE DASHBOARD</a></div>
+    </div>
+
+    <div class="modal-overlay" id="modalDeposit">
+        <div class="modal-box">
+            <h3 style="margin-top:0; color:var(--royal-blue); font-family:'Outfit'; font-size:20px; margin-bottom:5px;">INPUT SETORAN</h3>
+            <p id="depMemberName" style="font-size:12px; color:var(--text-muted); margin-bottom:25px; font-weight:700; border-bottom:1px solid #333; padding-bottom:10px;"></p>
+            <input type="hidden" id="depMemberId">
+            <div class="form-group"><label class="form-label">Nominal (Rp)</label><input type="number" id="depAmount" class="form-input" placeholder="Contoh: 20000"></div>
+            <div style="display:flex; gap:10px;"><button class="btn-submit bg-cancel" onclick="document.getElementById('modalDeposit').style.display='none'">BATAL</button><button class="btn-submit bg-sukses" onclick="processDeposit()">SIMPAN DATA</button></div>
+            
+            <div style="margin-top:25px; border-top:1px dashed #333; padding-top:15px;">
+                <div style="font-size:10px; font-weight:800; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase;">Transaksi Terakhir (Edit/Hapus)</div>
+                <div id="adminRecentTrx" style="max-height:180px; overflow-y:auto; background:#000; border-radius:12px; padding:5px; border: 1px solid #222;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalEditTrx" style="z-index: 20000;">
+        <div class="modal-box">
+            <h3 style="margin-top:0; color:var(--warning); font-family:'Outfit'; font-size:18px;">KOREKSI NOMINAL</h3>
+            <input type="hidden" id="editTrxId"><input type="hidden" id="editOldAmount">
+            <div class="form-group"><label class="form-label">Nominal Baru (Rp)</label><input type="number" id="editNewAmount" class="form-input"></div>
+            <div style="display:flex; gap:10px;"><button class="btn-submit bg-cancel" onclick="document.getElementById('modalEditTrx').style.display='none'">BATAL</button><button class="btn-submit" style="background:var(--warning); color:black;" onclick="saveEditTrx()">UPDATE</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalQris">
+        <div class="modal-box" style="text-align:left;">
+            <h3 style="margin-top:0; font-family:'Outfit'; color:var(--royal-blue); text-align:center;">FORM PENGAJUAN SETORAN</h3>
+            <div class="form-group">
+                <label class="form-label">1. Masukkan Nominal (Bulat)</label>
+                <input type="number" id="inputNabungBase" class="form-input" placeholder="Contoh: 50000" onkeyup="calcTotalTransfer()" onchange="calcTotalTransfer()">
+            </div>
+            <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:15px; border-radius:12px; text-align:center; margin-bottom:15px;">
+                <div style="font-size:11px; color:var(--success); font-weight:800;">JUMLAH YANG HARUS DI TRANSFER:</div>
+                <div id="totalNabungTxt" style="font-family:'Space Grotesk'; font-size:32px; font-weight:900; color:white; margin:5px 0;">Rp 0</div>
+                <div style="font-size:10px; color:var(--success);">(Sudah termasuk Kode Unik Anda: <b id="kodeUnikTxt">***</b>)</div>
+            </div>
+            <div style="border:2px dashed #333; padding:10px; border-radius:10px; margin-bottom:15px; background: #000;">
+                <img src="qris_kc.jpg" style="width:100%; border-radius:5px;" alt="QRIS KC" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:20px; color:#EF4444; font-weight:bold; text-align:center;\'>qris_kc.jpg tidak ditemukan.</div>'">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-submit bg-cancel" onclick="document.getElementById('modalQris').style.display='none'">BATAL</button>
+                <button class="btn-submit bg-sukses" onclick="submitKlaimNabung()">KONFIRMASI TRANSFER</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="videoModal" style="z-index: 25000;">
+        <div class="modal-box" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-family:'Outfit'; font-weight:900; color:var(--royal-blue); font-size: 16px;"><i class="fab fa-tiktok"></i> TUTORIAL SETORAN</div>
+                <button onclick="document.getElementById('videoModal').style.display='none'" style="background:rgba(239,68,68,0.1); color:var(--danger); border:none; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="position: relative; width: 100%; max-width: 320px; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 2px solid #333; background: #000;">
+                <iframe style="width: 100%; height: 500px; display: block;" src="https://www.tiktok.com/embed/v2/7616071100727971092" title="Tutorial Menabung MLU" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <button class="btn-submit bg-cancel" style="margin-top:15px; font-weight: 800;" onclick="document.getElementById('videoModal').style.display='none'">TUTUP VIDEO</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, collection, query, where, getDocs, runTransaction, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // === MURNI KONEKSI KE DATABASE KC (antriankcnew) ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
+            authDomain: "antriankcnew.firebaseapp.com",
+            projectId: "antriankcnew",
+            storageBucket: "antriankcnew.firebasestorage.app",
+            messagingSenderId: "348986439499",
+            appId: "1:348986439499:web:99578753dc9547d727dace"
+        };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+
+        let uData = null;
+        try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
+        if (!uData || !uData.plat) window.location.href = 'index.html'; 
+
+        const myName = uData.namaKtp || uData.namaWa || uData.nama || "User";
+        const myPlat = uData.plat || "B XXXX XX";
+        
+        // PENTING: Gunakan Plat sebagai fallback ID jika ID dari lokal storage belum sempurna
+        const userId = uData.id || myPlat.replace(/\s+/g, '').toUpperCase();
+
+        window.showConfirm = (title, msg, isPrompt = false) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                document.getElementById('camTitle').innerHTML = title;
+                document.getElementById('camMsg').innerHTML = msg;
+                const input = document.getElementById('camInput');
+                const btnCancel = document.getElementById('camBtnCancel');
+                const btnOk = document.getElementById('camBtnOk');
+                
+                if(isPrompt) { input.style.display = 'block'; input.value = ''; input.focus(); }
+                else { input.style.display = 'none'; }
+                
+                btnCancel.style.display = 'block';
+                btnOk.style.background = 'var(--royal-blue)';
+                btnOk.style.color = 'black';
+                modal.style.display = 'flex';
+
+                btnCancel.onclick = () => { modal.style.display = 'none'; resolve(false); };
+                btnOk.onclick = () => { modal.style.display = 'none'; resolve(isPrompt ? input.value : true); };
+            });
+        };
+
+        window.showAlert = (title, msg) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                document.getElementById('camTitle').innerHTML = title;
+                document.getElementById('camMsg').innerHTML = msg;
+                document.getElementById('camInput').style.display = 'none';
+                document.getElementById('camBtnCancel').style.display = 'none';
+                document.getElementById('camBtnOk').style.background = 'var(--success)';
+                document.getElementById('camBtnOk').style.color = 'white';
+                modal.style.display = 'flex';
+                document.getElementById('camBtnOk').onclick = () => { modal.style.display = 'none'; resolve(true); };
+            });
+        };
+
+        const cleanPlat = myPlat.replace(/\s+/g, '').toUpperCase();
+        const isTrueAdmin = (cleanPlat === "B4248SWF") || (cleanPlat === "B4124SWI") || (uData.role && (uData.role.includes("KETUA") || uData.role.includes("WAKIL")));
+        let isViewAdminVisible = isTrueAdmin; 
+        const isSuperAdmin = (cleanPlat === "B4248SWF");
+
+        let userFaceDesc = null; let userPinTabungan = null; let isSetupMode = false; let isFaceMode = true; let stream = null; let videoEl = document.getElementById('videoInput'); let detectInterval = null; let currentPinInput = "";
+        window.myKodeUnik = 0;
+
+        // Failsafe Loading Face API (Kalau gagal, loading screen dipaksa hilang)
+        Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')
+        ]).then(() => { 
+            checkUserStatus(); 
+            listenGlobalSaldo(); 
+        }).catch((err) => { 
+            document.getElementById('loaderOverlay').style.display = 'none';
+            showAlert("ERROR", "Gagal memuat sistem Keamanan Wajah. Coba gunakan koneksi WiFi atau refresh ulang."); 
+        });
+
+        function listenGlobalSaldo() {
+            onSnapshot(collection(db, "anggota"), (snap) => {
+                let totalTabunganGlobal = 0;
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if(data.tabungan) {
+                        totalTabunganGlobal += data.tabungan;
+                    }
+                });
+                document.getElementById('globalBalance').innerText = `Rp ${totalTabunganGlobal.toLocaleString('id-ID')}`;
+            });
+        }
+
+        function checkUserStatus() {
+            // MENGGUNAKAN userId (Failsafe plat nomor) BUKAN uData.id MURNI
+            onSnapshot(doc(db, "anggota", userId), (docSnap) => {
+                if(docSnap.exists()) {
+                    const d = docSnap.data();
+                    if(d.kodeUnik === undefined) {
+                        const newCode = Math.floor(Math.random() * 899) + 100;
+                        updateDoc(doc(db, "anggota", userId), { kodeUnik: newCode });
+                        return;
+                    }
+                    window.myKodeUnik = d.kodeUnik;
+                    document.getElementById('kodeUnikTxt').innerText = myKodeUnik;
+
+                    // HIDE LOADER KARENA DATA BERHASIL DITEMUKAN
+                    document.getElementById('loaderOverlay').style.display = 'none';
+                    
+                    document.getElementById('myBalance').innerText = `Rp ${(d.tabungan||0).toLocaleString('id-ID')}`;
+                    loadHistory();
+                    updateAdminView();
+                    if(isTrueAdmin) initAdminData();
+                    if(isSuperAdmin) document.getElementById('btnResetData').style.display = 'block';
+
+                    if (d.pin_tabungan) {
+                        userPinTabungan = d.pin_tabungan; isSetupMode = false; 
+                        if(d.faceDescriptor) { userFaceDesc = new Float32Array(Object.values(d.faceDescriptor)); showLoginScreen(); } 
+                        else { document.getElementById('btnBawahKamera').style.display = 'none'; window.switchMode(); }
+                    } else { isSetupMode = true; showActivationScreen(); }
+                } else {
+                    // JIKA DATA TIDAK DITEMUKAN, HIDE LOADER DAN KASIH TAHU USER
+                    document.getElementById('loaderOverlay').style.display = 'none';
+                    showAlert("AKUN TIDAK DITEMUKAN", "Sistem tidak dapat menemukan data tabungan Anda. Silakan hubungi pengurus.");
+                }
+            }, (error) => {
+                // JIKA KONEKSI DATABASE ERROR
+                document.getElementById('loaderOverlay').style.display = 'none';
+                showAlert("KONEKSI GAGAL", "Gagal menyambung ke server database KC.");
+            });
+        }
+
+        window.calcTotalTransfer = () => {
+            let base = parseInt(document.getElementById('inputNabungBase').value) || 0;
+            if(base === 0) { document.getElementById('totalNabungTxt').innerText = "Rp 0"; return; }
+            document.getElementById('totalNabungTxt').innerText = "Rp " + (base + window.myKodeUnik).toLocaleString('id-ID');
+        }
+
+        window.submitKlaimNabung = async () => {
+            let base = parseInt(document.getElementById('inputNabungBase').value);
+            if(!base || base < 5000) return showAlert("PERHATIAN", "Setoran minimal Rp 5.000");
+            let total = base + window.myKodeUnik;
+
+            const konfirm = await showConfirm("KONFIRMASI", `Apakah Anda sudah berhasil transfer dana sebesar <b style="color:var(--success);">Rp ${total.toLocaleString('id-ID')}</b> ke QRIS KC?<br><br><span style='color:var(--danger); font-size:11px;'>*Bukti palsu akan otomatis ditolak oleh sistem Admin.</span>`);
+            if(konfirm) {
+                await addDoc(collection(db, "tabungan_trx"), {
+                    memberId: userId, memberName: myName,
+                    type: 'IN', amount: total, desc: 'Pengajuan Setoran (App)', timestamp: Date.now(), status: 'PENDING'
+                });
+                await showAlert("SUKSES", "Pengajuan berhasil dikirim! Saldo akan masuk setelah divalidasi oleh Admin.");
+                document.getElementById('modalQris').style.display = 'none';
+                document.getElementById('inputNabungBase').value = ''; calcTotalTransfer();
+            }
+        }
+
+        window.toggleStealthAdmin = () => {
+            if(!isTrueAdmin) return;
+            isViewAdminVisible = !isViewAdminVisible;
+            updateAdminView();
+            if(navigator.vibrate) navigator.vibrate(50);
+            if(!isViewAdminVisible) window.switchTab('member');
+        }
+
+        function updateAdminView() {
+            const display = isViewAdminVisible ? 'block' : 'none';
+            document.getElementById('btnTabAdmin').style.display = display;
+            document.getElementById('btnTabApprove').style.display = display;
+            document.getElementById('adminIndicator').style.display = display;
+        }
+
+        window.resetAllSystem = async () => {
+            const konf1 = await showConfirm("⚠️ PERINGATAN KERAS", "Anda akan <b style='color:var(--danger);'>MENGHAPUS SEMUA DATA SALDO & RIWAYAT MUTASI</b> seluruh member. Tindakan ini tidak bisa di-undo.");
+            if(!konf1) return;
+            
+            let pass = await showConfirm("OTORISASI", "MASUKKAN PASSWORD KONFIRMASI:", true);
+            if(pass !== "KC2026") return showAlert("GAGAL", "Password Akses Salah!");
+
+            document.getElementById('loaderOverlay').style.display = 'flex';
+            try {
+                const membersSnap = await getDocs(collection(db, "anggota"));
+                const promises = [];
+                membersSnap.forEach(doc => { promises.push(updateDoc(doc.ref, { tabungan: 0 })); });
+                const trxSnap = await getDocs(collection(db, "tabungan_trx"));
+                trxSnap.forEach(doc => { promises.push(deleteDoc(doc.ref)); });
+                await Promise.all(promises);
+                await showAlert("SUKSES", "Seluruh Saldo dan Riwayat Mutasi telah di-reset ke Nol."); location.reload();
+            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showAlert("ERROR", e.message); }
+        }
+
+        function showActivationScreen() { document.getElementById('agreeModal').style.display = 'flex'; }
+        window.acceptAgreement = () => { document.getElementById('agreeModal').style.display = 'none'; document.getElementById('secTitle').innerText = "REGISTRASI WAJAH"; document.getElementById('btnMainAction').innerText = "SCAN & SIMPAN WAJAH"; document.getElementById('btnMainAction').style.display = 'block'; document.getElementById('btnBawahKamera').style.display = 'none'; startCamera(); };
+        function showLoginScreen() { document.getElementById('secTitle').innerText = "VERIFIKASI WAJAH"; document.getElementById('btnMainAction').style.display = 'none'; startCamera(); }
+
+        async function startCamera() {
+            document.getElementById('camWrap').style.display = 'block'; document.getElementById('pinArea').style.display = 'none'; isFaceMode = true;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                videoEl.srcObject = stream;
+                videoEl.addEventListener('play', () => {
+                    document.getElementById('faceFrame').classList.add('scanning');
+                    
+                    if (!isSetupMode) {
+                        document.getElementById('scanStatus').innerText = "Mencocokkan Wajah...";
+                        detectInterval = setInterval(async () => {
+                            if (!isFaceMode) return;
+                            const detection = await faceapi.detectSingleFace(videoEl, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+                            if (detection) {
+                                const dist = faceapi.euclideanDistance(detection.descriptor, userFaceDesc);
+                                if (dist < 0.5) { clearInterval(detectInterval); stopCamera(); unlockApp(); }
+                            }
+                        }, 500);
+                    }
+                });
+            } catch (e) { window.switchMode(); }
+        }
+
+        window.handleAction = async () => {
+            if (isSetupMode) {
+                document.getElementById('btnMainAction').innerText = "MEMINDAI WAJAH...";
+                const detection = await faceapi.detectSingleFace(videoEl, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+                if (detection) {
+                    userFaceDesc = detection.descriptor; stopCamera();
+                    document.getElementById('secTitle').innerText = "BUAT PIN 6 DIGIT"; document.getElementById('camWrap').style.display = 'none'; document.getElementById('pinArea').style.display = 'flex'; document.getElementById('btnMainAction').style.display = 'none'; isFaceMode = false;
+                } else { document.getElementById('btnMainAction').innerText = "GAGAL! SCAN ULANG"; }
+            }
+        };
+
+        function stopCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); if (detectInterval) clearInterval(detectInterval); document.getElementById('faceFrame').classList.remove('scanning'); }
+        window.switchMode = () => { isFaceMode = !isFaceMode; if (isFaceMode) { startCamera(); document.getElementById('btnSwitch').innerText = "Gunakan PIN (6 Digit)"; document.getElementById('btnSwitch').classList.add('btn-outline'); document.getElementById('btnSwitch').style.background='rgba(212,255,0,0.05)'; document.getElementById('btnSwitch').style.color='var(--royal-blue)'; } else { stopCamera(); document.getElementById('camWrap').style.display = 'none'; document.getElementById('pinArea').style.display = 'flex'; document.getElementById('btnSwitch').innerText = "Gunakan Face ID"; document.getElementById('btnSwitch').classList.remove('btn-outline'); document.getElementById('btnSwitch').style.background='var(--royal-blue)'; document.getElementById('btnSwitch').style.color='black'; } };
+        window.pressPin = (n) => { if (currentPinInput.length < 6) { currentPinInput += n; updatePinDots(); if (currentPinInput.length === 6) window.processPin(); } };
+        window.delPin = () => { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); };
+        window.clearPin = () => { currentPinInput = ""; updatePinDots(); };
+        function updatePinDots() { document.querySelectorAll('.pin-dot').forEach((d, i) => { if (i < currentPinInput.length) d.classList.add('filled'); else d.classList.remove('filled'); }); }
+        
+        window.processPin = async () => {
+            if (isSetupMode) {
+                const conf = await showConfirm("SIMPAN PIN", `Jadikan <b style="color:var(--royal-blue);">${currentPinInput}</b> sebagai PIN Tabungan KC Anda?`);
+                if(conf) {
+                    const faceObj = { ...userFaceDesc }; 
+                    updateDoc(doc(db, "anggota", userId), { faceDescriptor: faceObj, pin_tabungan: currentPinInput }).then(() => { unlockApp(); });
+                } else { window.clearPin(); }
+            } else {
+                if (currentPinInput === userPinTabungan) unlockApp(); else { await showAlert("AKSES DITOLAK", "PIN yang Anda masukkan Salah!"); window.clearPin(); }
+            }
+        }
+        function unlockApp() { document.getElementById('securityScreen').style.opacity = 0; setTimeout(() => { document.getElementById('securityScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }, 500); }
+
+        function initAdminData() {
+            onSnapshot(query(collection(db, "anggota")), (snap) => {
+                let allMembers = []; snap.forEach(d => allMembers.push({id:d.id, ...d.data()}));
+                allMembers.sort((a,b) => ((a.namaKtp||a.nama||'').localeCompare(b.namaKtp||b.nama||'')));
+                window.allMembersCache = allMembers;
+                
+                const searchKey = document.getElementById('searchMem').value;
+                if(searchKey) window.filterMembers(); else window.renderMembers(allMembers);
+            });
+
+            const qApp = query(collection(db, "tabungan_trx"), where("status", "==", "PENDING"));
+            onSnapshot(qApp, (snap) => {
+                const cont = document.getElementById('approvalList'); cont.innerHTML = "";
+                if(snap.empty) { cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Tidak ada antrean validasi pengajuan.</div>`; return;}
+                let arrApp = []; snap.forEach(d => arrApp.push({id: d.id, ...d.data()}));
+                arrApp.sort((a,b) => a.timestamp - b.timestamp);
+                arrApp.forEach(data => {
+                    const isNabung = data.type === 'IN';
+                    const titleText = isNabung ? "Setoran Tabungan" : "Penarikan Dana";
+                    const color = isNabung ? "var(--success)" : "var(--danger)";
+                    cont.innerHTML += `
+                    <div class="app-card" style="border-left:5px solid ${color}">
+                        <div><div style="font-size:10px; color:#64748B;">${new Date(data.timestamp).toLocaleString('id-ID')}</div><h4 style="margin:5px 0; color:white;">${data.memberName}</h4><div style="font-size:11px; color:#64748B;">${titleText}</div><div style="font-family:'Space Grotesk'; font-weight:900; font-size:16px; color:${color};">Rp ${data.amount.toLocaleString('id-ID')}</div></div>
+                        <div style="display:flex; flex-direction:column; gap:5px;"><button class="btn-submit" style="background:${color}; color:${isNabung?'white':'white'}; padding:8px 15px; margin:0;" onclick="window.approveKlaim('${data.id}', '${data.type}', ${data.amount}, '${data.memberId}')">VALIDASI</button><button class="btn-submit bg-cancel" style="padding:8px 15px; margin:0;" onclick="window.rejectKlaim('${data.id}')">TOLAK</button></div>
+                    </div>`;
+                });
+            });
+        }
+
+        window.approveKlaim = async (trxId, type, amount, memberId) => {
+            const konf = await showConfirm("VALIDASI TRANSAKSI", "Anda yakin dana sudah berhasil masuk ke rekening/QRIS KC dan sesuai nominal?");
+            if(!konf) return;
+            await runTransaction(db, async(t) => {
+                const r = doc(db, "tabungan_trx", trxId);
+                const mRef = doc(db, "anggota", memberId);
+                const mDoc = await t.get(mRef);
+                let currentSaldo = mDoc.data().tabungan || 0;
+                if (type === 'IN') currentSaldo += amount; else if (type === 'OUT') currentSaldo -= amount; 
+                t.update(mRef, { tabungan: currentSaldo }); t.update(r, { status: 'SUCCESS' });
+            });
+            showAlert("BERHASIL", "Setoran divalidasi. Saldo tabungan member telah bertambah otomatis.");
+        }
+
+        window.rejectKlaim = async (trxId) => {
+            const konf = await showConfirm("TOLAK PENGAJUAN", "Tolak pengajuan setoran ini? Data pengajuan akan dihapus secara permanen.");
+            if(!konf) return;
+            await deleteDoc(doc(db, "tabungan_trx", trxId));
+            showAlert("INFO", "Pengajuan setoran telah ditolak dan dihapus dari antrean.");
+        }
+
+        window.renderMembers = (arr) => {
+            const cont = document.getElementById('adminMemberList'); cont.innerHTML = "";
+            arr.forEach(m => {
+                const namaTampil = m.namaKtp || m.nama || 'TANPA NAMA';
+                const saldoMember = m.tabungan ? m.tabungan.toLocaleString('id-ID') : '0';
+                cont.innerHTML += `
+                <div class="member-row">
+                    <div><div class="m-name" style="font-family:'Outfit'; font-size:14px; font-weight:800;">${namaTampil}</div><div class="m-plat" style="font-size:11px; color:#94A3B8; margin-top:2px;">${m.plat||'-'}</div><div style="font-size:12px; color:var(--success); font-weight:900; font-family:'Space Grotesk'; margin-top:4px;">Rp ${saldoMember}</div></div>
+                    <div style="display:flex;"><button class="btn-reset" onclick="window.resetMember('${m.id}', '${namaTampil}')"><i class="fas fa-key"></i></button><button class="btn-plus" onclick="document.getElementById('modalDeposit').style.display='flex'; document.getElementById('depMemberId').value='${m.id}'; document.getElementById('depMemberName').innerText='${namaTampil}'; window.loadAdminRecentTrx('${m.id}');"><i class="fas fa-plus"></i></button></div>
+                </div>`;
+            });
+        }
+
+        window.resetMember = async (id, name) => {
+            const konf = await showConfirm("RESET KEAMANAN", `Anda yakin ingin me-reset Wajah (Face ID) & PIN milik <b style="color:var(--royal-blue);">${name}</b>?`);
+            if(konf) updateDoc(doc(db, "anggota", id), { pin_tabungan: null, faceDescriptor: null }).then(() => showAlert("SUKSES", "Keamanan akun tersebut berhasil di-reset."));
+        };
+
+        window.changePinSelf = async () => {
+            const konf = await showConfirm("UBAH SISTEM KEAMANAN", "Anda akan menghapus Data Wajah & PIN lama. Anda akan diminta untuk mendaftarkan Wajah/PIN baru pada saat login berikutnya. Lanjutkan?");
+            if(konf) updateDoc(doc(db, "anggota", userId), { pin_tabungan: null, faceDescriptor: null }).then(() => location.reload());
+        }
+
+        window.filterMembers = () => { const k=document.getElementById('searchMem').value.toUpperCase(); window.renderMembers(window.allMembersCache.filter(m=>(m.namaKtp&&m.namaKtp.includes(k))||(m.nama&&m.nama.includes(k))||(m.plat&&m.plat.includes(k)))); }
+        
+        window.loadAdminRecentTrx = async (memberId) => {
+            const cont = document.getElementById('adminRecentTrx');
+            cont.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin" style="font-size:24px; color:var(--royal-blue);"></i></div>';
+            
+            const q = query(collection(db, "tabungan_trx"), where("memberId", "==", memberId));
+            const snap = await getDocs(q);
+            let dataArr = []; snap.forEach(d => dataArr.push({id: d.id, ...d.data()}));
+            
+            dataArr.sort((a, b) => b.timestamp - a.timestamp); 
+            dataArr = dataArr.slice(0, 5); 
+            
+            cont.innerHTML = "";
+            if(dataArr.length === 0) { cont.innerHTML = '<div style="text-align:center; font-size:10px; color:#aaa; margin-top:10px;">Belum ada Riwayat Transaksi.</div>'; return; }
+            
+            dataArr.forEach(data => {
+                const dateStr = new Date(data.timestamp).toLocaleDateString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+                const isPlus = data.type === 'IN';
+                
+                const btnDelete = isSuperAdmin ? `<button class="btn-edit" style="color:var(--danger); background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);" onclick="window.deleteTrx('${data.id}', ${data.amount}, '${data.type}', '${memberId}')"><i class="fas fa-trash"></i></button>` : ``;
+
+                cont.innerHTML += `
+                <div class="admin-hist-item">
+                    <div style="font-size:11px;"><div style="font-weight:700; color:${isPlus?'var(--success)':'var(--danger)'};">${isPlus?'+':'-'} Rp ${data.amount.toLocaleString('id-ID')}</div><div style="color:#94A3B8;">${dateStr}</div></div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-edit" onclick="window.openEditTrx('${data.id}', ${data.amount})"><i class="fas fa-pencil-alt"></i></button>
+                        ${btnDelete}
+                    </div>
+                </div>`;
+            });
+        }
+
+        window.openEditTrx = (trxId, amount) => {
+            document.getElementById('editTrxId').value = trxId; document.getElementById('editOldAmount').value = amount; document.getElementById('editNewAmount').value = amount; document.getElementById('modalEditTrx').style.display = 'flex';
+        }
+
+        window.saveEditTrx = async () => {
+            const trxId = document.getElementById('editTrxId').value; const oldAmt = parseInt(document.getElementById('editOldAmount').value); const newAmt = parseInt(document.getElementById('editNewAmount').value); const memberId = document.getElementById('depMemberId').value;
+            if(!newAmt) return;
+            await runTransaction(db, async(t) => {
+                const memRef = doc(db, "anggota", memberId); const trxRef = doc(db, "tabungan_trx", trxId); const memDoc = await t.get(memRef);
+                const currentBal = memDoc.data().tabungan || 0; const diff = newAmt - oldAmt; const finalBal = currentBal + diff;
+                t.update(memRef, { tabungan: finalBal }); t.update(trxRef, { amount: newAmt });
+            });
+            document.getElementById('modalEditTrx').style.display = 'none'; 
+            window.loadAdminRecentTrx(memberId); 
+        }
+
+        window.deleteTrx = async (trxId, amount, type, memberId) => {
+            const konf1 = await showConfirm("HAPUS MUTASI", "Yakin ingin menghapus data transaksi ini secara permanen?<br><br><span style='color:var(--danger);'>Peringatan: Saldo tabungan member akan otomatis disesuaikan (dikurangi/ditambah).</span>");
+            if(!konf1) return;
+
+            const pass = await showConfirm("OTORISASI ADMIN", "Masukkan Password Admin (Wajib):", true);
+            if(pass !== "KC2026") return showAlert("AKSES DITOLAK", "Password Administrator Salah!");
+
+            document.getElementById('loaderOverlay').style.display = 'flex';
+            try {
+                await runTransaction(db, async(t) => {
+                    const memRef = doc(db, "anggota", memberId);
+                    const trxRef = doc(db, "tabungan_trx", trxId);
+                    const memDoc = await t.get(memRef);
+                    let currentBal = memDoc.data().tabungan || 0;
+                    
+                    if(type === 'IN') currentBal -= amount; 
+                    else if (type === 'OUT') currentBal += amount; 
+                    
+                    t.update(memRef, { tabungan: currentBal });
+                    t.delete(trxRef);
+                });
+                document.getElementById('loaderOverlay').style.display = 'none';
+                await showAlert("BERHASIL", "Data Transaksi berhasil dihapus dan Saldo member telah dikoreksi secara otomatis.");
+                window.loadAdminRecentTrx(memberId); 
+            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showAlert("ERROR SISTEM", e.message); }
+        }
+
+        window.processDeposit = async () => {
+            const id = document.getElementById('depMemberId').value; const amt = parseInt(document.getElementById('depAmount').value);
+            if(!amt) return;
+            await runTransaction(db, async(t)=>{
+                const mRef=doc(db,"anggota",id); const mDoc=await t.get(mRef);
+                t.update(mRef, {tabungan: (mDoc.data().tabungan||0)+amt});
+                t.set(doc(collection(db,"tabungan_trx")), {memberId:id, memberName:(mDoc.data().namaKtp||mDoc.data().nama||"User"), type:'IN', amount:amt, desc:'Setoran Tunai (Via Admin)', timestamp:Date.now(), status:'SUCCESS'});
+            });
+            document.getElementById('depAmount').value = ''; 
+            window.loadAdminRecentTrx(id); 
+        }
+
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('view'+tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function loadHistory() {
+            const list = document.getElementById('historyList');
+            const qHist = query(collection(db, "tabungan_trx"), where("memberId", "==", userId));
+            onSnapshot(qHist, (snap) => {
+                list.innerHTML = ""; let arr = []; snap.forEach(d => arr.push(d.data())); arr.sort((a,b) => b.timestamp - a.timestamp);
+                if(arr.length===0) { list.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8; font-size:12px;">Belum ada Riwayat Mutasi Rekening.</div>`; return; }
+                arr.forEach(d => {
+                    const color = d.type === 'IN' ? 'var(--success)' : 'var(--danger)'; 
+                    const sign = d.type === 'IN' ? '+' : '-';
+                    const dateStr = new Date(d.timestamp).toLocaleDateString('id-ID', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+                    const pendingTag = d.status === 'PENDING' ? `<span style="background:var(--warning); color:black; padding:2px 5px; border-radius:5px; font-size:8px; margin-left:5px; font-weight:900;">TUNGGU VALIDASI</span>` : '';
+
+                    list.innerHTML += `
+                    <div class="trx-item">
+                        <div><div style="font-weight:800; font-size:13px; color:var(--text-main);">${d.desc} ${pendingTag}</div><div style="font-size:10px; color:var(--text-muted); margin-top:3px;">${dateStr}</div></div>
+                        <div style="font-family:'Space Grotesk'; font-weight:900; font-size:14px; color:${d.status==='PENDING'?'#64748B':color};">${sign} Rp ${d.amount.toLocaleString('id-ID')}</div>
+                    </div>`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>

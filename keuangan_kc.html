@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KC Finance - Transparency Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* === TEMA KARTIKA CHANDRA (DARK NEON) === */
+        :root { 
+            --royal-blue: #D4FF00; 
+            --electric-blue: #10B981; 
+            --bg-surface: #050505; 
+            --white: #FFFFFF; 
+            --income: #10B981; 
+            --expense: #EF4444; 
+            --text-main: #FFFFFF; 
+            --text-muted: #94A3B8; 
+            
+            --glow-blue: 0 10px 30px rgba(212, 255, 0, 0.15);
+            --glow-red: 0 10px 25px rgba(239, 68, 68, 0.15);
+            --glow-green: 0 10px 25px rgba(16, 185, 129, 0.15);
+        }
+        
+        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; padding-bottom: 120px; -webkit-font-smoothing: antialiased; color: var(--text-main);}
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        /* HEADER */
+        .header-finance { 
+            background: linear-gradient(160deg, #111 0%, #0a0a0a 100%); 
+            padding: 50px 25px 90px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; 
+            text-align: center; position: relative;
+            box-shadow: var(--glow-blue); border-bottom: 2px solid rgba(212, 255, 0, 0.2);
+        }
+        .date-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; opacity: 0.9; text-transform: uppercase; color: var(--electric-blue);}
+        .total-balance { font-family: 'Space Grotesk'; font-size: 38px; font-weight: 900; margin: 5px 0; letter-spacing: -1px; color: var(--royal-blue);}
+
+        /* SUMMARY CARD */
+        .card-overlap { padding: 0 20px; margin-top: -40px; position: relative; z-index: 10; }
+        .summary-card { 
+            background: rgba(15,15,15,0.9); backdrop-filter: blur(15px);
+            border-radius: 25px; padding: 25px; display: flex; justify-content: space-between; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .stat-box { text-align: center; width: 48%; }
+        .stat-val { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; margin-top: 5px; }
+
+        /* TOMBOL QRIS */
+        .qris-btn-area { padding: 0 20px; margin-top: 20px; }
+        .btn-bayar-qris { 
+            width: 100%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); 
+            color: white; border: none; padding: 18px; border-radius: 20px; 
+            font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            cursor: pointer; box-shadow: var(--glow-green); letter-spacing: 1px;
+        }
+        .btn-bayar-qris:active { transform: scale(0.97); }
+
+        /* TAB NAVIGATION */
+        .tab-wrapper { display: flex; margin: 25px 20px 15px; background: #111; border-radius: 16px; padding: 6px; border: 1px solid #333; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; font-family: 'Space Grotesk'; font-size: 13px; font-weight: 800; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.3s; }
+        .tab-btn.active { background: #222; color: var(--royal-blue); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid #444;}
+
+        /* LIST SECTION */
+        .list-section { padding: 0 20px 30px; }
+        .month-divider { display: flex; justify-content: space-between; align-items: flex-end; font-family: 'Space Grotesk'; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; border-bottom: 2px dashed #333; padding-bottom: 8px; margin: 25px 0 15px 0; letter-spacing: 1px; }
+        .m-total { font-size: 13px; font-weight: 900; }
+
+        .tx-card { 
+            background: #0f0f0f;
+            border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 15px; 
+            border: 1px solid #222; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink:0; }
+        .bg-in { background: rgba(16, 185, 129, 0.1); color: var(--income); } .bg-out { background: rgba(239, 68, 68, 0.1); color: var(--expense); }
+        
+        .tx-info { flex: 1; padding-bottom: 15px; }
+        .tx-title { font-weight: 800; font-size: 14px; color: white; line-height: 1.3;}
+        .tx-meta { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+        
+        .tx-amount { font-family: 'Space Grotesk'; font-weight: 900; font-size: 15px; text-align:right;}
+        .tx-sub { font-size: 9px; color: var(--text-muted); font-family: 'Inter'; font-weight: 700; text-transform: uppercase;}
+        
+        .audit-trail { font-size: 9px; color: #64748B; font-weight: 800; margin-top: 8px; display: flex; align-items: center; gap: 4px; border-top: 1px dashed #333; padding-top: 8px;}
+        
+        /* ACTION BUTTONS */
+        .btn-edit { position: absolute; right: 48px; bottom: 12px; font-size: 12px; color: var(--royal-blue); background: #1a1a1a; border: 1px solid #333; width: 28px; height: 28px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-del { position: absolute; right: 15px; bottom: 12px; font-size: 12px; color: var(--danger); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); width: 28px; height: 28px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* BUTTON LIHAT BUKTI (STRUK & KOLEKTIF) */
+        .btn-lihat-kolektif { background: rgba(212,255,0,0.1); color: var(--royal-blue); border: 1px solid rgba(212,255,0,0.2); padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; font-family: 'Inter'; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; transition: 0.2s;}
+        .btn-lihat-struk { background: rgba(239, 68, 68, 0.1); color: var(--expense); border: 1px solid rgba(239,68,68,0.2); padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; font-family: 'Inter'; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; transition: 0.2s;}
+
+        .fab-admin { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--royal-blue); color: black; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--glow-blue); border: 2px solid #000; cursor: pointer; z-index: 1000; transition: 0.2s;}
+        .fab-admin:active { transform: scale(0.9); }
+        
+        .back-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 1000;}
+        .btn-premium-back { background: #111; border: 1px solid #333; padding: 14px 25px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--royal-blue); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-box { 
+            background: #111; width: 90%; max-width: 450px; 
+            border-radius: 25px; padding: 25px; 
+            transform: scale(0.9); animation: scaleUp 0.3s forwards; max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8); border: 1px solid #333;
+        }
+        @keyframes scaleUp { to { transform: scale(1); } }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-family: 'Space Grotesk'; font-size: 20px; font-weight: 900; color: var(--royal-blue); }
+        .btn-close { background: #222; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; color: white; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block; }
+        .form-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #333; background: #000; font-family: 'Inter'; font-weight: 600; font-size: 14px; color: white; outline: none; transition: 0.2s;}
+        .form-input:focus { border-color: var(--royal-blue); }
+        
+        .btn-save-modal { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--royal-blue); color: black; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; margin-top: 10px; cursor: pointer; letter-spacing: 1px;}
+
+        /* UPLOAD STRUK AREA */
+        .upload-struk-area { border: 2px dashed #333; border-radius: 16px; padding: 15px; text-align: center; background: #0a0a0a; cursor: pointer; position: relative; margin-bottom: 15px; transition: 0.2s;}
+        .upload-struk-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .struk-preview { width: 100%; max-height: 150px; border-radius: 10px; object-fit: contain; display: none; margin-top: 10px; border: 1px solid #333; }
+
+        /* LIGHTBOX STRUK */
+        .photo-viewer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px;}
+        .pv-container { position: relative; max-width: 400px; width: 100%; text-align: center; }
+        .pv-container img { width: 100%; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); object-fit: contain; max-height: 80vh; border: 2px solid #333; }
+        .pv-close { position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; border-radius: 50%; background: var(--danger); color: white; border: 2px solid white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--glow-red); transition: 0.2s; }
+
+        /* QRIS MODAL */
+        .qris-img-container { background: #111; border: 2px dashed #333; padding: 20px; border-radius: 25px; margin: 0 auto 20px; width: fit-content;}
+        .qris-img-container img { width: 220px; height: auto; border-radius: 15px; }
+        .rek-manual { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-radius: 16px; text-align: center; margin-top: 15px; }
+        .rek-manual .b-number { font-family: 'Space Grotesk'; font-size: 24px; font-weight: 900; color: var(--royal-blue); margin-bottom: 5px; letter-spacing: 2px;}
+        .btn-copy { background: #222; border: 1px solid #333; color: white; padding: 8px 16px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; margin-top: 10px;}
+
+        /* KOLEKTIF UI */
+        .coll-area { display: none; background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 15px; margin-bottom: 15px; }
+        .coll-item { background: #111; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 12px; position: relative; }
+        .coll-row-flex { display: flex; gap: 8px; margin-bottom: 8px; padding-right: 35px; }
+        .k-in { padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 13px; font-weight: 600; outline: none; width: 100%; }
+        .btn-del-coll { position: absolute; top: 15px; right: 15px; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header class="header-finance">
+        <div class="date-label" id="lblDate">SALDO KAS KC</div>
+        <h1 class="total-balance" id="totalCash">Rp 0</h1>
+    </header>
+
+    <div class="card-overlap">
+        <div class="summary-card">
+            <div class="stat-box">
+                <div style="font-size:9px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Total Masuk</div>
+                <div class="stat-val" style="color:var(--income);" id="totalIn">Rp 0</div>
+            </div>
+            <div style="width:1px; background:#333;"></div>
+            <div class="stat-box">
+                <div style="font-size:9px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Total Keluar</div>
+                <div class="stat-val" style="color:var(--expense);" id="totalOut">Rp 0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="qris-btn-area">
+        <button class="btn-bayar-qris" onclick="document.getElementById('qrisModal').style.display='flex'">
+            <i class="fas fa-qrcode" style="font-size: 20px;"></i> BAYAR KAS / TRANSFER
+        </button>
+    </div>
+
+    <div class="tab-wrapper">
+        <div class="tab-btn active" id="tabBtnIn" onclick="switchTab('IN')">Pemasukan Kas</div>
+        <div class="tab-btn" id="tabBtnOut" onclick="switchTab('OUT')">Pengeluaran Kas</div>
+    </div>
+
+    <main class="list-section">
+        <div id="txInContainer"></div>
+        <div id="txOutContainer" style="display:none;"></div>
+    </main>
+
+    <button class="fab-admin" id="btnAddTx" onclick="openTxModal()"><i class="fas fa-plus"></i></button>
+    <div class="back-nav"><a href="dashboard_kc.html" class="btn-premium-back"><i class="fas fa-arrow-left"></i> KEMBALI KE DASHBOARD</a></div>
+
+    <div class="photo-viewer-overlay" id="photoViewer" onclick="closePhoto()">
+        <div class="pv-container" onclick="event.stopPropagation()">
+            <img id="pvImage" src="">
+            <button class="pv-close" onclick="closePhoto()"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="qrisModal">
+        <div class="modal-box" style="text-align: center;">
+            <div class="modal-header">
+                <div class="modal-title" style="color:white;"><i class="fas fa-wallet"></i> Pembayaran Kas</div>
+                <button class="btn-close" onclick="document.getElementById('qrisModal').style.display='none'"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="qris-img-container">
+                <img src="qris_kc.jpg" alt="QRIS KC" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:40px; color:#EF4444; font-weight:bold;\'>Gambar qris_kc.jpg tidak ditemukan.</div>'">
+            </div>
+            <div class="rek-manual">
+                <div style="font-size:11px; color:var(--text-muted); font-weight:900;">ATAU TRANSFER MANUAL:</div>
+                <div class="b-number" id="rekNumber">1234567890</div>
+                <div style="font-size:12px; font-weight:700; color:white;">Bank BCA a.n. Bendahara KC</div>
+                <button class="btn-copy" onclick="copyRekening()"><i class="fas fa-copy"></i> SALIN REKENING</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="txModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitleText">Catat Transaksi</div>
+                <button class="btn-close" onclick="closeTxModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <input type="hidden" id="formEditId">
+
+            <div class="form-group">
+                <label>Jenis Transaksi</label>
+                <select id="formTxType" class="form-input" style="font-weight: 800;" onchange="toggleFormType()">
+                    <option value="IN">PEMASUKAN KAS</option>
+                    <option value="IN_COLLECTIVE" style="color:var(--royal-blue);">PEMASUKAN KOLEKTIF (KOPDAR)</option>
+                    <option value="OUT" style="color:var(--danger);">PENGELUARAN KAS</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Keterangan</label>
+                <input type="text" id="formTxDesc" class="form-input" placeholder="Contoh: Iuran Kopdar / Beli Kopi">
+            </div>
+
+            <div id="strukArea" style="display:none;">
+                <div class="upload-struk-area">
+                    <i class="fas fa-receipt" style="font-size:24px; color:var(--text-muted); margin-bottom:5px; display:block;"></i>
+                    <div style="font-size:11px; font-weight:700; color:var(--text-muted);">Tap untuk Upload Foto Struk/Bon</div>
+                    <input type="file" id="formStrukFoto" accept="image/*" onchange="previewStruk(this)">
+                    <img id="previewStrukImg" class="struk-preview">
+                </div>
+            </div>
+
+            <div class="form-group" id="formNormalAmount">
+                <label>Jumlah Nominal (Rp)</label>
+                <input type="number" id="formTxAmount" class="form-input" style="font-family:'Space Grotesk'; font-size:18px;">
+            </div>
+
+            <div class="coll-area" id="formCollective">
+                <label style="font-size:10px; font-weight:800; color:var(--royal-blue);">DAFTAR PENYUMBANG</label>
+                <div id="collList"></div>
+                <button type="button" style="width:100%; padding:10px; margin-top:5px; border:1px dashed var(--royal-blue); background:none; color:var(--royal-blue); border-radius:10px; font-weight:800; cursor:pointer;" onclick="addCollRow()">+ TAMBAH ANGGOTA</button>
+                <div style="margin-top:15px; text-align:right; font-family:'Space Grotesk'; font-size:16px; font-weight:900; color:var(--success);">TOTAL: Rp <span id="collTotalDisplay">0</span></div>
+            </div>
+            
+            <button class="btn-save-modal" id="btnSaveTx" onclick="saveTxData()">SIMPAN TRANSAKSI</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">Rincian Pemasukan</div>
+                <button class="btn-close" onclick="document.getElementById('detailModal').style.display='none'"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="detailListBody" style="background:#111; border:1px solid #333; border-radius:16px; max-height: 50vh; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // KONEKSI DATABASE KC BARU
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
+            authDomain: "antriankcnew.firebaseapp.com",
+            projectId: "antriankcnew",
+            storageBucket: "antriankcnew.firebasestorage.app",
+            messagingSenderId: "348986439499",
+            appId: "1:348986439499:web:99578753dc9547d727dace"
+        };
+        const app = initializeApp(firebaseConfig); 
+        const db = getFirestore(app);
+
+        const u = JSON.parse(localStorage.getItem('maka_user')) || {};
+        const isAdmin = true; 
+        if (isAdmin) document.getElementById('btnAddTx').style.display = 'flex';
+
+        document.getElementById('lblDate').innerText = `SALDO KAS KC PER ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}).toUpperCase()}`;
+
+        let currentStrukBase64 = "";
+
+        window.copyRekening = () => { navigator.clipboard.writeText(document.getElementById('rekNumber').innerText).then(() => alert("Tersalin!")).catch(()=>{}); };
+        
+        window.switchTab = (type) => {
+            if (type === 'IN') {
+                document.getElementById('tabBtnIn').classList.add('active'); document.getElementById('tabBtnOut').classList.remove('active');
+                document.getElementById('txInContainer').style.display = 'block'; document.getElementById('txOutContainer').style.display = 'none';
+            } else {
+                document.getElementById('tabBtnOut').classList.add('active'); document.getElementById('tabBtnIn').classList.remove('active');
+                document.getElementById('txOutContainer').style.display = 'block'; document.getElementById('txInContainer').style.display = 'none';
+            }
+        };
+
+        // KOMPRES FOTO STRUK
+        window.previewStruk = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
+                        let w = img.width; let h = img.height;
+                        if(w>800){ h*=800/w; w=800; } 
+                        cvs.width=w; cvs.height=h; ctx.drawImage(img,0,0,w,h);
+                        currentStrukBase64 = cvs.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('previewStrukImg').src = currentStrukBase64;
+                        document.getElementById('previewStrukImg').style.display = 'block';
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.viewPhoto = (src) => { document.getElementById('pvImage').src = src; document.getElementById('photoViewer').style.display = 'flex'; };
+        window.closePhoto = () => { document.getElementById('photoViewer').style.display = 'none'; };
+
+        window.txGlobalMap = {};
+
+        // LOAD DATA KAS DARI KOLEKSI 'kas_trx'
+        onSnapshot(query(collection(db, "kas_trx"), orderBy("timestamp", "desc")), (snap) => {
+            let balance = 0, globalIn = 0, globalOut = 0;
+            let groupIn = new Map(); let groupOut = new Map();
+            window.txGlobalMap = {}; 
+
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const amt = d.amount || 0;
+                window.txGlobalMap[docSnap.id] = { id: docSnap.id, ...d }; 
+                
+                const type = d.type === 'IN_COLLECTIVE' ? 'IN' : d.type; 
+                const monthYear = new Date(d.timestamp).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+                if (type === 'IN') { 
+                    globalIn += amt; balance += amt; 
+                    if(!groupIn.has(monthYear)) groupIn.set(monthYear, { total: 0, items: [] });
+                    groupIn.get(monthYear).total += amt; groupIn.get(monthYear).items.push({ id: docSnap.id, ...d });
+                } else { 
+                    globalOut += amt; balance -= amt; 
+                    if(!groupOut.has(monthYear)) groupOut.set(monthYear, { total: 0, items: [] });
+                    groupOut.get(monthYear).total += amt; groupOut.get(monthYear).items.push({ id: docSnap.id, ...d });
+                }
+            });
+
+            document.getElementById('totalCash').innerText = "Rp " + balance.toLocaleString('id-ID');
+            document.getElementById('totalIn').innerText = "Rp " + globalIn.toLocaleString('id-ID');
+            document.getElementById('totalOut').innerText = "Rp " + globalOut.toLocaleString('id-ID');
+
+            const renderGroupHtml = (mapData, isMasuk) => {
+                if(mapData.size === 0) return `<div style="text-align:center; padding:40px; color:#94A3B8;">Belum ada catatan.</div>`;
+                let html = '';
+                const colorTotal = isMasuk ? 'var(--income)' : 'var(--expense)';
+                
+                mapData.forEach((val, monthName) => {
+                    html += `<div class="month-divider"><span>${monthName}</span><span class="m-total" style="color:${colorTotal}">Rp ${val.total.toLocaleString('id-ID')}</span></div>`;
+                    val.items.forEach(d => {
+                        let subHtml = '';
+                        
+                        if (!isMasuk && d.strukImage) {
+                            subHtml += `<button class="btn-lihat-struk" onclick="viewPhoto('${d.strukImage}')"><i class="fas fa-receipt"></i> LIHAT BUKTI</button>`;
+                        }
+                        if (d.isCollective && d.details) {
+                            subHtml += `<button class="btn-lihat-kolektif" onclick="showCollectiveDetail('${encodeURIComponent(JSON.stringify(d.details))}')"><i class="fas fa-users"></i> RINCIAN</button>`;
+                        }
+
+                        let actionBtns = isAdmin ? `<button class="btn-edit" onclick="window.editTx('${d.id}')"><i class="fas fa-pen"></i></button><button class="btn-del" onclick="window.delTx('${d.id}')"><i class="fas fa-trash"></i></button>` : '';
+                        
+                        html += `
+                            <div class="tx-card">
+                                <div class="icon-box ${isMasuk ? 'bg-in' : 'bg-out'}"><i class="fas ${isMasuk ? 'fa-arrow-down' : 'fa-arrow-up'}"></i></div>
+                                <div class="tx-info">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <div class="tx-title">${d.description}</div>
+                                        <div class="tx-amount" style="color:${colorTotal}">${isMasuk?'+':'-'} Rp ${d.amount.toLocaleString('id-ID')}</div>
+                                    </div>
+                                    <div class="tx-meta">${d.date}</div>
+                                    ${subHtml}
+                                    <div class="audit-trail"><i class="fas fa-user-shield"></i> ${d.actor}</div>
+                                </div>
+                                ${actionBtns}
+                            </div>`;
+                    });
+                });
+                return html;
+            };
+
+            document.getElementById('txInContainer').innerHTML = renderGroupHtml(groupIn, true);
+            document.getElementById('txOutContainer').innerHTML = renderGroupHtml(groupOut, false);
+        });
+
+        // KONTROL FORM
+        window.toggleFormType = () => {
+            const type = document.getElementById('formTxType').value;
+            if (type === 'IN_COLLECTIVE') {
+                document.getElementById('formNormalAmount').style.display = 'none';
+                document.getElementById('formCollective').style.display = 'block';
+                document.getElementById('strukArea').style.display = 'none';
+                if(document.getElementById('collList').children.length === 0) addCollRow();
+            } else if (type === 'OUT') {
+                document.getElementById('formNormalAmount').style.display = 'block';
+                document.getElementById('formCollective').style.display = 'none';
+                document.getElementById('strukArea').style.display = 'block'; 
+            } else {
+                document.getElementById('formNormalAmount').style.display = 'block';
+                document.getElementById('formCollective').style.display = 'none';
+                document.getElementById('strukArea').style.display = 'none';
+            }
+        };
+
+        window.addCollRow = (n="", a="", no="", dt="") => {
+            if (!dt) dt = new Date().toISOString().split('T')[0];
+            const div = document.createElement('div'); div.className = 'coll-item';
+            div.innerHTML = `<button type="button" class="btn-del-coll" onclick="this.parentElement.remove(); calcCollTotal();"><i class="fas fa-trash"></i></button><div class="coll-row-flex"><input type="text" class="k-in c-name" placeholder="Nama Anggota" value="${n}" style="flex:1;"><input type="number" class="k-in c-amt" placeholder="Rp" value="${a}" onkeyup="calcCollTotal()" style="flex:1;"></div><div class="coll-row-flex"><input type="date" class="k-in c-date" value="${dt}" style="flex:0.6; color:#94A3B8;"><input type="text" class="k-in c-note" placeholder="Ket (Opsional)" value="${no}" style="flex:1;"></div>`;
+            document.getElementById('collList').appendChild(div);
+        };
+
+        window.calcCollTotal = () => {
+            let t = 0; document.querySelectorAll('.c-amt').forEach(e => t += parseInt(e.value)||0);
+            document.getElementById('collTotalDisplay').innerText = t.toLocaleString('id-ID');
+        };
+
+        window.openTxModal = () => { 
+            document.getElementById('formEditId').value = ''; document.getElementById('modalTitleText').innerText = 'Catat Transaksi';
+            document.getElementById('formTxAmount').value = ''; document.getElementById('formTxDesc').value = '';
+            document.getElementById('collList').innerHTML = ''; document.getElementById('collTotalDisplay').innerText = '0';
+            currentStrukBase64 = ""; document.getElementById('previewStrukImg').style.display='none'; document.getElementById('formStrukFoto').value='';
+            document.getElementById('formTxType').value = 'IN'; toggleFormType();
+            document.getElementById('txModal').style.display = 'flex'; 
+        };
+
+        window.editTx = (id) => {
+            const d = window.txGlobalMap[id]; if(!d) return;
+            document.getElementById('formEditId').value = id; document.getElementById('modalTitleText').innerText = 'Edit Transaksi';
+            document.getElementById('formTxDesc').value = d.description;
+            
+            if(d.isCollective) {
+                document.getElementById('formTxType').value = 'IN_COLLECTIVE'; toggleFormType();
+                document.getElementById('collList').innerHTML = ''; 
+                (d.details||[]).forEach(x => addCollRow(x.name, x.amount, x.note, x.date));
+                calcCollTotal();
+            } else {
+                document.getElementById('formTxType').value = d.type; toggleFormType();
+                document.getElementById('formTxAmount').value = d.amount;
+                if(d.strukImage) { 
+                    currentStrukBase64 = d.strukImage; 
+                    document.getElementById('previewStrukImg').src = d.strukImage; 
+                    document.getElementById('previewStrukImg').style.display='block'; 
+                }
+            }
+            document.getElementById('txModal').style.display = 'flex'; 
+        };
+
+        window.closeTxModal = () => { document.getElementById('txModal').style.display = 'none'; };
+
+        window.showCollectiveDetail = (enc) => {
+            const data = JSON.parse(decodeURIComponent(enc));
+            const body = document.getElementById('detailListBody'); body.innerHTML = '';
+            data.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+            data.forEach((d,i)=>{
+                body.innerHTML += `<div style="padding:15px; border-bottom:1px dashed #333; display:flex; justify-content:space-between; align-items:center;"><div><div style="font-weight:bold; color:white; text-transform:uppercase;">${i+1}. ${d.name}</div><div style="font-size:10px; color:#94A3B8;">${d.note||'Iuran'} • ${d.date||'-'}</div></div><div style="font-family:'Space Grotesk'; font-weight:900; color:var(--success);">Rp ${d.amount.toLocaleString('id-ID')}</div></div>`;
+            });
+            document.getElementById('detailModal').style.display='flex';
+        }
+
+        window.saveTxData = async () => {
+            const id = document.getElementById('formEditId').value;
+            const typeRaw = document.getElementById('formTxType').value;
+            const desc = document.getElementById('formTxDesc').value.trim();
+            if(!desc) return alert("Keterangan wajib diisi!");
+
+            let amount = 0, details = [], isColl = false, finalType = typeRaw;
+
+            if (typeRaw === 'IN_COLLECTIVE') {
+                isColl = true; finalType = 'IN';
+                document.querySelectorAll('.coll-item').forEach(r => {
+                    let n=r.querySelector('.c-name').value, a=parseInt(r.querySelector('.c-amt').value)||0, no=r.querySelector('.c-note').value, dt=r.querySelector('.c-date').value;
+                    if(n && a>0) { details.push({name:n, amount:a, note:no, date:dt}); amount+=a; }
+                });
+                if(details.length===0) return alert("Data penyumbang masih kosong!");
+            } else {
+                amount = parseInt(document.getElementById('formTxAmount').value);
+                if(!amount) return alert("Nominal wajib diisi!");
+            }
+
+            const btn = document.getElementById('btnSaveTx'); btn.innerText = "MENYIMPAN..."; btn.style.opacity = '0.7';
+
+            try {
+                let payload = { type: finalType, amount: amount, description: desc, isCollective: isColl };
+                if(isColl) payload.details = details;
+                if(currentStrukBase64 && typeRaw === 'OUT') payload.strukImage = currentStrukBase64; 
+
+                if (id) await updateDoc(doc(db, "kas_trx", id), payload);
+                else {
+                    payload.date = new Date().toLocaleDateString('id-ID'); payload.timestamp = Date.now();
+                    payload.actor = `${u.namaKtp||u.nama||"Admin KC"} (${u.plat||""})`;
+                    await addDoc(collection(db, "kas_trx"), payload);
+                }
+                closeTxModal();
+            } catch (e) { alert("Gagal menyimpan: " + e.message); } 
+            finally { btn.innerText = "SIMPAN TRANSAKSI"; btn.style.opacity = '1'; }
+        };
+
+        window.delTx = async (id) => { if(confirm("Yakin ingin menghapus riwayat kas ini? Saldo akan menyesuaikan.")) await deleteDoc(doc(db, "kas_trx", id)); };
+    </script>
+</body>
+</html>

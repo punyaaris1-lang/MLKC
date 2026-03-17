@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KC - Directory Anggota</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        :root { 
+            --royal-blue: #D4FF00; --electric-blue: #10B981; --bg-surface: #050505; 
+            --text-main: #FFFFFF; --text-muted: #94A3B8; --danger: #EF4444; --success: #10B981;
+        }
+        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 120px; overflow-x: hidden; position: relative; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; outline: none; text-decoration: none; }
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; animation: floatLight 10s infinite alternate; }
+        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: #D4FF00; }
+        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: #10B981; animation-delay: 2s; }
+        @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
+        .header-main { padding: 40px 20px 20px; position: relative; z-index: 10; text-align: center; }
+        .sub-tag { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--electric-blue); text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .main-title { font-family: 'Outfit'; font-size: 32px; font-weight: 900; color: var(--royal-blue); margin: 0; letter-spacing: -1px; text-shadow: 0 0 15px rgba(212,255,0,0.3); }
+        .search-container { padding: 0 20px 20px; position: sticky; top: 0; z-index: 99; margin-top: 10px; }
+        .search-box { background: #111; border-radius: 20px; padding: 5px 20px; display: flex; align-items: center; border: 1px solid #333; transition: 0.3s; }
+        .search-box:focus-within { border-color: var(--royal-blue); }
+        .search-box i { color: var(--royal-blue); font-size: 18px; margin-right: 12px; }
+        .search-box input { flex: 1; border: none; padding: 16px 0; font-family: 'Inter'; font-size: 14px; font-weight: 600; background: transparent; color: var(--text-main); outline: none; }
+        .list-container { padding: 0 20px 30px; display: flex; flex-direction: column; gap: 15px; }
+        .member-card { background: #0f0f0f; border: 1px solid #222; border-radius: 24px; padding: 18px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); animation: slideUp 0.5s ease-out backwards; position: relative;}
+        .member-card.is-pengurus { background: linear-gradient(135deg, #111 0%, rgba(212,255,0,0.05) 100%); border-color: rgba(212,255,0,0.3); border-left: 5px solid var(--royal-blue); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .m-photo-wrap { position: relative; width: 65px; height: 65px; border-radius: 18px; border: 2px solid #333; flex-shrink: 0; cursor: zoom-in; box-shadow: 0 8px 20px rgba(0,0,0,0.5); overflow: hidden; background: #111; }
+        .is-pengurus .m-photo-wrap { border-color: var(--royal-blue); }
+        .m-photo-bg { position: absolute; inset: 0; background-image: url('bg_maka.jpg'); background-size: cover; background-position: center; z-index: 1; opacity: 0.6; }
+        .m-photo-img { position: relative; width: 100%; height: 100%; object-fit: cover; z-index: 3; background: transparent;}
+        .m-photo-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: rgba(255,255,255,0.7); z-index: 2; }
+        .m-info { flex: 1; min-width: 0; }
+        .m-name { font-family: 'Outfit'; font-size: 16px; font-weight: 800; color: white; text-transform: uppercase; margin-bottom: 6px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .m-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+        .badge { font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .bg-plat { background: rgba(212,255,0,0.1); color: var(--royal-blue); border-color: rgba(212,255,0,0.2); }
+        .bg-role { background: rgba(255,255,255,0.05); color: #cbd5e1; border-color: rgba(255,255,255,0.1); }
+        .bg-admin { background: var(--royal-blue); color: #000; }
+        .m-actions { display: flex; flex-direction: column; gap: 8px; }
+        .btn-act { width: 38px; height: 38px; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-call { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+        .btn-del { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); display: none; }
+        .fab-add { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--royal-blue); color: black; border-radius: 20px; display: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 5px 20px rgba(212,255,0,0.4); border: 2px solid #000; cursor: pointer; z-index: 1000; }
+        .back-nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 100; text-align: center;}
+        .btn-premium-back { background: rgba(10,10,10,0.9); backdrop-filter: blur(15px); border: 1px solid #333; padding: 14px 25px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 12px; color: var(--royal-blue); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;}
+        .btn-import { background: #111; color: var(--royal-blue); border: 1px solid var(--royal-blue); padding: 12px; border-radius: 12px; font-size: 10px; font-weight: 900; margin-bottom: 20px; width: 100%; cursor: pointer; display: none; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <header class="header-main">
+        <span class="sub-tag">DATABASE KOMUNITAS</span>
+        <h1 class="main-title" ondblclick="showImportBtn()">DATA ANGGOTA KC</h1>
+    </header>
+
+    <div class="search-container">
+        <button id="btnImportData" class="btn-import" onclick="importNewMembers()">⚡ SYNC & AUTO-SORT JABATAN (31 ANGGOTA BARU)</button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari nama, plat, atau jabatan..." onkeyup="filterList()">
+        </div>
+    </div>
+
+    <main class="list-container" id="memberList">
+        <div style="text-align:center; padding:50px; color:#94A3B8;"><i class="fas fa-spinner fa-spin"></i> Membangun Hierarki...</div>
+    </main>
+
+    <button class="fab-add" id="btnAdd" onclick="window.location.href='dashboard_kc.html'"><i class="fas fa-plus"></i></button>
+    
+    <div class="back-nav">
+        <a href="dashboard_kc.html" class="btn-premium-back"><i class="fas fa-arrow-left"></i> KEMBALI KE DASHBOARD</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM", authDomain: "antriankcnew.firebaseapp.com", projectId: "antriankcnew" };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+
+        // KASTA JABATAN (Nilai terkecil = Paling atas)
+        const hierarchy = {
+            "KETUA UMUM": 1,
+            "WAKIL KETUA": 2,
+            "PEMBINA": 3,
+            "PENASEHAT": 4,
+            "SEKRETARIS": 5,
+            "BENDAHARA": 6,
+            "HUMAS INTERNAL": 7,
+            "HUMAS EKSTERNAL": 8,
+            "KREATOR": 9,
+            "URC KC": 10,
+            "URC": 10,
+            "MEMBER": 11
+        };
+
+        const getRank = (role) => {
+            if(!role) return 11;
+            const r = role.toUpperCase();
+            return hierarchy[r] || 12;
+        };
+
+        window.showImportBtn = () => { document.getElementById('btnImportData').style.display = 'block'; };
+
+        let membersData = [];
+
+        onSnapshot(collection(db, "anggota"), (snap) => {
+            membersData = [];
+            snap.forEach(doc => { membersData.push({ id: doc.id, ...doc.data() }); });
+            renderList(membersData);
+        });
+
+        function renderList(data) {
+            const list = document.getElementById('memberList'); list.innerHTML = '';
+            
+            // LOGIKA AUTO-SORT: Jabatan Dulu -> Nama
+            data.sort((a, b) => {
+                const rankA = getRank(a.role);
+                const rankB = getRank(b.role);
+                if (rankA !== rankB) return rankA - rankB;
+                return (a.namaKtp || "").localeCompare(b.namaKtp || "");
+            });
+
+            data.forEach((m) => {
+                const isPengurus = getRank(m.role) < 11;
+                const photoHtml = (m.foto && m.foto.length > 50) ? `<img src="${m.foto}" class="m-photo-img">` : `<div class="m-photo-fallback"><i class="fas fa-user"></i></div>`;
+                const waLink = m.hp ? `https://wa.me/62${m.hp.replace(/^0+/, '').replace(/\s+/g, '')}` : '#';
+
+                list.innerHTML += `
+                    <div class="member-card ${isPengurus?'is-pengurus':''}">
+                        <div class="m-photo-wrap"><div class="m-photo-bg"></div>${photoHtml}</div>
+                        <div class="m-info">
+                            <div class="m-name">${m.namaKtp}</div>
+                            <div class="m-badges">
+                                <span class="badge bg-plat">${m.plat}</span>
+                                <span class="badge bg-role">${m.type || m.vendor || 'TRANSGO'}</span>
+                                ${isPengurus ? `<span class="badge bg-admin">${m.role}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="m-actions">
+                            <a href="${waLink}" class="btn-act btn-call" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                            <button class="btn-act btn-del" style="display:block;" onclick="deleteMember('${m.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.importNewMembers = async () => {
+            const btn = document.getElementById('btnImportData');
+            btn.innerText = "MENGATUR ULANG BARISAN...";
+            
+            const newData = [
+                { n: "Yan Setiawan", p: "B 4351 SWJ", t: "TRANSGO", h: "", r: "MEMBER" },
+                { n: "Aji Purwanto", p: "B 4761 SWE", t: "TRANSGO", h: "082128835198", r: "MEMBER" },
+                { n: "Muhammad Sanjaya, Ozay", p: "B 4764 SWE", t: "TRANSGO", h: "082326255739", r: "MEMBER" },
+                { n: "Wahyu", p: "B 4808 SWJ", t: "TRANSGO", h: "081212250545", r: "MEMBER" },
+                { n: "Angga", p: "B 4129 SWI", t: "TRANSGO", h: "087730732136", r: "MEMBER" },
+                { n: "Sigit", p: "B 4365 SWH", t: "RTO", h: "089637379705", r: "MEMBER" },
+                { n: "Dimas aji", p: "B 4624 SWH", t: "TRANSGO", h: "089527791486", r: "MEMBER" },
+                { n: "Wahidun", p: "B 4811 SWE", t: "RTO", h: "081382038764", r: "MEMBER" },
+                { n: "Jae", p: "B 4239 SWJ", t: "RTO", h: "085176864678", r: "MEMBER" },
+                { n: "Ahmad Sulaeman", p: "B 4852 SWJ", t: "TRANSGO", h: "089677714222", r: "MEMBER" },
+                { n: "Ozil", p: "B 4292 SWE", t: "TRANSGO", h: "081288498116", r: "MEMBER" },
+                { n: "Risalah", p: "B 4609 SWH", t: "TRANSGO", h: "081298473825", r: "MEMBER" },
+                { n: "Andri", p: "B 4689 SWG", t: "TRANSGO", h: "081293905646", r: "MEMBER" },
+                { n: "Sujono", p: "B 4724 SWG", t: "RTO", h: "085278749334", r: "MEMBER" },
+                { n: "JUNIOR", p: "B 4597 SWH", t: "RTO", h: "081280458810", r: "MEMBER" },
+                { n: "DANIEL", p: "B 4680 SWM", t: "TRANSGO", h: "085759610201", r: "MEMBER" },
+                { n: "CHIKAL", p: "B 4919 SWG", t: "TRANSGO", h: "081211883770", r: "MEMBER" },
+                { n: "ARAY", p: "B 4611 SWH", t: "TRANSGO", h: "085814568116", r: "MEMBER" },
+                { n: "Aditya", p: "B 4851 SWJ", t: "TRANSGO", h: "081313913605", r: "MEMBER" },
+                { n: "Brian", p: "B 4113 SWI", t: "TRANSGO", h: "082174794646", r: "MEMBER" },
+                { n: "Mas Joy", p: "B 4610 SWH", t: "TRANSGO", h: "089669079112", r: "MEMBER" },
+                { n: "Dani", p: "-", t: "TRANSGO", h: "081380005238", r: "MEMBER" },
+                { n: "Pemuda Tersesat(Yunus)", p: "B 4710 SWI", t: "TRANSGO", h: "081310516644", r: "MEMBER" },
+                { n: "Artto (Suhartono)", p: "B 4762 SWJ", t: "TRANSGO", h: "081298734876", r: "MEMBER" },
+                { n: "Fahri Fauzi", p: "B 4805 SWJ", t: "RTO", h: "081335352233", r: "MEMBER" },
+                { n: "Ari", p: "B 4177 SWI", t: "RTO", h: "081211834279", r: "MEMBER" },
+                { n: "Rizki", p: "B 4379 SDW", t: "TRANSGO", h: "0895803355777", r: "MEMBER" },
+                { n: "Leon", p: "B 4188 SWI", t: "TRANSGO", h: "087880601153", r: "MEMBER" },
+                { n: "Andri king", p: "B 4883 SWE", t: "RTO", h: "081388990337", r: "MEMBER" },
+                { n: "Anggoro", p: "B 4087 SWM", t: "TRANSGO", h: "081210699123", r: "MEMBER" },
+                { n: "Indra maulana", p: "B 4443 SWF", t: "RTO", h: "083194066650", r: "MEMBER" }
+            ];
+
+            try {
+                for (const item of newData) {
+                    const id = item.p.replace(/\s+/g, '') || item.n.replace(/\s+/g, '');
+                    await setDoc(doc(db, "anggota", id), {
+                        namaKtp: item.n.toUpperCase(),
+                        plat: item.p.toUpperCase(),
+                        type: item.t.toUpperCase(),
+                        hp: item.h,
+                        role: item.r,
+                        tabungan: 0
+                    }, { merge: true });
+                }
+                alert("SUKSES! Jabatan Ketum dkk sudah di posisi paling atas.");
+                btn.style.display = 'none';
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        };
+
+        window.deleteMember = async (id) => { if(confirm("Hapus data?")) await deleteDoc(doc(db, "anggota", id)); };
+        window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt))); renderList(filtered); };
+    </script>
+</body>
+</html>

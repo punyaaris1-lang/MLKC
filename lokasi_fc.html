@@ -83,11 +83,11 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // KONEKSI FIREBASE KC (antriankcnew)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
-            authDomain: "antriankcnew.firebaseapp.com",
-            projectId: "antriankcnew"
+        // KONEKSI KE DATABASE MLU (KHUSUS UNTUK BACA LOKASI FC SAJA)
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", 
+            authDomain: "rtomaka-e67b5.firebaseapp.com", 
+            projectId: "rtomaka-e67b5" 
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -101,8 +101,9 @@
         map = L.map('map', { zoomControl: false }).setView([myLat, myLng], 12);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-        // DATA UTAMA (KC)
+        // DATA DEFAULT (JAGA-JAGA)
         const fixedStations = [
+            { id: 'gading', name: 'FC Kelapa Gading', lat: -6.159389, lng: 106.901416, isActive: true, mapLink: '' },
             { id: 'kc', name: 'FC Kartika Chandra', lat: -6.2285953, lng: 106.819502, isActive: true, mapLink: '' }
         ];
 
@@ -130,7 +131,7 @@
 
         window.recenterMap = () => { if(userMarker) map.setView([myLat, myLng], 14); }
 
-        // BACA DATABASE FIREBASE SECARA REALTIME
+        // BACA DATABASE FIREBASE SECARA REALTIME DARI MLU
         onSnapshot(locRef, (snap) => {
             fcMarkers.forEach(m => map.removeLayer(m));
             fcMarkers = [];
@@ -138,7 +139,10 @@
             let allLocations = [...fixedStations]; 
             
             snap.forEach(doc => {
-                allLocations.push({ id: doc.id, ...doc.data() });
+                // Cek agar tidak duplikat dengan fixedStations jika ID nya sama
+                if(doc.id !== 'gading' && doc.id !== 'kc') {
+                    allLocations.push({ id: doc.id, ...doc.data() });
+                }
             });
 
             // Render ke Peta

@@ -1,48 +1,35 @@
-// Ganti nama cache biar fresh di GitHub
-const CACHE_NAME = 'kc-app-github-v1';
+const CACHE_NAME = 'kc-pwa-v2'; // NANTI KALAU ADA UPDATE LAGI, GANTI JADI v3, v4, dst.
 
-// Pakai ./ (titik slash) biar aman di GitHub Pages
-const urlsToCache = [
-  './index_kc.html',
-  './dashboard_kc.html',
-  './logo_kc.png',
-  './sore.png'
-];
-
-// Install & Simpan Cache
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('Cache KC GitHub Berhasil Dibuat');
-      return cache.addAll(urlsToCache);
-    })
-  );
-  self.skipWaiting();
+// Install langsung tanpa nunggu
+self.addEventListener('install', (event) => {
+    self.skipWaiting(); 
 });
 
-// Panggil dari Cache kalau Offline / Lemot
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    }).catch(() => {
-      return fetch(event.request);
-    })
-  );
+// Bersihkan Cache versi lama (Nuke)
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cache) => {
+                    if (cache !== CACHE_NAME) {
+                        return caches.delete(cache);
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
+    );
 });
 
-// Hapus Cache KC yang lama (Aman, ga nyentuh MLU)
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName.startsWith('kc-app-') && cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
+// Strategi "Network First" -> Selalu ambil dari GitHub dulu, kalau sinyal jelek baru pakai Cache
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        fetch(event.request)
+            .then((networkResponse) => {
+                return caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, networkResponse.clone());
+                    return networkResponse;
+                });
+            })
+            .catch(() => caches.match(event.request))
+    );
 });

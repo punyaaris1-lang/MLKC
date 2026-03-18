@@ -337,7 +337,7 @@
         if(isSuperAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex'); }
 
         // --- SISTEM PEMANTAUAN LOKASI (TITIK KC) ---
-        const STATION_LAT = -6.2285953; const STATION_LNG = 106.819502; const MAX_DIST_KM = 0.3; 
+        const STATION_LAT = -6.2285953; const STATION_LNG = 106.819502; const MAX_DIST_KM = 0.07; 
         let isInLocation = false; 
 
         function calculateDist(lat1, lon1, lat2, lon2) { 

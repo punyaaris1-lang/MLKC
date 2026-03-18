@@ -70,7 +70,7 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-family: 'Space Grotesk'; font-size: 18px; font-weight: 900; color: var(--royal-blue); }
         .btn-close { background: #222; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; color: white;}
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
         .form-label { display: block; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;}
         .form-input { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #333; background: #000; font-family: 'Inter'; font-weight: 600; font-size: 14px; color: white; outline: none;}
         .form-input:focus { border-color: var(--royal-blue); }
@@ -80,6 +80,16 @@
         .preview-img { width: 100%; max-height: 150px; object-fit: contain; display: none; margin-top: 10px; border-radius: 8px; border: 1px solid #333;}
         .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--royal-blue); color: black; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; margin-top: 10px; cursor: pointer; letter-spacing: 1px; transition: 0.2s;}
         .btn-submit:active { transform: scale(0.95); }
+
+        /* CUSTOM MODAL ALERT/CONFIRM */
+        .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-glass-overlay.show { opacity: 1; }
+        .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
+        .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
+        .btn-modal-custom { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
+        .btn-modal-custom:active { transform: scale(0.95); }
+        .inp-prompt { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 16px; outline: none; margin-bottom: 20px; display: none; text-align: center; font-weight: bold;}
+        .inp-prompt:focus { border-color: var(--royal-blue); }
     </style>
 </head>
 <body>
@@ -169,12 +179,116 @@
         </div>
     </div>
 
+    <div class="modal-glass-overlay" id="customAlertModal">
+        <div class="modal-glass-box">
+            <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
+            <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px; color: var(--royal-blue);">TITLE</h3>
+            <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
+            <input type="text" id="alertInput" class="inp-prompt" placeholder="Ketik di sini...">
+            <div style="display:flex; gap:10px;" id="alertBtnGroup">
+                <button class="btn-modal-custom" id="btnAlertCancel" style="background:#333; color:white; display:none;">BATAL</button>
+                <button class="btn-modal-custom" id="btnAlertOk" style="background:var(--royal-blue); color:black; width:100%;">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM", authDomain: "antriankcnew.firebaseapp.com", projectId: "antriankcnew" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+
+        // --- SISTEM CUSTOM MODAL PENGGANTI ALERT & CONFIRM ---
+        window.showCustomAlert = (title, message, type = 'info') => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const icon = document.getElementById('alertIcon');
+                const titleEl = document.getElementById('alertTitle');
+                const btnCancel = document.getElementById('btnAlertCancel');
+                const btnOk = document.getElementById('btnAlertOk');
+                const input = document.getElementById('alertInput');
+                
+                input.style.display = 'none';
+                btnCancel.style.display = 'none';
+                btnOk.style.width = '100%';
+                btnOk.innerText = 'SAYA MENGERTI';
+                
+                titleEl.innerText = title;
+                document.getElementById('alertMessage').innerHTML = message;
+                
+                if (type === 'success') {
+                    icon.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success); filter: drop-shadow(0 0 10px var(--success));"></i>';
+                    titleEl.style.color = 'var(--success)';
+                    btnOk.style.background = 'var(--success)';
+                    btnOk.style.color = 'white';
+                } else if (type === 'error') {
+                    icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
+                    titleEl.style.color = 'var(--danger)';
+                    btnOk.style.background = 'var(--danger)';
+                    btnOk.style.color = 'white';
+                } else {
+                    icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                    titleEl.style.color = 'var(--royal-blue)';
+                    btnOk.style.background = 'var(--royal-blue)';
+                    btnOk.style.color = 'black';
+                }
+                
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                btnOk.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(true);
+                };
+            });
+        };
+
+        window.showCustomConfirm = (title, message, isPrompt = false) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const icon = document.getElementById('alertIcon');
+                const titleEl = document.getElementById('alertTitle');
+                const btnCancel = document.getElementById('btnAlertCancel');
+                const btnOk = document.getElementById('btnAlertOk');
+                const input = document.getElementById('alertInput');
+                
+                icon.innerHTML = '<i class="fas fa-question-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                titleEl.style.color = 'var(--royal-blue)';
+                titleEl.innerText = title;
+                document.getElementById('alertMessage').innerHTML = message;
+                
+                btnCancel.style.display = 'block';
+                btnOk.style.width = 'auto';
+                btnOk.innerText = 'YA, LANJUTKAN';
+                btnOk.style.background = 'var(--danger)';
+                btnOk.style.color = 'white';
+                
+                if(isPrompt) {
+                    input.style.display = 'block';
+                    input.value = '';
+                    setTimeout(() => input.focus(), 300);
+                } else {
+                    input.style.display = 'none';
+                }
+                
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                btnCancel.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(false);
+                };
+                
+                btnOk.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(isPrompt ? input.value : true);
+                };
+            });
+        };
 
         const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
         const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
@@ -264,7 +378,7 @@
                         <div class="m-actions">
                             <a href="${waLink}" class="btn-act btn-call" target="_blank"><i class="fab fa-whatsapp"></i></a>
                             <button class="btn-act btn-edit" style="display:${isAdmin?'flex':'none'};" onclick="openModal('edit', '${encodedData}')"><i class="fas fa-pen"></i></button>
-                            <button class="btn-act btn-del" style="display:${isAdmin?'flex':'none'};" onclick="deleteMember('${m.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn-act btn-del" style="display:${isAdmin?'flex':'none'};" onclick="deleteMember('${m.id}', '${namaUtama}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -355,7 +469,7 @@
             const actionType = document.getElementById('formActionType').value;
             const oldId = document.getElementById('formId').value;
 
-            if(!namaKtp || !platRaw) return alert("Nama KTP dan Plat Nomor Wajib Diisi!");
+            if(!namaKtp || !platRaw) return showCustomAlert("PERHATIAN", "Nama KTP dan Plat Nomor Wajib Diisi!", "error");
 
             const btn = document.getElementById('btnSave');
             btn.innerText = "MENYIMPAN..."; btn.style.opacity = '0.7';
@@ -392,7 +506,6 @@
                         payload.tabungan = dLama.tabungan || 0;
                         if(dLama.pin_tabungan) payload.pin_tabungan = dLama.pin_tabungan;
                         
-                        // JIKA BUKAN SUPER ADMIN, JANGAN TIMPA PIN LAMA YANG UDAH ADA
                         if(!isSuperAdmin && dLama.pin_login) payload.pin_login = dLama.pin_login;
                         
                         if(dLama.faceDescriptor) payload.faceDescriptor = dLama.faceDescriptor;
@@ -404,16 +517,19 @@
                 await setDoc(doc(db, "anggota", newId), payload, { merge: true });
 
                 closeModal();
+                showCustomAlert("SUKSES", "Data anggota berhasil disimpan.", "success");
             } catch (e) {
-                alert("Gagal menyimpan: " + e.message);
+                showCustomAlert("GAGAL", "Gagal menyimpan: " + e.message, "error");
             } finally {
                 btn.innerText = "SIMPAN DATA"; btn.style.opacity = '1';
             }
         };
 
-        window.deleteMember = async (id) => { 
-            if(confirm("Yakin hapus data anggota ini permanen? Data Tabungan dia juga akan hilang!")) {
+        window.deleteMember = async (id, nama) => { 
+            const ok = await showCustomConfirm("HAPUS ANGGOTA", `Yakin ingin menghapus data <b>${nama}</b> secara permanen?<br><br><span style='color:var(--danger);'>Semua data Tabungan & Keamanan orang ini akan ikut hilang!</span>`);
+            if(ok) {
                 await deleteDoc(doc(db, "anggota", id)); 
+                showCustomAlert("DIHAPUS", "Data anggota berhasil dihapus.", "success");
             }
         };
 

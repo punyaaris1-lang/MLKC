@@ -98,7 +98,7 @@
         .back-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 1000;}
         .btn-premium-back { background: #111; border: 1px solid #333; padding: 14px 25px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--royal-blue); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
 
-        /* MODAL */
+        /* MODAL TRANSAKSI */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
         .modal-box { 
             background: #111; width: 90%; max-width: 450px; 
@@ -143,6 +143,16 @@
         .coll-row-flex { display: flex; gap: 8px; margin-bottom: 8px; padding-right: 35px; }
         .k-in { padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 13px; font-weight: 600; outline: none; width: 100%; }
         .btn-del-coll { position: absolute; top: 15px; right: 15px; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+
+        /* CUSTOM MODAL ALERT/CONFIRM */
+        .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-glass-overlay.show { opacity: 1; }
+        .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
+        .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
+        .btn-modal-custom { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
+        .btn-modal-custom:active { transform: scale(0.95); }
+        .inp-prompt { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 16px; outline: none; margin-bottom: 20px; display: none; text-align: center; font-weight: bold;}
+        .inp-prompt:focus { border-color: var(--royal-blue); }
     </style>
 </head>
 <body>
@@ -268,6 +278,19 @@
         </div>
     </div>
 
+    <div class="modal-glass-overlay" id="customAlertModal">
+        <div class="modal-glass-box">
+            <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
+            <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px; color: var(--royal-blue);">TITLE</h3>
+            <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
+            <input type="text" id="alertInput" class="inp-prompt" placeholder="Ketik di sini...">
+            <div style="display:flex; gap:10px;" id="alertBtnGroup">
+                <button class="btn-modal-custom" id="btnAlertCancel" style="background:#333; color:white; display:none;">BATAL</button>
+                <button class="btn-modal-custom" id="btnAlertOk" style="background:var(--royal-blue); color:black; width:100%;">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, query, orderBy, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -284,6 +307,97 @@
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
 
+        // --- SISTEM CUSTOM MODAL PENGGANTI ALERT & CONFIRM ---
+        window.showCustomAlert = (title, message, type = 'info') => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const icon = document.getElementById('alertIcon');
+                const titleEl = document.getElementById('alertTitle');
+                const btnCancel = document.getElementById('btnAlertCancel');
+                const btnOk = document.getElementById('btnAlertOk');
+                const input = document.getElementById('alertInput');
+                
+                input.style.display = 'none';
+                btnCancel.style.display = 'none';
+                btnOk.style.width = '100%';
+                btnOk.innerText = 'SAYA MENGERTI';
+                
+                titleEl.innerText = title;
+                document.getElementById('alertMessage').innerHTML = message;
+                
+                if (type === 'success') {
+                    icon.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success); filter: drop-shadow(0 0 10px var(--success));"></i>';
+                    titleEl.style.color = 'var(--success)';
+                    btnOk.style.background = 'var(--success)';
+                    btnOk.style.color = 'white';
+                } else if (type === 'error') {
+                    icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
+                    titleEl.style.color = 'var(--danger)';
+                    btnOk.style.background = 'var(--danger)';
+                    btnOk.style.color = 'white';
+                } else {
+                    icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                    titleEl.style.color = 'var(--royal-blue)';
+                    btnOk.style.background = 'var(--royal-blue)';
+                    btnOk.style.color = 'black';
+                }
+                
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                btnOk.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(true);
+                };
+            });
+        };
+
+        window.showCustomConfirm = (title, message, isPrompt = false) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const icon = document.getElementById('alertIcon');
+                const titleEl = document.getElementById('alertTitle');
+                const btnCancel = document.getElementById('btnAlertCancel');
+                const btnOk = document.getElementById('btnAlertOk');
+                const input = document.getElementById('alertInput');
+                
+                icon.innerHTML = '<i class="fas fa-question-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                titleEl.style.color = 'var(--royal-blue)';
+                titleEl.innerText = title;
+                document.getElementById('alertMessage').innerHTML = message;
+                
+                btnCancel.style.display = 'block';
+                btnOk.style.width = 'auto';
+                btnOk.innerText = 'YA, LANJUTKAN';
+                btnOk.style.background = 'var(--danger)';
+                btnOk.style.color = 'white';
+                
+                if(isPrompt) {
+                    input.style.display = 'block';
+                    input.value = '';
+                    setTimeout(() => input.focus(), 300);
+                } else {
+                    input.style.display = 'none';
+                }
+                
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                btnCancel.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(false);
+                };
+                
+                btnOk.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(isPrompt ? input.value : true);
+                };
+            });
+        };
+
         // ==========================================
         // SISTEM HAK AKSES UANG KAS (SANGAT KETAT)
         // Hanya 2 Plat Nomor ini yang bisa Input / Edit
@@ -293,7 +407,6 @@
         
         let isAdmin = false;
         
-        // Daftar Putih (Whitelist) Pengurus Kas
         const kasAdmins = [
             "B4959SWF", // Alfian
             "B4124SWI"  // Agus Sukmana
@@ -308,7 +421,11 @@
 
         let currentStrukBase64 = "";
 
-        window.copyRekening = () => { navigator.clipboard.writeText(document.getElementById('rekNumber').innerText).then(() => alert("Tersalin!")).catch(()=>{}); };
+        window.copyRekening = async () => { 
+            navigator.clipboard.writeText(document.getElementById('rekNumber').innerText)
+            .then(() => showCustomAlert("BERHASIL", "Nomor rekening tersalin ke clipboard!", "success"))
+            .catch(()=>{}); 
+        };
         
         window.switchTab = (type) => {
             if (type === 'IN') {
@@ -320,7 +437,6 @@
             }
         };
 
-        // KOMPRES FOTO STRUK
         window.previewStruk = (input) => {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -346,7 +462,6 @@
 
         window.txGlobalMap = {};
 
-        // LOAD DATA KAS DARI KOLEKSI 'kas_trx'
         onSnapshot(query(collection(db, "kas_trx"), orderBy("timestamp", "desc")), (snap) => {
             let balance = 0, globalIn = 0, globalOut = 0;
             let groupIn = new Map(); let groupOut = new Map();
@@ -417,7 +532,6 @@
             document.getElementById('txOutContainer').innerHTML = renderGroupHtml(groupOut, false);
         });
 
-        // KONTROL FORM
         window.toggleFormType = () => {
             const type = document.getElementById('formTxType').value;
             if (type === 'IN_COLLECTIVE') {
@@ -495,7 +609,7 @@
             const id = document.getElementById('formEditId').value;
             const typeRaw = document.getElementById('formTxType').value;
             const desc = document.getElementById('formTxDesc').value.trim();
-            if(!desc) return alert("Keterangan wajib diisi!");
+            if(!desc) return showCustomAlert("PERHATIAN", "Keterangan wajib diisi!", "error");
 
             let amount = 0, details = [], isColl = false, finalType = typeRaw;
 
@@ -505,10 +619,10 @@
                     let n=r.querySelector('.c-name').value, a=parseInt(r.querySelector('.c-amt').value)||0, no=r.querySelector('.c-note').value, dt=r.querySelector('.c-date').value;
                     if(n && a>0) { details.push({name:n, amount:a, note:no, date:dt}); amount+=a; }
                 });
-                if(details.length===0) return alert("Data penyumbang masih kosong!");
+                if(details.length===0) return showCustomAlert("PERHATIAN", "Data penyumbang masih kosong!", "error");
             } else {
                 amount = parseInt(document.getElementById('formTxAmount').value);
-                if(!amount) return alert("Nominal wajib diisi!");
+                if(!amount) return showCustomAlert("PERHATIAN", "Nominal wajib diisi!", "error");
             }
 
             const btn = document.getElementById('btnSaveTx'); btn.innerText = "MENYIMPAN..."; btn.style.opacity = '0.7';
@@ -525,11 +639,15 @@
                     await addDoc(collection(db, "kas_trx"), payload);
                 }
                 closeTxModal();
-            } catch (e) { alert("Gagal menyimpan: " + e.message); } 
+                showCustomAlert("BERHASIL", "Transaksi kas berhasil disimpan.", "success");
+            } catch (e) { showCustomAlert("GAGAL", "Gagal menyimpan: " + e.message, "error"); } 
             finally { btn.innerText = "SIMPAN TRANSAKSI"; btn.style.opacity = '1'; }
         };
 
-        window.delTx = async (id) => { if(confirm("Yakin ingin menghapus riwayat kas ini? Saldo akan menyesuaikan.")) await deleteDoc(doc(db, "kas_trx", id)); };
+        window.delTx = async (id) => { 
+            const ok = await showCustomConfirm("HAPUS MUTASI", "Yakin ingin menghapus riwayat kas ini?<br><span style='color:var(--danger)'>Saldo akan menyesuaikan otomatis.</span>");
+            if(ok) await deleteDoc(doc(db, "kas_trx", id)); 
+        };
     </script>
 </body>
 </html>

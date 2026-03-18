@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Antrean Gading (via KC)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { 
+            --electric-blue: #10B981; 
+            --royal-blue: #D4FF00; 
+            --bg-surface: #050505; 
+            --text-main: #FFFFFF; 
+            --text-muted: #94A3B8; 
+            --danger: #EF4444; 
+            --kc-green: #D4FF00;
+        }
+        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 100px; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; outline: none; }
+
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; animation: floatLight 10s infinite alternate; }
+        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: #D4FF00; }
+        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: #10B981; animation-delay: 2s; }
+        @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
+
+        .header { padding: 30px 20px 20px; text-align: center; position: relative; z-index: 10;}
+        .sub-title { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; color: var(--electric-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; display: block;}
+        .main-title { font-family: 'Outfit'; font-size: 28px; font-weight: 900; color: white; margin: 0; line-height: 1.1; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.2);}
+        
+        .container { padding: 0 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 10; }
+
+        /* PORT CHARGER STATUS - UBAH JADI 3 KOLOM BIAR LEBIH LEBAR & PROPORSIONAL */
+        .grid-ports { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 5px; }
+        .port-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 15px 5px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
+        .p-num { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #555; margin-bottom: 4px;}
+        .p-plat { font-family: 'Inter'; font-size: 11px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        
+        .port-box.isi { border-color: var(--electric-blue); background: linear-gradient(180deg, rgba(16,185,129,0.1) 0%, #111 100%); }
+        .port-box.isi .p-num { color: var(--electric-blue); text-shadow: 0 0 10px rgba(16,185,129,0.5); }
+        
+        .port-box.rusak { border-color: var(--danger); background: linear-gradient(180deg, rgba(239,68,68,0.1) 0%, #111 100%); opacity: 0.7;}
+        .port-box.rusak .p-num { color: var(--danger); }
+        .port-box.rusak .p-plat { color: var(--danger); }
+
+        /* DAFTAR ANTREAN */
+        .q-header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 5px;}
+        .q-title { font-family: 'Outfit'; font-size: 16px; font-weight: 800; color: var(--royal-blue); }
+        .q-count { background: rgba(212,255,0,0.1); color: var(--royal-blue); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid rgba(212,255,0,0.2);}
+
+        .q-list { display: flex; flex-direction: column; gap: 10px; }
+        .q-item { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
+        .q-item.is-me { background: linear-gradient(90deg, rgba(212,255,0,0.05) 0%, #0f0f0f 100%); border-left: 4px solid var(--royal-blue); border-color: rgba(212,255,0,0.3); }
+        
+        .q-number { width: 35px; height: 35px; border-radius: 10px; background: #222; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff;}
+        .q-item.is-me .q-number { background: var(--royal-blue); color: black; box-shadow: 0 0 15px rgba(212,255,0,0.4);}
+        
+        .q-info { flex: 1; min-width: 0; }
+        .q-name { font-family: 'Outfit'; font-size: 14px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; text-transform: uppercase;}
+        .q-plat { font-size: 10px; font-weight: 700; color: var(--text-muted); background: #1a1a1a; padding: 2px 8px; border-radius: 6px; display: inline-block; border: 1px solid #333;}
+        .q-item.is-me .q-plat { color: var(--royal-blue); border-color: rgba(212,255,0,0.3); background: rgba(212,255,0,0.05);}
+
+        .empty-q { text-align: center; padding: 30px; color: #555; font-size: 12px; font-weight: 600; background: #0a0a0a; border-radius: 16px; border: 1px dashed #222;}
+
+        /* BOTTOM ACTION BAR */
+        .bottom-action { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; gap: 10px; z-index: 100; }
+        .btn-action { flex: 1; padding: 16px; border-radius: 16px; border: none; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; text-transform: uppercase;}
+        .btn-action:active { transform: scale(0.96); }
+        
+        .btn-join { background: var(--royal-blue); color: black; box-shadow: 0 10px 25px rgba(212,255,0,0.4); border: 2px solid #000;}
+        .btn-leave { background: var(--danger); color: white; box-shadow: 0 10px 25px rgba(239,68,68,0.4); display: none;}
+        .btn-back { background: #222; color: white; border: 1px solid #444; flex: 0.3; }
+
+        /* CUSTOM MODAL */
+        .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-glass-overlay.show { opacity: 1; }
+        .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
+        .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
+        .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
+        .btn-modal:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <div class="header">
+        <span class="sub-tag">LINTAS SERVER</span>
+        <h1 class="main-title">FC KELAPA GADING</h1>
+    </div>
+
+    <div class="container">
+        
+        <div class="grid-ports" id="portContainer">
+            <div class="port-box"><div class="p-num">1</div><div class="p-plat">...</div></div>
+            <div class="port-box"><div class="p-num">2</div><div class="p-plat">...</div></div>
+            <div class="port-box"><div class="p-num">3</div><div class="p-plat">...</div></div>
+        </div>
+
+        <div class="q-header">
+            <div class="q-title">DAFTAR ANTREAN</div>
+            <div class="q-count" id="qCountText">0 Kendaraan</div>
+        </div>
+
+        <div class="q-list" id="queueList">
+            <div class="empty-q"><i class="fas fa-spinner fa-spin"></i> Menghubungkan ke Server Gading...</div>
+        </div>
+
+    </div>
+
+    <div class="bottom-action">
+        <button class="btn-action btn-back" onclick="window.location.href='dashboard_kc.html'"><i class="fas fa-arrow-left"></i></button>
+        <button class="btn-action btn-join" id="btnJoin" onclick="joinQueue()"><i class="fas fa-bolt"></i> AMBIL ANTREAN</button>
+        <button class="btn-action btn-leave" id="btnLeave" onclick="leaveQueue()"><i class="fas fa-times"></i> BATALKAN ANTREAN</button>
+    </div>
+
+    <div class="modal-glass-overlay" id="customAlertModal">
+        <div class="modal-glass-box">
+            <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
+            <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px; color: var(--royal-blue);">TITLE</h3>
+            <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-modal" id="btnAlertCancel" style="background:#333; color:white; display:none;">BATAL</button>
+                <button class="btn-modal" id="btnAlertOk" style="background:var(--royal-blue); color:black; width:100%;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // KONEKSI KHUSUS KE FIREBASE GADING
+        const appGadingConfig = {
+            apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8",
+            authDomain: "fcgadingnew22.firebaseapp.com",
+            projectId: "fcgadingnew22"
+        };
+        const appGading = initializeApp(appGadingConfig, "AppGading");
+        const dbGading = getFirestore(appGading);
+        const refGading = doc(dbGading, "antrian", "utama");
+
+        // FUNGSI MODAL
+        window.showCustomAlert = (title, message, type = 'info', isConfirm = false) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const icon = document.getElementById('alertIcon');
+                const titleEl = document.getElementById('alertTitle');
+                const btnCancel = document.getElementById('btnAlertCancel');
+                const btnOk = document.getElementById('btnAlertOk');
+                
+                titleEl.innerText = title;
+                document.getElementById('alertMessage').innerHTML = message;
+                
+                if (type === 'success') {
+                    icon.innerHTML = '<i class="fas fa-check-circle" style="color: var(--electric-blue); filter: drop-shadow(0 0 10px var(--electric-blue));"></i>';
+                    titleEl.style.color = 'var(--electric-blue)';
+                    btnOk.style.background = 'var(--electric-blue)';
+                    btnOk.style.color = 'white';
+                } else if (type === 'error') {
+                    icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
+                    titleEl.style.color = 'var(--danger)';
+                    btnOk.style.background = 'var(--danger)';
+                    btnOk.style.color = 'white';
+                } else {
+                    icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                    titleEl.style.color = 'var(--royal-blue)';
+                    btnOk.style.background = 'var(--royal-blue)';
+                    btnOk.style.color = 'black';
+                }
+                
+                if(isConfirm) {
+                    btnCancel.style.display = 'block';
+                    btnOk.style.width = 'auto';
+                    btnOk.innerText = 'YA, YAKIN';
+                } else {
+                    btnCancel.style.display = 'none';
+                    btnOk.style.width = '100%';
+                    btnOk.innerText = 'SAYA MENGERTI';
+                }
+                
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                btnCancel.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(false);
+                };
+                
+                btnOk.onclick = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                    resolve(true);
+                };
+            });
+        };
+
+        // CEK LOGIN DARI DATA LOKAL KC
+        let uData = null;
+        try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
+        
+        if (!uData || !uData.plat) {
+            window.location.href = 'index_kc.html';
+        }
+
+        const myName = uData.namaKtp || uData.namaWa || uData.nama || "User KC";
+        const myPlat = uData.plat || "B XXXX XX";
+        const myPlatClean = myPlat.replace(/\s+/g, '').toUpperCase();
+        const shortName = myName.split(' ')[0].substring(0, 10);
+
+        let queueData = [];
+        // UBAH ARRAY DATA JADI CUMA 3 SLOT
+        let chargingData = [null, null, null];
+        let disabledData = [false, false, false];
+
+        // SINKRONISASI REALTIME DARI SERVER GADING
+        onSnapshot(refGading, (snap) => {
+            if(!snap.exists()) {
+                document.getElementById('queueList').innerHTML = `<div class="empty-q">Data server kosong.</div>`;
+                return;
+            }
+
+            const data = snap.data();
+            queueData = data.waitingQueue || [];
+            
+            // PASTIKAN CUMA NGAMBIL 3 DATA PERTAMA
+            let incomingCharging = data.chargingSlots || [null, null, null];
+            let incomingDisabled = data.disabledSlots || [false, false, false];
+            
+            chargingData = incomingCharging.slice(0, 3);
+            disabledData = incomingDisabled.slice(0, 3);
+
+            renderPorts();
+            renderQueue();
+            checkMyStatus();
+        });
+
+        function renderPorts() {
+            const container = document.getElementById('portContainer');
+            container.innerHTML = '';
+            
+            // LOOPING CUMA SAMPAI 3
+            for(let i = 0; i < 3; i++) {
+                const user = chargingData[i];
+                const isBroken = disabledData[i];
+                
+                let pClass = "port-box";
+                let pPlat = "KOSONG";
+                
+                if (isBroken) {
+                    pClass += " rusak";
+                    pPlat = "RUSAK";
+                } else if (user) {
+                    pClass += " isi";
+                    pPlat = user.plat;
+                }
+                
+                container.innerHTML += `
+                    <div class="${pClass}">
+                        <div class="p-num">P${i+1}</div>
+                        <div class="p-plat">${pPlat}</div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderQueue() {
+            const list = document.getElementById('queueList');
+            const countText = document.getElementById('qCountText');
+            
+            countText.innerText = `${queueData.length} Kendaraan`;
+            
+            if(queueData.length === 0) {
+                list.innerHTML = `<div class="empty-q"><i class="fas fa-check-circle" style="color:var(--electric-blue); font-size:24px; display:block; margin-bottom:10px;"></i> Belum ada yang antre. Langsung gas!</div>`;
+                return;
+            }
+            
+            list.innerHTML = '';
+            queueData.forEach((u, index) => {
+                const isMe = u.id === myPlatClean;
+                list.innerHTML += `
+                    <div class="q-item ${isMe ? 'is-me' : ''}">
+                        <div class="q-number">${index + 1}</div>
+                        <div class="q-info">
+                            <div class="q-name">${u.nama}</div>
+                            <div class="q-plat">${u.plat} ${isMe ? '(SAYA)' : ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function checkMyStatus() {
+            const inQueue = queueData.some(u => u.id === myPlatClean);
+            const inPort = chargingData.some(u => u !== null && u.id === myPlatClean);
+            
+            const btnJoin = document.getElementById('btnJoin');
+            const btnLeave = document.getElementById('btnLeave');
+
+            if (inPort) {
+                btnJoin.style.display = 'none';
+                btnLeave.style.display = 'none';
+            } else if (inQueue) {
+                btnJoin.style.display = 'none';
+                btnLeave.style.display = 'flex';
+            } else {
+                btnJoin.style.display = 'flex';
+                btnLeave.style.display = 'none';
+            }
+        }
+
+        window.joinQueue = async () => {
+            const inQueue = queueData.some(u => u.id === myPlatClean);
+            const inPort = chargingData.some(u => u !== null && u.id === myPlatClean);
+
+            if (inPort) return showCustomAlert("DITOLAK", "Kendaraan Anda sedang dalam status Charging di Port Gading!", "error");
+            if (inQueue) return showCustomAlert("DITOLAK", "Anda sudah berada di dalam daftar antrean Gading!", "error");
+
+            const btn = document.getElementById('btnJoin');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MEMPROSES...`;
+            btn.style.opacity = '0.7';
+
+            try {
+                const docSnap = await getDoc(refGading);
+                if(docSnap.exists()) {
+                    let currentQueue = docSnap.data().waitingQueue || [];
+                    // Inject data KC ke Gading
+                    currentQueue.push({
+                        id: myPlatClean,
+                        nama: shortName,
+                        plat: myPlat,
+                        hp: uData.hp || "",
+                        asal: "KC", // Penanda ini anak KC
+                        waktu: Date.now()
+                    });
+                    await updateDoc(refGading, { waitingQueue: currentQueue });
+                    showCustomAlert("BERHASIL", "Anda berhasil masuk ke antrean Kelapa Gading.", "success");
+                }
+            } catch (e) {
+                showCustomAlert("GAGAL", "Gagal mengambil antrean: " + e.message, "error");
+            } finally {
+                btn.innerHTML = `<i class="fas fa-bolt"></i> AMBIL ANTREAN`;
+                btn.style.opacity = '1';
+            }
+        };
+
+        window.leaveQueue = async () => {
+            const ok = await showCustomAlert("BATALKAN ANTREAN", "Yakin ingin keluar dari antrean Gading? Jika masuk lagi, Anda akan berada di urutan paling belakang.", "info", true);
+            if (!ok) return;
+
+            const btn = document.getElementById('btnLeave');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MEMPROSES...`;
+            btn.style.opacity = '0.7';
+
+            try {
+                const docSnap = await getDoc(refGading);
+                if(docSnap.exists()) {
+                    let currentQueue = docSnap.data().waitingQueue || [];
+                    currentQueue = currentQueue.filter(u => u.id !== myPlatClean);
+                    await updateDoc(refGading, { waitingQueue: currentQueue });
+                }
+            } catch (e) {
+                showCustomAlert("GAGAL", "Terjadi kesalahan: " + e.message, "error");
+            } finally {
+                btn.innerHTML = `<i class="fas fa-times"></i> BATALKAN ANTREAN`;
+                btn.style.opacity = '1';
+            }
+        };
+    </script>
+</body>
+</html>

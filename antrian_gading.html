@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Antrean Gading (via KC)</title>
     
+    <script>
+        // ==========================================
+        // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
+        // ==========================================
+        const DASH_VERSION = "3.8"; 
+        if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
+            if ('caches' in window) {
+                caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
+            }
+            localStorage.setItem('maka_dash_kc_v', DASH_VERSION);
+            window.location.reload(true); 
+        }
+    </script>
+
+    <link rel="manifest" href="manifest_kc.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -32,7 +47,7 @@
         
         .container { padding: 0 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 10; }
 
-        /* PORT CHARGER STATUS - UBAH JADI 3 KOLOM BIAR LEBIH LEBAR & PROPORSIONAL */
+        /* PORT CHARGER STATUS */
         .grid-ports { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 5px; }
         .port-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 15px 5px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
         .p-num { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #555; margin-bottom: 4px;}
@@ -41,6 +56,10 @@
         .port-box.isi { border-color: var(--electric-blue); background: linear-gradient(180deg, rgba(16,185,129,0.1) 0%, #111 100%); }
         .port-box.isi .p-num { color: var(--electric-blue); text-shadow: 0 0 10px rgba(16,185,129,0.5); }
         
+        /* HIGHLIGHT JIKA ITU SLOT SAYA */
+        .port-box.isi.is-me-slot { border-color: var(--royal-blue); background: linear-gradient(180deg, rgba(212,255,0,0.1) 0%, #111 100%); box-shadow: 0 0 15px rgba(212,255,0,0.4); }
+        .port-box.isi.is-me-slot .p-num { color: var(--royal-blue); text-shadow: 0 0 10px rgba(212,255,0,0.5); }
+
         .port-box.rusak { border-color: var(--danger); background: linear-gradient(180deg, rgba(239,68,68,0.1) 0%, #111 100%); opacity: 0.7;}
         .port-box.rusak .p-num { color: var(--danger); }
         .port-box.rusak .p-plat { color: var(--danger); }
@@ -60,6 +79,8 @@
         .q-info { flex: 1; min-width: 0; }
         .q-name { font-family: 'Outfit'; font-size: 14px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; text-transform: uppercase;}
         .q-plat { font-size: 10px; font-weight: 700; color: var(--text-muted); background: #1a1a1a; padding: 2px 8px; border-radius: 6px; display: inline-block; border: 1px solid #333;}
+        .q-batre { font-size: 10px; font-weight: 800; color: var(--electric-blue); float: right; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);}
+        
         .q-item.is-me .q-plat { color: var(--royal-blue); border-color: rgba(212,255,0,0.3); background: rgba(212,255,0,0.05);}
 
         .empty-q { text-align: center; padding: 30px; color: #555; font-size: 12px; font-weight: 600; background: #0a0a0a; border-radius: 16px; border: 1px dashed #222;}
@@ -71,6 +92,7 @@
         
         .btn-join { background: var(--royal-blue); color: black; box-shadow: 0 10px 25px rgba(212,255,0,0.4); border: 2px solid #000;}
         .btn-leave { background: var(--danger); color: white; box-shadow: 0 10px 25px rgba(239,68,68,0.4); display: none;}
+        .btn-finish { background: var(--electric-blue); color: white; box-shadow: 0 10px 25px rgba(16,185,129,0.4); display: none;}
         .btn-back { background: #222; color: white; border: 1px solid #444; flex: 0.3; }
 
         /* CUSTOM MODAL */
@@ -78,7 +100,7 @@
         .modal-glass-overlay.show { opacity: 1; }
         .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
         .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
-        .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
+        .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; transition: 0.2s;}
         .btn-modal:active { transform: scale(0.95); }
     </style>
 </head>
@@ -113,8 +135,10 @@
 
     <div class="bottom-action">
         <button class="btn-action btn-back" onclick="window.location.href='dashboard_kc.html'"><i class="fas fa-arrow-left"></i></button>
-        <button class="btn-action btn-join" id="btnJoin" onclick="joinQueue()"><i class="fas fa-bolt"></i> AMBIL ANTREAN</button>
+        <button class="btn-action btn-join" id="btnJoin" onclick="openBatteryModal()"><i class="fas fa-bolt"></i> AMBIL ANTREAN</button>
         <button class="btn-action btn-leave" id="btnLeave" onclick="leaveQueue()"><i class="fas fa-times"></i> BATALKAN ANTREAN</button>
+        
+        <button class="btn-action btn-finish" id="btnFinish" onclick="stopCharging()"><i class="fas fa-flag-checkered"></i> SELESAI CHARGING</button>
     </div>
 
     <div class="modal-glass-overlay" id="customAlertModal">
@@ -125,6 +149,22 @@
             <div style="display:flex; gap:10px;">
                 <button class="btn-modal" id="btnAlertCancel" style="background:#333; color:white; display:none;">BATAL</button>
                 <button class="btn-modal" id="btnAlertOk" style="background:var(--royal-blue); color:black; width:100%;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-glass-overlay" id="batteryModal">
+        <div class="modal-glass-box">
+            <h3 style="font-family:'Outfit'; color:var(--royal-blue); margin-top:0; margin-bottom:10px;">SISA BATERAI</h3>
+            <p style="font-size:12px; color:#cbd5e1; margin-bottom:15px;">Masukkan sisa persentase baterai motor Anda saat ini.</p>
+            <input type="number" id="inputBattery" placeholder="Contoh: 15" style="width:100%; padding:15px; border-radius:12px; border:1px solid #333; background:#000; color:var(--royal-blue); font-family:'Space Grotesk'; font-size:24px; text-align:center; outline:none; margin-bottom:20px; font-weight:900;">
+            
+            <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                <button class="btn-modal" style="background:var(--royal-blue); color:black;" onclick="submitBattery('antrian')"><i class="fas fa-list-ol"></i> MASUK ANTRIAN</button>
+                <button class="btn-modal" style="background:var(--electric-blue); color:white; box-shadow:0 0 15px rgba(16,185,129,0.4);" onclick="submitBattery('slot')"><i class="fas fa-bolt"></i> NAIK SLOT</button>
+            </div>
+            <div style="display:flex;">
+                <button class="btn-modal" style="background:#222; color:#94A3B8; border: 1px solid #444;" onclick="closeBatteryModal()">BATAL</button>
             </div>
         </div>
     </div>
@@ -143,7 +183,7 @@
         const dbGading = getFirestore(appGading);
         const refGading = doc(dbGading, "antrian", "utama");
 
-        // FUNGSI MODAL
+        // FUNGSI MODAL ALERT
         window.showCustomAlert = (title, message, type = 'info', isConfirm = false) => {
             return new Promise((resolve) => {
                 const modal = document.getElementById('customAlertModal');
@@ -211,9 +251,9 @@
         const myPlat = uData.plat || "B XXXX XX";
         const myPlatClean = myPlat.replace(/\s+/g, '').toUpperCase();
         const shortName = myName.split(' ')[0].substring(0, 10);
+        const myRole = uData.role || "MEMBER";
 
         let queueData = [];
-        // UBAH ARRAY DATA JADI CUMA 3 SLOT
         let chargingData = [null, null, null];
         let disabledData = [false, false, false];
 
@@ -227,7 +267,6 @@
             const data = snap.data();
             queueData = data.waitingQueue || [];
             
-            // PASTIKAN CUMA NGAMBIL 3 DATA PERTAMA
             let incomingCharging = data.chargingSlots || [null, null, null];
             let incomingDisabled = data.disabledSlots || [false, false, false];
             
@@ -243,7 +282,6 @@
             const container = document.getElementById('portContainer');
             container.innerHTML = '';
             
-            // LOOPING CUMA SAMPAI 3
             for(let i = 0; i < 3; i++) {
                 const user = chargingData[i];
                 const isBroken = disabledData[i];
@@ -257,6 +295,10 @@
                 } else if (user) {
                     pClass += " isi";
                     pPlat = user.plat;
+                    // KASIH HIGHLIGHT WARNA KUNING KALAU INI SLOT PUNYA KITA
+                    if (user.id === myPlatClean) {
+                        pClass += " is-me-slot";
+                    }
                 }
                 
                 container.innerHTML += `
@@ -282,11 +324,14 @@
             list.innerHTML = '';
             queueData.forEach((u, index) => {
                 const isMe = u.id === myPlatClean;
+                const batreTeks = (u.batreSisa !== undefined ? u.batreSisa : (u.batre ? String(u.batre).replace('%','') : '-')) + "%";
+                const namaTampil = u.userName || u.nama_panggilan || u.nickname || u.nama || u.name || u.namaLengkap || u.namaKtp || 'User';
+
                 list.innerHTML += `
                     <div class="q-item ${isMe ? 'is-me' : ''}">
                         <div class="q-number">${index + 1}</div>
                         <div class="q-info">
-                            <div class="q-name">${u.nama}</div>
+                            <div class="q-name">${namaTampil} <span class="q-batre"><i class="fas fa-battery-half"></i> ${batreTeks}</span></div>
                             <div class="q-plat">${u.plat} ${isMe ? '(SAYA)' : ''}</div>
                         </div>
                     </div>
@@ -300,51 +345,109 @@
             
             const btnJoin = document.getElementById('btnJoin');
             const btnLeave = document.getElementById('btnLeave');
+            const btnFinish = document.getElementById('btnFinish'); // TOMBOL BARU
 
             if (inPort) {
                 btnJoin.style.display = 'none';
                 btnLeave.style.display = 'none';
+                btnFinish.style.display = 'flex'; // Munculin kalau lagi di slot
             } else if (inQueue) {
                 btnJoin.style.display = 'none';
                 btnLeave.style.display = 'flex';
+                btnFinish.style.display = 'none';
             } else {
                 btnJoin.style.display = 'flex';
                 btnLeave.style.display = 'none';
+                btnFinish.style.display = 'none';
             }
         }
 
-        window.joinQueue = async () => {
+        // FUNGSI BUKA MODAL BATERAI
+        window.openBatteryModal = () => {
             const inQueue = queueData.some(u => u.id === myPlatClean);
             const inPort = chargingData.some(u => u !== null && u.id === myPlatClean);
 
             if (inPort) return showCustomAlert("DITOLAK", "Kendaraan Anda sedang dalam status Charging di Port Gading!", "error");
             if (inQueue) return showCustomAlert("DITOLAK", "Anda sudah berada di dalam daftar antrean Gading!", "error");
 
-            const btn = document.getElementById('btnJoin');
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MEMPROSES...`;
-            btn.style.opacity = '0.7';
+            document.getElementById('inputBattery').value = '';
+            const m = document.getElementById('batteryModal');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('show'), 10);
+        };
+
+        window.closeBatteryModal = () => {
+            const m = document.getElementById('batteryModal');
+            m.classList.remove('show');
+            setTimeout(() => m.style.display = 'none', 300);
+        };
+
+        // FUNGSI SUBMIT KE SERVER GADING DENGAN PAYLOAD LENGKAP
+        window.submitBattery = async (jalur) => {
+            const batreVal = parseInt(document.getElementById('inputBattery').value);
+            if (isNaN(batreVal) || batreVal < 0 || batreVal > 100) {
+                return showCustomAlert("ERROR", "Masukkan angka persentase baterai yang valid (0 - 100)!", "error");
+            }
+
+            const btnA = document.querySelector('button[onclick="submitBattery(\'antrian\')"]');
+            const btnS = document.querySelector('button[onclick="submitBattery(\'slot\')"]');
+            
+            const oriA = btnA.innerHTML; const oriS = btnS.innerHTML;
+            btnA.innerHTML = "PROSES..."; btnS.innerHTML = "PROSES...";
+            btnA.style.opacity = '0.5'; btnS.style.opacity = '0.5';
 
             try {
                 const docSnap = await getDoc(refGading);
                 if(docSnap.exists()) {
-                    let currentQueue = docSnap.data().waitingQueue || [];
-                    // Inject data KC ke Gading
-                    currentQueue.push({
+                    const data = docSnap.data();
+                    let currentQueue = data.waitingQueue || [];
+                    let currentSlots = data.chargingSlots || [null, null, null];
+                    
+                    const newEntry = {
                         id: myPlatClean,
-                        nama: shortName,
+                        userName: shortName,         
+                        nama: shortName,             
+                        nama_panggilan: shortName,   
+                        nickname: shortName,
+                        namaLengkap: myName,         
+                        namaKtp: myName,             
                         plat: myPlat,
-                        hp: uData.hp || "",
-                        asal: "KC", // Penanda ini anak KC
-                        waktu: Date.now()
-                    });
-                    await updateDoc(refGading, { waitingQueue: currentQueue });
-                    showCustomAlert("BERHASIL", "Anda berhasil masuk ke antrean Kelapa Gading.", "success");
+                        batre: batreVal + "%",       
+                        battery: batreVal + "%",           
+                        batreSisa: batreVal,         
+                        hp: uData.hp || uData.wa || "",
+                        role: myRole,
+                        asal: "KC",
+                        time: Date.now(),
+                        timestamp: Date.now()
+                    };
+
+                    if (jalur === 'antrian') {
+                        newEntry.qNo = (data.lastTicket || 0) + 1;
+                        currentQueue.push(newEntry);
+                        await updateDoc(refGading, { waitingQueue: currentQueue, lastTicket: newEntry.qNo });
+                        showCustomAlert("BERHASIL", `Anda masuk antrean Gading dengan sisa baterai ${batreVal}%.`, "success");
+                    } else if (jalur === 'slot') {
+                        let emptyIdx = currentSlots.findIndex(s => s === null);
+                        if (emptyIdx === -1) {
+                            showCustomAlert("SLOT PENUH", "Semua slot sedang terisi. Silakan pilih MASUK ANTRIAN.", "error");
+                            btnA.innerHTML = oriA; btnS.innerHTML = oriS;
+                            btnA.style.opacity = '1'; btnS.style.opacity = '1';
+                            return;
+                        }
+                        newEntry.startTime = Date.now();
+                        currentSlots[emptyIdx] = newEntry;
+                        await updateDoc(refGading, { chargingSlots: currentSlots });
+                        showCustomAlert("BERHASIL", `Kendaraan Anda naik ke Slot ${emptyIdx + 1} dengan sisa baterai ${batreVal}%.`, "success");
+                    }
+                    
+                    closeBatteryModal();
                 }
             } catch (e) {
                 showCustomAlert("GAGAL", "Gagal mengambil antrean: " + e.message, "error");
             } finally {
-                btn.innerHTML = `<i class="fas fa-bolt"></i> AMBIL ANTREAN`;
-                btn.style.opacity = '1';
+                btnA.innerHTML = oriA; btnS.innerHTML = oriS;
+                btnA.style.opacity = '1'; btnS.style.opacity = '1';
             }
         };
 
@@ -370,6 +473,39 @@
                 btn.style.opacity = '1';
             }
         };
+
+        // FUNGSI BARU: KELUAR DARI SLOT (STOP CHARGING)
+        window.stopCharging = async () => {
+            const ok = await showCustomAlert("SELESAI CHARGING", "Pengisian baterai Anda sudah cukup dan ingin memberikan slot ke member lain?", "info", true);
+            if (!ok) return;
+
+            const btn = document.getElementById('btnFinish');
+            const oriTxt = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
+            btn.style.opacity = '0.7';
+
+            try {
+                const docSnap = await getDoc(refGading);
+                if(docSnap.exists()) {
+                    let currentSlots = docSnap.data().chargingSlots || [null, null, null];
+                    
+                    // Cari slot ke berapa yang isinya adalah kendaraan lu
+                    let mySlotIdx = currentSlots.findIndex(s => s !== null && s.id === myPlatClean);
+                    
+                    if (mySlotIdx > -1) {
+                        currentSlots[mySlotIdx] = null; // Kosongin slotnya
+                        await updateDoc(refGading, { chargingSlots: currentSlots });
+                        showCustomAlert("TERIMA KASIH", "Selesai Charging! Slot sekarang tersedia untuk kawan lain.", "success");
+                    }
+                }
+            } catch (e) {
+                showCustomAlert("GAGAL", "Terjadi kesalahan sistem: " + e.message, "error");
+            } finally {
+                btn.innerHTML = oriTxt;
+                btn.style.opacity = '1';
+            }
+        };
+
     </script>
 </body>
 </html>

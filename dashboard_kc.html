@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "3.7"; 
+        const DASH_VERSION = "4.0"; // Fix Broadcast Ghost Loop
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -35,10 +35,7 @@
             --bg-surface: #000000; 
             --text-main: #F8FAFC; 
             --text-muted: #94A3B8; 
-            --glass-bg: rgba(15, 15, 15, 0.85); 
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.8);
-            --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
+            --danger: #EF4444; 
             --kc-green: #D4FF00;
             --cyan-neon: #00E5FF;
         }
@@ -93,14 +90,25 @@
         .dash-container { padding: 0 20px; margin-bottom: 20px; position: relative; z-index: 10; display: flex; flex-direction: column; gap: 15px; }
         
         .fc-banner { border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; cursor: pointer; gap: 10px; transition: 0.5s; }
+        
+        /* MODE KC (DEFAULT) */
         .fc-banner.mode-kc { background: linear-gradient(135deg, #111 0%, #000 100%); border: 1px solid rgba(212, 255, 0, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
-        .banner-left { flex: 1; min-width: 0; } 
-        .banner-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
         .fc-banner.mode-kc .banner-title { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: 1px;}
         .fc-banner.mode-kc .banner-title i { color: var(--kc-green); margin-right: 5px;}
         .fc-banner.mode-kc .banner-desc { font-size: 11px; font-weight: 600; color: #aaa; display: flex; align-items: center; gap: 4px;}
         .fc-banner.mode-kc .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--kc-green); text-shadow: 0 0 15px rgba(212, 255, 0, 0.4); line-height: 1;}
         .fc-banner.mode-kc .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
+
+        /* MODE GADING (AKTIF JIKA JARAK <= 1 KM) */
+        .fc-banner.mode-gading { background: linear-gradient(135deg, #050505 0%, #111 100%); border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .fc-banner.mode-gading .banner-title { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: 1px;}
+        .fc-banner.mode-gading .banner-title i { color: var(--electric-blue); margin-right: 5px;}
+        .fc-banner.mode-gading .banner-desc { font-size: 11px; font-weight: 600; color: #aaa; display: flex; align-items: center; gap: 4px;}
+        .fc-banner.mode-gading .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--electric-blue); text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); line-height: 1;}
+        .fc-banner.mode-gading .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
+
+        .banner-left { flex: 1; min-width: 0; } 
+        .banner-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
 
         .radar-box-bottom { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: rgba(15,15,15,0.8); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
         .lbl-radar-extra { font-size:9px; font-weight:800; color:#94A3B8; letter-spacing:1px; margin-bottom:2px;}
@@ -135,7 +143,6 @@
         .ic-tabungan { background: linear-gradient(135deg, #10b981 0%, #047857 100%); } 
         .ic-info { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); } 
         .ic-urc { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
-        /* TEMA BARU BROADCAST = CYAN NEON */
         .ic-broadcast { background: linear-gradient(135deg, #00f2fe 0%, #0891b2 100%); color: #000 !important;}
 
         .menu-title { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: #e2e8f0; }
@@ -180,7 +187,7 @@
         <div class="profile-card glass-panel">
             
             <div class="loc-toggle">
-                <span class="loc-label">RADAR</span>
+                <span class="loc-label">PETA RADAR</span>
                 <label class="switch">
                     <input type="checkbox" id="toggleLocation" onchange="toggleLoc(this)">
                     <span class="slider"></span>
@@ -212,24 +219,29 @@
     </div>
 
     <div class="dash-container">
-        <div id="mainFcBanner" class="fc-banner mode-kc" onclick="window.location.href='antriankc.html'">
+        
+        <div id="linkKCKecil" style="display: none; text-align: right; margin-bottom: -5px; padding-right: 5px; z-index: 20; position: relative;">
+            <a href="antriankc.html" style="color: var(--kc-green); font-size: 11px; font-weight: 800; text-decoration: none; letter-spacing: 1px;"><i class="fas fa-external-link-alt"></i> BUKA ANTRIAN KC</a>
+        </div>
+
+        <div id="mainFcBanner" class="fc-banner mode-kc" onclick="handleFCBannerClick()">
             <div class="banner-left">
-                <div class="banner-title"><i class="fas fa-bolt"></i> FC KARTIKA CHANDRA</div>
+                <div class="banner-title" id="mainFcTitle"><i class="fas fa-bolt"></i> FC KARTIKA CHANDRA</div>
                 <div class="banner-desc" id="mainFcDesc"><i class="fas fa-location-arrow"></i> Menghitung Jarak...</div>
             </div>
             <div class="banner-right">
-                <div class="banner-val" id="kcVal">...</div>
-                <div class="banner-lbl" id="kcLbl">STATUS LIVE</div>
+                <div class="banner-val" id="mainFcVal">...</div>
+                <div class="banner-lbl" id="mainFcLbl">STATUS LIVE</div>
             </div>
         </div>
 
         <div id="radarTerdekatBox" class="radar-box-bottom" style="display: none;">
             <div>
                 <div class="lbl-radar-extra">📍 RADAR STASIUN ALTERNATIF:</div>
-                <div class="radar-extra-name">FC KELAPA GADING</div>
+                <div class="radar-extra-name" id="radarExtraName">FC KELAPA GADING</div>
                 <div class="radar-extra-dist" id="radarExtraDist">...</div>
             </div>
-            <a href="antrian_gading.html" id="btnRadarExtra" class="btn-radar-go"><i class="fas fa-external-link-alt"></i> DAFTAR GADING</a>
+            <a href="antrian_gading.html" id="btnRadarExtra" class="btn-radar-go"><i class="fas fa-external-link-alt"></i> DAFTAR</a>
         </div>
 
         <a href="https://www.tiktok.com/@maka_ojol" target="_blank" class="tiktok-premium-card">
@@ -323,7 +335,7 @@
 
     <div class="modal-glass-overlay" id="boardEditModal">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--kc-yellow); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
+            <h3 style="font-family:'Outfit'; color:var(--royal-blue); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Info:</label>
             <input type="text" id="inputBoardTitle" class="form-input" placeholder="Judul Info" style="margin-bottom:15px;">
             
@@ -383,10 +395,12 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // KONEKSI DATABASE MLU (MAIN)
         const firebaseConfig = { apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", authDomain: "rtomaka-e67b5.firebaseapp.com", projectId: "rtomaka-e67b5" };
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
 
+        // KONEKSI DATABASE KC
         const appKC = initializeApp({ 
             apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
             authDomain: "antriankcnew.firebaseapp.com",
@@ -398,6 +412,21 @@
         const dbKC = getFirestore(appKC);
         const refKC = doc(dbKC, "antrian", "utama");
 
+        // KONEKSI DATABASE GADING
+        const appGadingConfig = {
+            apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8",
+            authDomain: "fcgadingnew22.firebaseapp.com",
+            projectId: "fcgadingnew22"
+        };
+        const appGading = initializeApp(appGadingConfig, "AppGading");
+        const dbGading = getFirestore(appGading);
+        const refGading = doc(dbGading, "antrian", "utama");
+
+        // KOORDINAT STASIUN
+        const LAT_KC = -6.2285953; const LNG_KC = 106.819502;
+        const LAT_GADING = -6.159389; const LNG_GADING = 106.901416;
+
+        // FUNGSI MODAL
         window.showCustomAlert = (title, message, type = 'info') => {
             const modal = document.getElementById('customAlertModal');
             const icon = document.getElementById('alertIcon');
@@ -413,19 +442,14 @@
                 icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
                 titleEl.style.color = 'var(--danger)';
             } else {
-                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--cyan-neon); filter: drop-shadow(0 0 10px var(--cyan-neon));"></i>';
-                titleEl.style.color = 'var(--cyan-neon)';
+                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                titleEl.style.color = 'var(--royal-blue)';
             }
             
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('show'), 10);
         };
-
-        window.closeCustomAlert = () => {
-            const modal = document.getElementById('customAlertModal');
-            modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 300);
-        };
+        window.closeCustomAlert = () => { document.getElementById('customAlertModal').classList.remove('show'); setTimeout(() => document.getElementById('customAlertModal').style.display = 'none', 300); };
 
         let confirmResolver = null;
         window.showCustomConfirm = (title, message) => {
@@ -438,28 +462,18 @@
                 confirmResolver = resolve;
             });
         };
-        window.resolveConfirm = (result) => {
-            const modal = document.getElementById('customConfirmModal');
-            modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 300);
-            if (confirmResolver) confirmResolver(result);
-        };
+        window.resolveConfirm = (result) => { document.getElementById('customConfirmModal').classList.remove('show'); setTimeout(() => document.getElementById('customConfirmModal').style.display = 'none', 300); if (confirmResolver) confirmResolver(result); };
 
         window.logoutApp = async () => {
             const ok = await showCustomConfirm("LOGOUT", "Apakah Anda yakin ingin Keluar dari Aplikasi KC?");
-            if(ok) {
-                localStorage.removeItem('maka_user');
-                localStorage.removeItem('maka_loc_share');
-                localStorage.removeItem('myPlat');
-                window.location.href = 'index_kc.html';
-            }
+            if(ok) { localStorage.removeItem('maka_user'); localStorage.removeItem('maka_loc_share'); localStorage.removeItem('myPlat'); window.location.href = 'index_kc.html'; }
         };
 
-        let uData = null;
-        try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
+        // CEK LOGIN DARI DATA LOKAL KC
+        let uData = null; try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
         if (!uData || !uData.plat) window.location.href = 'index_kc.html'; 
 
-        const myName = uData.namaKtp || uData.namaWa || uData.nama || "User";
+        const myName = uData.namaKtp || uData.namaWa || uData.nama || "User KC";
         const myPlat = uData.plat || "B XXXX XX";
         const myPhoto = uData.foto && uData.foto.length > 50 ? uData.foto : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
         const myRole = (uData.role || "MEMBER").toUpperCase();
@@ -467,90 +481,88 @@
 
         let myCurrentPhoto = myPhoto;
         let myCurrentName = myName;
+        let map = null, markers = {};
+        let isBannerKC = true; // Defaultnya KC yang nampil gede
+        let statusKCHtml = "Memuat...";
+        let statusGadingHtml = "Memuat...";
 
+        // CEK AKSES
         const isPengurus = (myRole !== "MEMBER" && myRole !== "KELUARGA MLU" && myRole !== "GUEST") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
-        if(isPengurus) {
-            document.getElementById('btnEditBoard').style.display = 'block';
-            document.querySelectorAll('.id-menu-broadcast').forEach(el => el.style.display = 'flex');
-        }
+        if(isPengurus) { document.getElementById('btnEditBoard').style.display = 'block'; document.querySelectorAll('.id-menu-broadcast').forEach(el => el.style.display = 'flex'); }
 
         const isTacticalTeam = myRole.includes("URC") || myRole.includes("KETUA") || myRole.includes("WAKIL") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
-        if (isTacticalTeam) {
-            document.querySelectorAll('.id-menu-urc').forEach(el => el.style.display = 'flex');
-        }
-
-        let map = null, markers = {}, watchId = null;
-        const LAT_KC = -6.2285953; const LNG_KC = 106.819502;
-        const LAT_GADING = -6.159389; const LNG_GADING = 106.901416;
+        if (isTacticalTeam) { document.querySelectorAll('.id-menu-urc').forEach(el => el.style.display = 'flex'); }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('displayDate').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             const hr = new Date().getHours();
             document.getElementById('greetingText').innerText = hr<10?"Selamat Pagi,":hr<15?"Selamat Siang,":hr<18?"Selamat Sore,":"Selamat Malam,";
             
-            const shortName = myName.split(' ')[0];
-            document.getElementById('userName').innerText = shortName;
+            document.getElementById('userName').innerText = myName.split(' ')[0];
             document.getElementById('userPlat').innerText = myPlat;
             document.getElementById('userRole').innerText = uData.role || "MEMBER";
-            
-            if (uData.foto && uData.foto.length > 10) {
-                const imgEl = document.getElementById('userPhoto');
-                imgEl.src = uData.foto;
-            }
+            if (uData.foto && uData.foto.length > 10) document.getElementById('userPhoto').src = uData.foto;
 
+            // Saklar cuma buat nampilin peta
             const savedLoc = localStorage.getItem('maka_loc_share'); 
-            if(savedLoc === 'ON') { 
-                document.getElementById('toggleLocation').checked = true; 
-                showRadar(); 
-                startTracking(); 
-            } else {
-                document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> Area Operasional`;
-            }
+            if(savedLoc === 'ON') { document.getElementById('toggleLocation').checked = true; showRadar(); } 
 
-            initKCData(); 
+            initFCListeners();
+            startSmartBunglonTracker(); // GPS lari otomatis di belakang layar
             startBroadcastListener();
 
+            // Radar Profil Realtime
             onSnapshot(doc(dbKC, "anggota", myPlatClean), (snap) => {
                 if(snap.exists()) {
                     const d = snap.data();
-                    
-                    if(d.foto && d.foto.length > 50) {
-                        document.getElementById('userPhoto').src = d.foto;
-                        myCurrentPhoto = d.foto; 
-                    }
-                    
+                    if(d.foto && d.foto.length > 50) { document.getElementById('userPhoto').src = d.foto; myCurrentPhoto = d.foto; }
                     const freshName = d.namaKtp || d.namaWa || d.nama || "User";
-                    document.getElementById('userName').innerText = freshName.split(' ')[0];
-                    myCurrentName = freshName; 
-
+                    document.getElementById('userName').innerText = freshName.split(' ')[0]; myCurrentName = freshName; 
                     document.getElementById('userRole').innerText = d.role || "MEMBER";
-                    
-                    let localUser = JSON.parse(localStorage.getItem('maka_user')) || {};
-                    localUser = { ...localUser, ...d };
-                    localStorage.setItem('maka_user', JSON.stringify(localUser));
+                    let localUser = JSON.parse(localStorage.getItem('maka_user')) || {}; localUser = { ...localUser, ...d }; localStorage.setItem('maka_user', JSON.stringify(localUser));
                 }
             });
         });
 
-        function initKCData() {
+        function initFCListeners() {
+            // Dengar KC
             onSnapshot(refKC, (snap) => { 
                 if(!snap.exists()) return; 
                 const d = snap.data();
                 let qLen = (d.waitingQueue||[]).length; 
                 let slots = d.chargingSlots || [null,null,null,null,null];
                 let dis = d.disabledSlots || [false,false,false,false,false];
-                let available = 0;
-                for(let i=0; i<5; i++) { if(slots[i] === null && !dis[i]) available++; }
+                let available = 0; for(let i=0; i<5; i++) { if(slots[i] === null && !dis[i]) available++; }
 
                 if(qLen > 0) {
-                    document.getElementById('kcVal').innerHTML = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--kc-green);">${qLen}</span>`;
-                    document.getElementById('kcLbl').innerText = "ANTRIAN LIVE";
+                    statusKCHtml = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--kc-green);">${qLen}</span>`;
+                    window.kcLbl = "ANTRIAN LIVE";
                 } else {
-                    document.getElementById('kcVal').innerHTML = `<span style="font-size:22px; font-weight:900; color:var(--success);">${available} SLOT</span>`;
-                    document.getElementById('kcLbl').innerText = "TERSEDIA";
+                    statusKCHtml = `<span style="font-size:22px; font-weight:900; color:var(--success);">${available} SLOT</span>`;
+                    window.kcLbl = "TERSEDIA";
                 }
+                updateBunglonUI();
             }); 
             
+            // Dengar Gading
+            onSnapshot(refGading, (snap) => {
+                if(!snap.exists()) return;
+                const d = snap.data();
+                let qLen = (d.waitingQueue||[]).length;
+                let slots = d.chargingSlots || [null,null,null];
+                let dis = d.disabledSlots || [false,false,false];
+                let available = 0; for(let i=0; i<3; i++) { if(slots[i] === null && !dis[i]) available++; }
+
+                if(qLen > 0) {
+                    statusGadingHtml = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--electric-blue);">${qLen}</span>`;
+                    window.gdLbl = "ANTRIAN LIVE";
+                } else {
+                    statusGadingHtml = `<span style="font-size:22px; font-weight:900; color:var(--success);">${available} SLOT</span>`;
+                    window.gdLbl = "TERSEDIA";
+                }
+                updateBunglonUI();
+            });
+
             const refBoard = doc(dbKC, "settings", "board_info");
             onSnapshot(refBoard, (snap) => {
                 if(snap.exists()) {
@@ -560,153 +572,99 @@
             });
         }
 
-        window.openEditBoard = () => {
-            document.getElementById('inputBoardTitle').value = document.getElementById('kcBoardTitle').innerText;
-            document.getElementById('inputBoardDesc').value = document.getElementById('kcBoardDesc').innerText;
-            const m = document.getElementById('boardEditModal'); 
-            m.style.display='flex'; 
-            setTimeout(()=>m.classList.add('show'),10); 
-        };
-
-        window.saveBoardInfo = async () => {
-            const titleInput = document.getElementById('inputBoardTitle').value.trim();
-            const descInput = document.getElementById('inputBoardDesc').value.trim();
-            
-            if(!titleInput || !descInput) {
-                showCustomAlert("PERHATIAN", "Judul dan pesan pengumuman tidak boleh kosong!", "error");
-                return;
-            }
-
-            try {
-                await setDoc(doc(dbKC, "settings", "board_info"), { title: titleInput, desc: descInput }, { merge: true });
-                document.getElementById('boardEditModal').classList.remove('show'); 
-                setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300);
-                showCustomAlert("BERHASIL", "Papan Pengumuman telah diperbarui.", "success");
-            } catch (e) {
-                showCustomAlert("GAGAL", "Gagal menyimpan pengumuman: " + e.message, "error");
-            }
-        };
-
-        window.openBroadcastModal = () => {
-            document.getElementById('inputBroadcastTitle').value = '';
-            document.getElementById('inputBroadcastDesc').value = '';
-            document.getElementById('inputBroadcastFoto').value = '';
-            document.getElementById('previewBroadcastFoto').style.display = 'none';
-            currentBroadcastPhotoBase64 = "";
-
-            const m = document.getElementById('broadcastModalKC'); 
-            m.style.display='flex'; 
-            setTimeout(()=>m.classList.add('show'),10); 
-        };
-
         // ==========================================
-        // PROSES FOTO BROADCAST JADI DATA KECIL (BASE64)
+        // SISTEM AUTO-BUNGLON TAMPILAN BANNER
         // ==========================================
-        let currentBroadcastPhotoBase64 = "";
-        window.processBroadcastFoto = (input) => {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
-                        let w = img.width; let h = img.height;
-                        if (w > h) { if (w > 600) { h *= 600/w; w = 600; } } else { if (h > 600) { w *= 600/h; h = 600; } }
-                        cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h);
-                        currentBroadcastPhotoBase64 = cvs.toDataURL('image/jpeg', 0.8);
-                        const p = document.getElementById('previewBroadcastFoto'); p.src = currentBroadcastPhotoBase64; p.style.display = 'block';
-                    }
-                    img.src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
+        function updateBunglonUI() {
+            const box = document.getElementById('mainFcBanner');
+            const title = document.getElementById('mainFcTitle');
+            const val = document.getElementById('mainFcVal');
+            const lbl = document.getElementById('mainFcLbl');
+            const linkKC = document.getElementById('linkKCKecil');
+
+            if(isBannerKC) {
+                box.className = 'fc-banner mode-kc';
+                title.innerHTML = `<i class="fas fa-bolt"></i> FC KARTIKA CHANDRA`;
+                val.innerHTML = statusKCHtml;
+                lbl.innerText = window.kcLbl || "STATUS LIVE";
+                linkKC.style.display = 'none'; // Sembunyiin tulisan KC kecil
+            } else {
+                // GADING AMBIL ALIH BANNER
+                box.className = 'fc-banner mode-gading';
+                title.innerHTML = `<i class="fas fa-charging-station" style="color:var(--electric-blue);"></i> FC KELAPA GADING`;
+                val.innerHTML = statusGadingHtml;
+                lbl.innerText = window.gdLbl || "STATUS LIVE";
+                linkKC.style.display = 'block'; // Munculin tulisan KC kecil di atas
             }
-        };
-
-        window.sendBroadcastKC = async () => {
-            const title = document.getElementById('inputBroadcastTitle').value.trim();
-            const desc = document.getElementById('inputBroadcastDesc').value.trim();
-            
-            if(!title || !desc) {
-                showCustomAlert("PERHATIAN", "Judul dan isi pesan Broadcast tidak boleh kosong!", "error");
-                return;
-            }
-
-            const btn = document.getElementById('btnSendBroadcast');
-            btn.innerText = "MENGIRIM...";
-            btn.style.opacity = '0.7';
-
-            try {
-                await addDoc(collection(dbKC, "broadcasts_kc"), {
-                    title: title,
-                    content: desc,
-                    foto: currentBroadcastPhotoBase64, // Kirm foto ke database
-                    author: myCurrentName,
-                    timestamp: Date.now()
-                });
-                
-                document.getElementById('broadcastModalKC').classList.remove('show'); 
-                setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);
-                
-                showCustomAlert("TRANSMISI BERHASIL", "Pesan Broadcast berhasil dikirim ke semua anggota KC yang sedang aktif.", "success");
-            } catch (e) {
-                showCustomAlert("GAGAL", "Gagal mengirim pesan: " + e.message, "error");
-            } finally {
-                btn.innerText = "KIRIM PESAN";
-                btn.style.opacity = '1';
-            }
-        };
-
-        function startBroadcastListener() {
-            const qBroadcast = query(collection(dbKC, "broadcasts_kc"), orderBy("timestamp", "desc"), limit(1));
-            
-            onSnapshot(qBroadcast, (snap) => {
-                if(snap.empty) return;
-                
-                const bcData = snap.docs[0].data();
-                const lastSeenTime = parseInt(localStorage.getItem('maka_last_broadcast_kc') || '0');
-
-                if(bcData.timestamp > lastSeenTime) {
-                    document.getElementById('recvBcTitle').innerText = bcData.title;
-                    document.getElementById('recvBcMessage').innerText = bcData.content;
-                    
-                    // TAMPILIN FOTO KALAU ADA
-                    const imgEl = document.getElementById('recvBcFoto');
-                    if(bcData.foto && bcData.foto.length > 50) {
-                        imgEl.src = bcData.foto;
-                        imgEl.style.display = 'block';
-                    } else {
-                        imgEl.style.display = 'none';
-                    }
-
-                    const m = document.getElementById('receiveBroadcastModal');
-                    m.style.display = 'flex';
-                    setTimeout(() => m.classList.add('show'), 50);
-
-                    localStorage.setItem('maka_last_broadcast_kc', bcData.timestamp.toString());
-                }
-            });
         }
 
-        window.closeReceivedBroadcast = () => {
-            const m = document.getElementById('receiveBroadcastModal');
-            m.classList.remove('show');
-            setTimeout(() => m.style.display = 'none', 300);
+        window.handleFCBannerClick = () => {
+            if(isBannerKC) { window.location.href = 'antriankc.html'; } 
+            else { window.location.href = 'antrian_gading.html'; }
         };
 
+        // ==========================================
+        // PELACAKAN OTOMATIS DI BELAKANG LAYAR
+        // ==========================================
         function calculateDist(lat1, lon1, lat2, lon2) { 
             const p = 0.017453292519943295; const c = Math.cos; 
             const a = 0.5 - c((lat2 - lat1) * p)/2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))/2; 
             return 12742 * Math.asin(Math.sqrt(a)); 
         }
 
+        function startSmartBunglonTracker() {
+            if(!navigator.geolocation) {
+                document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> GPS Tidak Tersedia`;
+                return;
+            }
+            
+            navigator.geolocation.watchPosition((pos) => {
+                const uLat = pos.coords.latitude; const uLng = pos.coords.longitude;
+                
+                const distKC = calculateDist(LAT_KC, LNG_KC, uLat, uLng);
+                const distGading = calculateDist(LAT_GADING, LNG_GADING, uLat, uLng);
+
+                let distKCText = `~${distKC.toFixed(1)} KM (${Math.ceil((distKC/25)*60)} Menit)`;
+                let distGadingText = `~${distGading.toFixed(1)} KM (${Math.ceil((distGading/25)*60)} Menit)`;
+
+                // LOGIKA BUNGLON RADIUS 1 KM
+                if(distGading <= 1.0) {
+                    isBannerKC = false;
+                    document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ${distGadingText}`;
+                    
+                    // Alternatif box di bawah jadi KC
+                    document.getElementById('radarTerdekatBox').style.display = 'flex';
+                    document.getElementById('radarExtraName').innerText = "FC KARTIKA CHANDRA";
+                    document.getElementById('radarExtraDist').innerText = distKCText;
+                    document.getElementById('btnRadarExtra').href = "antriankc.html";
+                    document.getElementById('btnRadarExtra').innerHTML = `<i class="fas fa-bolt"></i> BUKA KC`;
+                } else {
+                    isBannerKC = true;
+                    document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ${distKCText}`;
+                    
+                    // Alternatif box di bawah jadi Gading
+                    document.getElementById('radarTerdekatBox').style.display = 'flex';
+                    document.getElementById('radarExtraName').innerText = "FC KELAPA GADING";
+                    document.getElementById('radarExtraDist').innerText = distGadingText;
+                    document.getElementById('btnRadarExtra').href = "antrian_gading.html";
+                    document.getElementById('btnRadarExtra').innerHTML = `<i class="fas fa-charging-station"></i> BUKA GADING`;
+                }
+
+                updateBunglonUI();
+
+                // SILENT LIVE TRACKING UPLOAD
+                const trackRef = doc(dbKC, "live_tracking", uData.id || myPlatClean);
+                setDoc(trackRef, { lat: uLat, lng: uLng, nama: myCurrentName, plat: myPlat, hp: uData.hp || uData.wa || "", foto: myCurrentPhoto, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
+
+            }, (err) => { 
+                document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> GPS Mati / Ditolak`;
+            }, {enableHighAccuracy: true, maximumAge: 10000});
+        }
+
+        // TOMBOL PETA RADAR (CUMA BUAT UI AJA)
         window.toggleLoc = (el) => { 
-            if(el.checked) { 
-                localStorage.setItem('maka_loc_share', 'ON'); showRadar(); startTracking(); 
-            } else { 
-                localStorage.setItem('maka_loc_share', 'OFF'); hideRadar(); stopTracking(); 
-                document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> Area Operasional`;
-                document.getElementById('radarTerdekatBox').style.display = 'none';
-            } 
+            if(el.checked) { localStorage.setItem('maka_loc_share', 'ON'); showRadar(); } 
+            else { localStorage.setItem('maka_loc_share', 'OFF'); hideRadar(); } 
         }
 
         function showRadar() { 
@@ -715,101 +673,147 @@
                 if(!map) { 
                     map = L.map('radarMap').setView([LAT_KC, LNG_KC], 13); 
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap KC'}).addTo(map); 
-                    loadMembers(); 
+                    
+                    // DENGARKAN MARKER ORANG LAIN
+                    onSnapshot(collection(dbKC, "live_tracking"), (snap) => { 
+                        const currentIds = [];
+                        snap.forEach(docSnap => { 
+                            currentIds.push(docSnap.id);
+                            const m = docSnap.data(); 
+                            if(m.lat && m.lng) { 
+                                const photoUrl = (m.foto && m.foto.length > 50) ? m.foto : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+                                const shortName = (m.nama || 'User').split(' ')[0];
+                                
+                                const iconHtml = `
+                                    <div style="position:relative; width:30px; height:30px; border-radius:50%; border:2px solid #D4FF00; overflow:hidden; box-shadow:0 0 10px #D4FF00; background:#000;">
+                                        <img src="${photoUrl}" style="width:100%; height:100%; object-fit:cover;">
+                                    </div>
+                                    <div class="marker-label">${shortName}</div>
+                                `;
+                                const icon = L.divIcon({ className: 'custom-div-icon', html: iconHtml, iconSize:[30,30], iconAnchor:[15,15] }); 
+                                
+                                if(markers[docSnap.id]) { markers[docSnap.id].setLatLng([m.lat, m.lng]); markers[docSnap.id].setIcon(icon); } 
+                                else { markers[docSnap.id] = L.marker([m.lat, m.lng], {icon}).addTo(map); } 
+                            }
+                        }); 
+                        for(let id in markers) { if(!currentIds.includes(id)) { map.removeLayer(markers[id]); delete markers[id]; } }
+                    }); 
                 } 
                 map.invalidateSize(); 
             }, 300); 
         }
 
         function hideRadar() { document.getElementById('radarContainer').style.display = 'none'; }
+
+        // ==========================================
+        // LAINNYA: EDIT PENGUMUMAN & BROADCAST & SOS
+        // ==========================================
+        window.openEditBoard = () => { document.getElementById('inputBoardTitle').value = document.getElementById('kcBoardTitle').innerText; document.getElementById('inputBoardDesc').value = document.getElementById('kcBoardDesc').innerText; const m = document.getElementById('boardEditModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
+        window.saveBoardInfo = async () => { const titleInput = document.getElementById('inputBoardTitle').value.trim(); const descInput = document.getElementById('inputBoardDesc').value.trim(); if(!titleInput || !descInput) return showCustomAlert("PERHATIAN", "Judul dan pesan tidak boleh kosong!", "error"); try { await setDoc(doc(dbKC, "settings", "board_info"), { title: titleInput, desc: descInput }, { merge: true }); document.getElementById('boardEditModal').classList.remove('show'); setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300); showCustomAlert("BERHASIL", "Pengumuman diperbarui.", "success"); } catch (e) { showCustomAlert("GAGAL", e.message, "error"); } };
+
+        let currentBroadcastPhotoBase64 = "";
+        window.openBroadcastModal = () => { document.getElementById('inputBroadcastTitle').value = ''; document.getElementById('inputBroadcastDesc').value = ''; document.getElementById('inputBroadcastFoto').value = ''; document.getElementById('previewBroadcastFoto').style.display = 'none'; currentBroadcastPhotoBase64 = ""; const m = document.getElementById('broadcastModalKC'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
         
-        function loadMembers() { 
-            onSnapshot(collection(dbKC, "live_tracking"), (snap) => { 
-                const currentIds = [];
-                snap.forEach(docSnap => { 
-                    currentIds.push(docSnap.id);
-                    const m = docSnap.data(); 
-                    if(m.lat && m.lng) { 
-                        const photoUrl = (m.foto && m.foto.length > 50) ? m.foto : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
-                        const shortName = (m.nama || 'User').split(' ')[0];
-                        
-                        const iconHtml = `
-                            <div style="position:relative; width:30px; height:30px; border-radius:50%; border:2px solid #D4FF00; overflow:hidden; box-shadow:0 0 10px #D4FF00; background:#000;">
-                                <img src="${photoUrl}" style="width:100%; height:100%; object-fit:cover;">
-                            </div>
-                            <div class="marker-label">${shortName}</div>
-                        `;
-                        const icon = L.divIcon({ className: 'custom-div-icon', html: iconHtml, iconSize:[30,30], iconAnchor:[15,15] }); 
-                        
-                        if(markers[docSnap.id]) { 
-                            markers[docSnap.id].setLatLng([m.lat, m.lng]); markers[docSnap.id].setIcon(icon); 
-                        } else { 
-                            markers[docSnap.id] = L.marker([m.lat, m.lng], {icon}).addTo(map); 
-                        } 
-                    }
-                }); 
-                for(let id in markers) { if(!currentIds.includes(id)) { map.removeLayer(markers[id]); delete markers[id]; } }
-            }); 
-        }
-
-        function startTracking() { 
-            if(navigator.geolocation) { 
-                watchId = navigator.geolocation.watchPosition(pos => {
-                    const uLat = pos.coords.latitude;
-                    const uLng = pos.coords.longitude;
-
-                    const distKC = calculateDist(LAT_KC, LNG_KC, uLat, uLng);
-                    document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ~${distKC.toFixed(1)} KM (${Math.ceil((distKC/25)*60)} Menit)`;
-                    
-                    const distGading = calculateDist(LAT_GADING, LNG_GADING, uLat, uLng);
-                    document.getElementById('radarTerdekatBox').style.display = 'flex';
-                    document.getElementById('radarExtraDist').innerText = `${distGading.toFixed(1)} KM (~${Math.ceil((distGading/25)*60)} Menit)`;
-
-                    const trackRef = doc(dbKC, "live_tracking", uData.id || myPlat.replace(/\s+/g, ''));
-                    setDoc(trackRef, { lat: uLat, lng: uLng, nama: myCurrentName, plat: myPlat, hp: uData.hp || uData.wa || "", foto: myCurrentPhoto, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
-
-                }, null, {enableHighAccuracy:true}); 
+        window.processBroadcastFoto = (input) => { 
+            if (input.files && input.files[0]) { 
+                const reader = new FileReader(); 
+                reader.onload = function(e) { 
+                    const img = new Image(); 
+                    img.onload = function() { 
+                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d'); 
+                        let w = img.width; let h = img.height; 
+                        if (w > h) { if (w > 600) { h *= 600/w; w = 600; } } else { if (h > 600) { w *= 600/h; h = 600; } } 
+                        cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h); 
+                        currentBroadcastPhotoBase64 = cvs.toDataURL('image/jpeg', 0.8); 
+                        const p = document.getElementById('previewBroadcastFoto'); p.src = currentBroadcastPhotoBase64; p.style.display = 'block'; 
+                    }; 
+                    img.src = e.target.result; 
+                }; 
+                reader.readAsDataURL(input.files[0]); 
             } 
-        }
+        };
 
-        function stopTracking() { 
-            if(watchId) navigator.geolocation.clearWatch(watchId); 
-            const trackRef = doc(dbKC, "live_tracking", uData.id || myPlat.replace(/\s+/g, ''));
-            deleteDoc(trackRef).catch(e => console.log(e)); 
+        // KEMBALI DI SIMPAN DI INFO_KC BIAR BISA DIHAPUS ADMIN
+        window.sendBroadcastKC = async () => { 
+            const title = document.getElementById('inputBroadcastTitle').value.trim(); 
+            const desc = document.getElementById('inputBroadcastDesc').value.trim(); 
+            if(!title || !desc) return showCustomAlert("PERHATIAN", "Isi pesan tidak boleh kosong!", "error"); 
+            
+            const btn = document.getElementById('btnSendBroadcast'); 
+            btn.innerText = "MENGIRIM..."; btn.style.opacity = '0.7'; 
+            
+            try { 
+                await addDoc(collection(dbKC, "info_kc"), { 
+                    title: title, 
+                    content: desc, 
+                    foto: currentBroadcastPhotoBase64, 
+                    author: myCurrentName, 
+                    type: "BROADCAST", // Penanda spesial
+                    timestamp: Date.now() 
+                }); 
+                document.getElementById('broadcastModalKC').classList.remove('show'); 
+                setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300); 
+                showCustomAlert("TRANSMISI BERHASIL", "Pesan Broadcast terkirim dan akan tercatat di Info KC.", "success"); 
+            } catch (e) { 
+                showCustomAlert("GAGAL", e.message, "error"); 
+            } finally { 
+                btn.innerText = "KIRIM PESAN"; btn.style.opacity = '1'; 
+            } 
+        };
+
+        function startBroadcastListener() {
+            // Ambil 10 info terakhir, cari secara manual (gak pake "where") biar gak butuh Composite Index Firebase
+            const qBroadcast = query(collection(dbKC, "info_kc"), orderBy("timestamp", "desc"), limit(10));
+            onSnapshot(qBroadcast, (snap) => {
+                if(snap.empty) return;
+                
+                let bcData = null;
+                for(let i = 0; i < snap.docs.length; i++) {
+                    if(snap.docs[i].data().type === 'BROADCAST') {
+                        bcData = snap.docs[i].data();
+                        break;
+                    }
+                }
+                
+                if(!bcData) return;
+
+                const lastSeenTime = parseInt(localStorage.getItem('maka_last_broadcast_kc') || '0');
+                if(bcData.timestamp > lastSeenTime) {
+                    document.getElementById('recvBcTitle').innerText = bcData.title; 
+                    document.getElementById('recvBcMessage').innerText = bcData.content;
+                    
+                    const imgEl = document.getElementById('recvBcFoto');
+                    if(bcData.foto && bcData.foto.length > 50) { 
+                        imgEl.src = bcData.foto; imgEl.style.display = 'block'; 
+                    } else { 
+                        imgEl.style.display = 'none'; 
+                    }
+                    
+                    const m = document.getElementById('receiveBroadcastModal'); 
+                    m.style.display = 'flex'; 
+                    setTimeout(() => m.classList.add('show'), 50);
+                    localStorage.setItem('maka_last_broadcast_kc', bcData.timestamp.toString());
+                }
+            });
         }
+        
+        window.closeReceivedBroadcast = () => { const m = document.getElementById('receiveBroadcastModal'); m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 300); };
 
         window.openSosModal = () => { const m = document.getElementById('sosModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
-
         window.sendSosURC = () => {
             const nomorURC = "6287711069877"; 
-            if(!navigator.geolocation) {
-                showCustomAlert("GPS DITOLAK", "Anda harus Mengizinkan Akses Lokasi (GPS) agar fitur ini berfungsi!", "error");
-                return;
-            }
-            
-            const btn = document.querySelector('.btn-modal[onclick="sendSosURC()"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "MENCARI LOKASI...";
-
+            if(!navigator.geolocation) return showCustomAlert("GPS DITOLAK", "Izinkan GPS agar fitur ini berfungsi!", "error");
+            const btn = document.querySelector('.btn-modal[onclick="sendSosURC()"]'); const originalText = btn.innerHTML; btn.innerHTML = "MENCARI LOKASI...";
             navigator.geolocation.getCurrentPosition((pos) => {
                 const lat = pos.coords.latitude; const lng = pos.coords.longitude;
                 const jenis = document.getElementById('sosType').value; const ket = document.getElementById('sosDesc').value;
-
-                const trackRef = doc(dbKC, "live_tracking", uData.id || myPlat.replace(/\s+/g, ''));
+                const trackRef = doc(dbKC, "live_tracking", uData.id || myPlatClean);
                 setDoc(trackRef, { isSOS: true, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
-
                 const pesan = `🚨 *DARURAT S.O.S (KC)* 🚨\n\n👤 *Nama:* ${myCurrentName}\n🏍️ *Plat:* ${myPlat}\n⚠️ *Kasus:* ${jenis}\n📝 *Ket:* ${ket ? ket : '-'}\n\n📍 *LOKASI KORBAN:* \nhttps://maps.google.com/?q=${lat},${lng}\n\n_Mohon segera diluncurkan bantuan!_`;
                 const linkWA = `https://wa.me/${nomorURC}?text=${encodeURIComponent(pesan)}`;
                 window.open(linkWA, '_blank');
-
-                document.getElementById('sosModal').classList.remove('show');
-                setTimeout(() => document.getElementById('sosModal').style.display = 'none', 300);
-                btn.innerHTML = originalText;
-
-            }, () => {
-                showCustomAlert("GPS DITOLAK", "Anda harus Mengizinkan Akses Lokasi (GPS) di pengaturan HP Anda agar Maps bisa dikirim!", "error");
-                btn.innerHTML = originalText;
-            }, { enableHighAccuracy: true });
+                document.getElementById('sosModal').classList.remove('show'); setTimeout(() => document.getElementById('sosModal').style.display = 'none', 300); btn.innerHTML = originalText;
+            }, () => { showCustomAlert("GPS DITOLAK", "Nyalakan GPS HP Anda!", "error"); btn.innerHTML = originalText; }, { enableHighAccuracy: true });
         };
     </script>
 </body>

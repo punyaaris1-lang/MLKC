@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script>
+    // ==========================================
+    // SISTEM AUTO-UPDATE PAKSA (VERSION CONTROL)
+    // ==========================================
+    const CURRENT_VERSION = "1.1"; // Kalo lu ubah kodingan di GitHub, ganti angka ini jadi 1.2, 1.3, dst.
+
+    const userVersion = localStorage.getItem('maka_app_version');
+
+    if (userVersion !== CURRENT_VERSION) {
+        // Jika versi beda, hancurkan semua cache memori PWA lama
+        if ('caches' in window) {
+            caches.keys().then((names) => {
+                names.forEach(name => { caches.delete(name); });
+            });
+        }
+        
+        // Simpan versi baru ke HP member
+        localStorage.setItem('maka_app_version', CURRENT_VERSION);
+        
+        // Paksa browser memuat ulang dari server GitHub (bukan dari memori HP)
+        alert("Sistem mendeteksi Update Baru! Aplikasi akan di-refresh untuk menerapkan pembaruan.");
+        window.location.reload(true); 
+    }
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC - Secure Login</title>

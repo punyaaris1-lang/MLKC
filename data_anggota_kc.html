@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC - Directory Anggota</title>
+
+    <script>
+        // ==========================================
+        // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
+        // ==========================================
+        const DATA_VERSION = "2.0"; 
+        if (localStorage.getItem('maka_data_version') !== DATA_VERSION) {
+            if ('caches' in window) {
+                caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
+            }
+            localStorage.setItem('maka_data_version', DATA_VERSION);
+            window.location.reload(true); 
+        }
+    </script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

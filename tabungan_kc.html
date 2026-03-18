@@ -70,7 +70,7 @@
         .saldo-card { background: linear-gradient(135deg, #111 0%, #0a0a0a 100%); padding: 25px; border-radius: 24px; color: white; text-align: center; margin-bottom: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid #333;}
         
         /* KOTAK TOTAL GLOBAL */
-        .global-vault-card { background: #0f0f0f; border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #222; color: white; }
+        .global-vault-card { background: #0f0f0f; border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #222; color: white; display: none; /* Default Hidden */}
         .gvc-icon { width: 45px; height: 45px; border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--warning); border: 1px solid rgba(255,255,255,0.1); }
 
         .trx-item { background: #0f0f0f; padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid #222; }
@@ -188,7 +188,7 @@
             
             <div class="saldo-card">
                 <button onclick="changePinSelf()" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); color:white; padding:5px 10px; border-radius:12px; font-size:9px; font-weight:800; cursor:pointer; border:1px solid rgba(255,255,255,0.2);">GANTI PIN</button>
-                <div style="font-size:10px; opacity:0.8; letter-spacing:2px; cursor:pointer; color:var(--text-muted);" ondblclick="toggleStealthAdmin()">SALDO PRIBADI SAYA</div>
+                <div style="font-size:10px; opacity:0.8; letter-spacing:2px; color:var(--text-muted);">SALDO PRIBADI SAYA</div>
                 <div class="saldo-val" id="myBalance" style="font-family:'Space Grotesk'; font-size:36px; font-weight:900; margin:10px 0; color: white;">Rp 0</div>
                 <div style="font-size:10px; font-weight:700; background:rgba(16,185,129,0.2); color:var(--success); padding:5px 10px; border-radius:20px; display:inline-block; border: 1px solid rgba(16,185,129,0.3);">
                     <i class="fas fa-shield-alt"></i> TERVERIFIKASI
@@ -197,10 +197,9 @@
                 <button class="btn-nabung" onclick="document.getElementById('modalQris').style.display='flex'">
                     <i class="fas fa-qrcode" style="font-size:18px;"></i> TAMBAH SETORAN (NABUNG)
                 </button>
-                <div id="adminIndicator" style="display:none; font-size:9px; margin-top:8px; color:var(--royal-blue); font-weight:900;">★ ADMIN MODE ★</div>
             </div>
 
-            <div class="global-vault-card">
+            <div class="global-vault-card" id="globalVaultCard">
                 <div>
                     <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 5px;">
                         <i class="fas fa-globe" style="color: var(--royal-blue);"></i> TOTAL ASET KC
@@ -321,31 +320,42 @@
 
         let uData = null;
         try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
-        if (!uData || !uData.plat) window.location.href = 'index.html'; 
+        if (!uData || !uData.plat) window.location.href = 'index_kc.html'; 
 
         const myName = uData.namaKtp || uData.namaWa || uData.nama || "User";
         const myPlat = uData.plat || "B XXXX XX";
-        
-        // PENTING: Gunakan Plat sebagai fallback ID jika ID dari lokal storage belum sempurna
         const userId = uData.id || myPlat.replace(/\s+/g, '').toUpperCase();
+        const cleanPlat = myPlat.replace(/\s+/g, '').toUpperCase();
 
+        // ==============================================================
+        // SISTEM KEAMANAN DEWA (STRICT WHITELIST)
+        // Hanya 4 plat ini yang diizinkan untuk melihat, mengedit, 
+        // dan menyetujui tabungan seluruh member.
+        // ==============================================================
+        const theGods = [
+            "B4124SWI", // Agus Sukmana
+            "B4426SWF", // Rifky alfiansyah
+            "B4959SWF", // Alfian
+            "B4248SWF"  // Super Admin
+        ];
+
+        const isTrueAdmin = theGods.includes(cleanPlat);
+        const isSuperAdmin = (cleanPlat === "B4248SWF");
+        // isViewAdminVisible tidak diperlukan lagi untuk fitur "Stealth", 
+        // admin selalu melihat menu admin jika platnya valid.
+        
+        let userFaceDesc = null; let userPinTabungan = null; let isSetupMode = false; let isFaceMode = true; let stream = null; let videoEl = document.getElementById('videoInput'); let detectInterval = null; let currentPinInput = "";
+        window.myKodeUnik = 0;
+
+        // UI Helpers
         window.showConfirm = (title, msg, isPrompt = false) => {
             return new Promise((resolve) => {
                 const modal = document.getElementById('customAlertModal');
-                document.getElementById('camTitle').innerHTML = title;
-                document.getElementById('camMsg').innerHTML = msg;
-                const input = document.getElementById('camInput');
-                const btnCancel = document.getElementById('camBtnCancel');
-                const btnOk = document.getElementById('camBtnOk');
-                
-                if(isPrompt) { input.style.display = 'block'; input.value = ''; input.focus(); }
-                else { input.style.display = 'none'; }
-                
-                btnCancel.style.display = 'block';
-                btnOk.style.background = 'var(--royal-blue)';
-                btnOk.style.color = 'black';
+                document.getElementById('camTitle').innerHTML = title; document.getElementById('camMsg').innerHTML = msg;
+                const input = document.getElementById('camInput'); const btnCancel = document.getElementById('camBtnCancel'); const btnOk = document.getElementById('camBtnOk');
+                if(isPrompt) { input.style.display = 'block'; input.value = ''; input.focus(); } else { input.style.display = 'none'; }
+                btnCancel.style.display = 'block'; btnOk.style.background = 'var(--royal-blue)'; btnOk.style.color = 'black';
                 modal.style.display = 'flex';
-
                 btnCancel.onclick = () => { modal.style.display = 'none'; resolve(false); };
                 btnOk.onclick = () => { modal.style.display = 'none'; resolve(isPrompt ? input.value : true); };
             });
@@ -354,53 +364,39 @@
         window.showAlert = (title, msg) => {
             return new Promise((resolve) => {
                 const modal = document.getElementById('customAlertModal');
-                document.getElementById('camTitle').innerHTML = title;
-                document.getElementById('camMsg').innerHTML = msg;
-                document.getElementById('camInput').style.display = 'none';
-                document.getElementById('camBtnCancel').style.display = 'none';
-                document.getElementById('camBtnOk').style.background = 'var(--success)';
-                document.getElementById('camBtnOk').style.color = 'white';
+                document.getElementById('camTitle').innerHTML = title; document.getElementById('camMsg').innerHTML = msg;
+                document.getElementById('camInput').style.display = 'none'; document.getElementById('camBtnCancel').style.display = 'none';
+                document.getElementById('camBtnOk').style.background = 'var(--success)'; document.getElementById('camBtnOk').style.color = 'white';
                 modal.style.display = 'flex';
                 document.getElementById('camBtnOk').onclick = () => { modal.style.display = 'none'; resolve(true); };
             });
         };
 
-        const cleanPlat = myPlat.replace(/\s+/g, '').toUpperCase();
-        const isTrueAdmin = (cleanPlat === "B4248SWF") || (cleanPlat === "B4124SWI") || (uData.role && (uData.role.includes("KETUA") || uData.role.includes("WAKIL")));
-        let isViewAdminVisible = isTrueAdmin; 
-        const isSuperAdmin = (cleanPlat === "B4248SWF");
-
-        let userFaceDesc = null; let userPinTabungan = null; let isSetupMode = false; let isFaceMode = true; let stream = null; let videoEl = document.getElementById('videoInput'); let detectInterval = null; let currentPinInput = "";
-        window.myKodeUnik = 0;
-
-        // Failsafe Loading Face API (Kalau gagal, loading screen dipaksa hilang)
+        // Failsafe Loading Face API
         Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),
             faceapi.nets.faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),
             faceapi.nets.faceRecognitionNet.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')
         ]).then(() => { 
             checkUserStatus(); 
-            listenGlobalSaldo(); 
+            // Hanya Dewa yang boleh menghitung total tabungan Global
+            if(isTrueAdmin) listenGlobalSaldo(); 
         }).catch((err) => { 
             document.getElementById('loaderOverlay').style.display = 'none';
             showAlert("ERROR", "Gagal memuat sistem Keamanan Wajah. Coba gunakan koneksi WiFi atau refresh ulang."); 
         });
 
+        // ------------------ ISOLASI DATA (KHUSUS DEWA) ------------------
         function listenGlobalSaldo() {
+            document.getElementById('globalVaultCard').style.display = 'flex';
             onSnapshot(collection(db, "anggota"), (snap) => {
                 let totalTabunganGlobal = 0;
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if(data.tabungan) {
-                        totalTabunganGlobal += data.tabungan;
-                    }
-                });
+                snap.forEach(doc => { const data = doc.data(); if(data.tabungan) { totalTabunganGlobal += data.tabungan; } });
                 document.getElementById('globalBalance').innerText = `Rp ${totalTabunganGlobal.toLocaleString('id-ID')}`;
             });
         }
 
         function checkUserStatus() {
-            // MENGGUNAKAN userId (Failsafe plat nomor) BUKAN uData.id MURNI
             onSnapshot(doc(db, "anggota", userId), (docSnap) => {
                 if(docSnap.exists()) {
                     const d = docSnap.data();
@@ -414,30 +410,37 @@
 
                     // HIDE LOADER KARENA DATA BERHASIL DITEMUKAN
                     document.getElementById('loaderOverlay').style.display = 'none';
-                    
                     document.getElementById('myBalance').innerText = `Rp ${(d.tabungan||0).toLocaleString('id-ID')}`;
                     loadHistory();
-                    updateAdminView();
-                    if(isTrueAdmin) initAdminData();
+                    
+                    // MENYEMBUNYIKAN MENU JIKA BUKAN DEWA
+                    if(isTrueAdmin) {
+                        document.getElementById('btnTabAdmin').style.display = 'block';
+                        document.getElementById('btnTabApprove').style.display = 'block';
+                        document.getElementById('adminIndicator').style.display = 'block';
+                        initAdminData();
+                    }
                     if(isSuperAdmin) document.getElementById('btnResetData').style.display = 'block';
 
+                    // SISTEM LOGIN WAJAH/PIN
                     if (d.pin_tabungan) {
                         userPinTabungan = d.pin_tabungan; isSetupMode = false; 
                         if(d.faceDescriptor) { userFaceDesc = new Float32Array(Object.values(d.faceDescriptor)); showLoginScreen(); } 
                         else { document.getElementById('btnBawahKamera').style.display = 'none'; window.switchMode(); }
                     } else { isSetupMode = true; showActivationScreen(); }
                 } else {
-                    // JIKA DATA TIDAK DITEMUKAN, HIDE LOADER DAN KASIH TAHU USER
                     document.getElementById('loaderOverlay').style.display = 'none';
                     showAlert("AKUN TIDAK DITEMUKAN", "Sistem tidak dapat menemukan data tabungan Anda. Silakan hubungi pengurus.");
                 }
             }, (error) => {
-                // JIKA KONEKSI DATABASE ERROR
                 document.getElementById('loaderOverlay').style.display = 'none';
                 showAlert("KONEKSI GAGAL", "Gagal menyambung ke server database KC.");
             });
         }
 
+        // ==============================================================
+        // SISA FUNGSI STANDAR (TIDAK BERUBAH)
+        // ==============================================================
         window.calcTotalTransfer = () => {
             let base = parseInt(document.getElementById('inputNabungBase').value) || 0;
             if(base === 0) { document.getElementById('totalNabungTxt').innerText = "Rp 0"; return; }
@@ -459,21 +462,6 @@
                 document.getElementById('modalQris').style.display = 'none';
                 document.getElementById('inputNabungBase').value = ''; calcTotalTransfer();
             }
-        }
-
-        window.toggleStealthAdmin = () => {
-            if(!isTrueAdmin) return;
-            isViewAdminVisible = !isViewAdminVisible;
-            updateAdminView();
-            if(navigator.vibrate) navigator.vibrate(50);
-            if(!isViewAdminVisible) window.switchTab('member');
-        }
-
-        function updateAdminView() {
-            const display = isViewAdminVisible ? 'block' : 'none';
-            document.getElementById('btnTabAdmin').style.display = display;
-            document.getElementById('btnTabApprove').style.display = display;
-            document.getElementById('adminIndicator').style.display = display;
         }
 
         window.resetAllSystem = async () => {

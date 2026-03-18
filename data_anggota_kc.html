@@ -179,7 +179,7 @@
         const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
         const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
 
-        // SISTEM HAK AKSES ADMIN & SUPER ADMIN (MATA DEWA)
+        // SISTEM HAK AKSES ADMIN BERDASARKAN WHITELIST PLAT NOMOR (SANGAT KETAT)
         let uData = null;
         let isAdmin = false;
         let isSuperAdmin = false;
@@ -187,10 +187,19 @@
         try { 
             uData = JSON.parse(localStorage.getItem('maka_user')); 
             if(uData) {
-                const role = (uData.role || "").toUpperCase();
                 const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
                 
-                if(role.includes("KETUA") || role.includes("WAKIL") || role.includes("SEKRETARIS") || role.includes("BENDAHARA") || role.includes("HUMAS") || role.includes("URC") || plat === "B4124SWI" || plat === "B4248SWF") {
+                // DAFTAR PLAT YANG DIIZINKAN EDIT/TAMBAH ANGGOTA
+                const allowedAdmins = [
+                    "B4124SWI", // Agus Sukmana
+                    "B4426SWF", // Rifky alfiansyah
+                    "B4959SWF", // Alfian
+                    "B4372SWJ", // FITO
+                    "B4903SWG", // Dino Three
+                    "B4248SWF"  // Plat Lu
+                ];
+                
+                if(allowedAdmins.includes(plat)) {
                     isAdmin = true;
                 }
 

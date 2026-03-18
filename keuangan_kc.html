@@ -284,9 +284,25 @@
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
 
+        // ==========================================
+        // SISTEM HAK AKSES UANG KAS (SANGAT KETAT)
+        // Hanya 2 Plat Nomor ini yang bisa Input / Edit
+        // ==========================================
         const u = JSON.parse(localStorage.getItem('maka_user')) || {};
-        const isAdmin = true; 
-        if (isAdmin) document.getElementById('btnAddTx').style.display = 'flex';
+        const myPlatClean = (u.plat || "").replace(/\s+/g, '').toUpperCase();
+        
+        let isAdmin = false;
+        
+        // Daftar Putih (Whitelist) Pengurus Kas
+        const kasAdmins = [
+            "B4959SWF", // Alfian
+            "B4124SWI"  // Agus Sukmana
+        ];
+
+        if (kasAdmins.includes(myPlatClean)) {
+            isAdmin = true;
+            document.getElementById('btnAddTx').style.display = 'flex';
+        }
 
         document.getElementById('lblDate').innerText = `SALDO KAS KC PER ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}).toUpperCase()}`;
 

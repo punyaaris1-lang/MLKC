@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "3.6"; // Dinaikkan ke 3.6 buat fix Broadcast
+        const DASH_VERSION = "3.7"; 
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -40,6 +40,7 @@
             --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.8);
             --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
             --kc-green: #D4FF00;
+            --cyan-neon: #00E5FF;
         }
         body { margin: 0; background: #000000; font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 120px; overflow-x: hidden; position: relative; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
         * { box-sizing: border-box; outline: none; text-decoration: none; }
@@ -134,7 +135,8 @@
         .ic-tabungan { background: linear-gradient(135deg, #10b981 0%, #047857 100%); } 
         .ic-info { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); } 
         .ic-urc { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
-        .ic-broadcast { background: linear-gradient(135deg, #f472b6 0%, #db2777 100%); }
+        /* TEMA BARU BROADCAST = CYAN NEON */
+        .ic-broadcast { background: linear-gradient(135deg, #00f2fe 0%, #0891b2 100%); color: #000 !important;}
 
         .menu-title { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: #e2e8f0; }
 
@@ -227,7 +229,7 @@
                 <div class="radar-extra-name">FC KELAPA GADING</div>
                 <div class="radar-extra-dist" id="radarExtraDist">...</div>
             </div>
-            <a href="https://punyaaris1-lang.github.io/MLU/antrian.html" id="btnRadarExtra" class="btn-radar-go"><i class="fas fa-external-link-alt"></i> DAFTAR GADING</a>
+            <a href="antrian_gading.html" id="btnRadarExtra" class="btn-radar-go"><i class="fas fa-external-link-alt"></i> DAFTAR GADING</a>
         </div>
 
         <a href="https://www.tiktok.com/@maka_ojol" target="_blank" class="tiktok-premium-card">
@@ -266,7 +268,7 @@
             </a>
             <a href="javascript:void(0)" class="menu-btn id-menu-broadcast" style="display: none;" onclick="openBroadcastModal()">
                 <div class="icon-box ic-broadcast"><i class="fas fa-bullhorn"></i></div>
-                <div class="menu-title" style="color: #f472b6;">Broadcast Pesan</div>
+                <div class="menu-title" style="color: var(--cyan-neon);">Broadcast Pesan</div>
             </a>
         </div>
     </div>
@@ -321,7 +323,7 @@
 
     <div class="modal-glass-overlay" id="boardEditModal">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--royal-blue); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
+            <h3 style="font-family:'Outfit'; color:var(--kc-yellow); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Info:</label>
             <input type="text" id="inputBoardTitle" class="form-input" placeholder="Judul Info" style="margin-bottom:15px;">
             
@@ -337,28 +339,37 @@
 
     <div class="modal-glass-overlay" id="broadcastModalKC">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:#f472b6; margin-top:0; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> BROADCAST PESAN</h3>
-            <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Pesan massal ini akan muncul sebagai Pop-Up (Alert) di layar seluruh anggota yang sedang membuka aplikasi.</p>
+            <h3 style="font-family:'Outfit'; color:var(--cyan-neon); margin-top:0; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> BROADCAST PESAN</h3>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Kirim pesan pop-up langsung ke layar seluruh anggota yang sedang membuka aplikasi.</p>
             
-            <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Pesan:</label>
+            <div style="margin-bottom:15px; text-align: left;">
+                <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Lampirkan Foto (Opsional):</label>
+                <input type="file" id="inputBroadcastFoto" accept="image/*" onchange="processBroadcastFoto(this)" style="font-size:12px; color:white; width: 100%;">
+                <img id="previewBroadcastFoto" style="width:100%; max-height:150px; object-fit:contain; display:none; margin-top:10px; border-radius:8px; border:1px solid #333;">
+            </div>
+
+            <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block; text-align: left;">Judul Pesan:</label>
             <input type="text" id="inputBroadcastTitle" class="form-input" placeholder="Contoh: INFO KOPDAR" style="margin-bottom:15px;">
             
-            <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Isi Pesan:</label>
+            <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block; text-align: left;">Isi Pesan:</label>
             <textarea id="inputBroadcastDesc" class="form-input" rows="4" placeholder="Tulis isi pesan di sini..." style="margin-bottom: 15px;"></textarea>
             
             <div style="display:flex; gap:10px;">
                 <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('broadcastModalKC').classList.remove('show'); setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);">BATAL</button>
-                <button class="btn-modal" id="btnSendBroadcast" style="background:#db2777; color:white; box-shadow:0 5px 15px rgba(219, 39, 119, 0.4);" onclick="sendBroadcastKC()">KIRIM PESAN</button>
+                <button class="btn-modal" id="btnSendBroadcast" style="background:var(--cyan-neon); color:black; box-shadow:0 5px 15px rgba(0, 229, 255, 0.4);" onclick="sendBroadcastKC()">KIRIM PESAN</button>
             </div>
         </div>
     </div>
 
     <div class="modal-glass-overlay" id="receiveBroadcastModal" style="z-index: 105000;">
-        <div class="modal-glass-box" style="text-align: center; border-color: #db2777; background: linear-gradient(180deg, rgba(219, 39, 119, 0.1) 0%, #111 100%);">
-            <div style="font-size: 45px; margin-bottom: 10px; color: #db2777; animation: pulseSOS 2s infinite;"><i class="fas fa-broadcast-tower"></i></div>
+        <div class="modal-glass-box" style="text-align: center; border-color: var(--cyan-neon); background: linear-gradient(180deg, rgba(0, 229, 255, 0.1) 0%, #111 100%);">
+            <div style="font-size: 45px; margin-bottom: 10px; color: var(--cyan-neon); animation: pulseSOS 2s infinite;"><i class="fas fa-broadcast-tower"></i></div>
             <h3 id="recvBcTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:15px; font-size: 22px; color: white;">INFO PENTING</h3>
+            
+            <img id="recvBcFoto" style="width:100%; max-height:200px; object-fit:contain; border-radius:12px; margin-bottom:15px; display:none; border: 1px solid rgba(0,229,255,0.3);">
+
             <p id="recvBcMessage" style="font-size:13px; color:#cbd5e1; margin-bottom:25px; line-height: 1.6; font-weight: 500;"></p>
-            <button class="btn-modal" style="background:#db2777; color:white; width:100%; box-shadow:0 5px 15px rgba(219, 39, 119, 0.4);" onclick="closeReceivedBroadcast()">SAYA MENGERTI</button>
+            <button class="btn-modal" style="background:var(--cyan-neon); color:black; width:100%; box-shadow:0 5px 15px rgba(0, 229, 255, 0.4); font-weight: 900;" onclick="closeReceivedBroadcast()">SAYA MENGERTI</button>
         </div>
     </div>
 
@@ -370,7 +381,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // REMOVED "where" DARI IMPORT KARENA SUDAH TIDAK DIPAKAI LAGI DI QUERY BROADCAST
         import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", authDomain: "rtomaka-e67b5.firebaseapp.com", projectId: "rtomaka-e67b5" };
@@ -403,8 +413,8 @@
                 icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
                 titleEl.style.color = 'var(--danger)';
             } else {
-                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
-                titleEl.style.color = 'var(--royal-blue)';
+                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--cyan-neon); filter: drop-shadow(0 0 10px var(--cyan-neon));"></i>';
+                titleEl.style.color = 'var(--cyan-neon)';
             }
             
             modal.style.display = 'flex';
@@ -580,14 +590,38 @@
         window.openBroadcastModal = () => {
             document.getElementById('inputBroadcastTitle').value = '';
             document.getElementById('inputBroadcastDesc').value = '';
+            document.getElementById('inputBroadcastFoto').value = '';
+            document.getElementById('previewBroadcastFoto').style.display = 'none';
+            currentBroadcastPhotoBase64 = "";
+
             const m = document.getElementById('broadcastModalKC'); 
             m.style.display='flex'; 
             setTimeout(()=>m.classList.add('show'),10); 
         };
 
         // ==========================================
-        // FUNGSI BROADCAST - PINDAH KOLEKSI BIAR GAK ERROR INDEX
+        // PROSES FOTO BROADCAST JADI DATA KECIL (BASE64)
         // ==========================================
+        let currentBroadcastPhotoBase64 = "";
+        window.processBroadcastFoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
+                        let w = img.width; let h = img.height;
+                        if (w > h) { if (w > 600) { h *= 600/w; w = 600; } } else { if (h > 600) { w *= 600/h; h = 600; } }
+                        cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h);
+                        currentBroadcastPhotoBase64 = cvs.toDataURL('image/jpeg', 0.8);
+                        const p = document.getElementById('previewBroadcastFoto'); p.src = currentBroadcastPhotoBase64; p.style.display = 'block';
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
         window.sendBroadcastKC = async () => {
             const title = document.getElementById('inputBroadcastTitle').value.trim();
             const desc = document.getElementById('inputBroadcastDesc').value.trim();
@@ -602,10 +636,10 @@
             btn.style.opacity = '0.7';
 
             try {
-                // SEKARANG DISIMPAN DI FOLDER KHUSUS "broadcasts_kc"
                 await addDoc(collection(dbKC, "broadcasts_kc"), {
                     title: title,
                     content: desc,
+                    foto: currentBroadcastPhotoBase64, // Kirm foto ke database
                     author: myCurrentName,
                     timestamp: Date.now()
                 });
@@ -622,11 +656,7 @@
             }
         };
 
-        // ==========================================
-        // LISTENER BROADCAST - HILANGIN WHERE()
-        // ==========================================
         function startBroadcastListener() {
-            // MENGAMBIL DATA LANGSUNG DARI KOLEKSI KHUSUS, BEBAS DARI ERROR COMPOSITE INDEX FIREBASE
             const qBroadcast = query(collection(dbKC, "broadcasts_kc"), orderBy("timestamp", "desc"), limit(1));
             
             onSnapshot(qBroadcast, (snap) => {
@@ -639,6 +669,15 @@
                     document.getElementById('recvBcTitle').innerText = bcData.title;
                     document.getElementById('recvBcMessage').innerText = bcData.content;
                     
+                    // TAMPILIN FOTO KALAU ADA
+                    const imgEl = document.getElementById('recvBcFoto');
+                    if(bcData.foto && bcData.foto.length > 50) {
+                        imgEl.src = bcData.foto;
+                        imgEl.style.display = 'block';
+                    } else {
+                        imgEl.style.display = 'none';
+                    }
+
                     const m = document.getElementById('receiveBroadcastModal');
                     m.style.display = 'flex';
                     setTimeout(() => m.classList.add('show'), 50);

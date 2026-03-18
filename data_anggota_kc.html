@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DATA_VERSION = "2.1"; // Dinaikkan ke 2.1 biar HP Dino kena reset paksa
+        const DATA_VERSION = "2.2"; // Versi 2.2 buat reset paksa
         if (localStorage.getItem('maka_data_version') !== DATA_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -116,6 +116,9 @@
     </style>
 </head>
 <body>
+
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
 
     <header class="header-main">
         <span class="sub-tag">DATABASE KOMUNITAS</span>
@@ -334,7 +337,9 @@
         const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
         const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
 
-        // SISTEM HAK AKSES ADMIN 
+        // ===============================================
+        // SISTEM HAK AKSES ADMIN DATA ANGGOTA (DENGAN FAILSAFE NAMA)
+        // ===============================================
         let uData = null;
         let isAdmin = false;
         let isSuperAdmin = false;
@@ -345,7 +350,6 @@
                 const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
                 const nama = (uData.namaKtp || uData.namaWa || uData.nama || "").toUpperCase();
                 
-                // DAFTAR PLAT YANG DIIZINKAN EDIT/TAMBAH ANGGOTA
                 const allowedAdmins = [
                     "B4124SWI", // Agus Sukmana
                     "B4426SWF", // Rifky alfiansyah
@@ -355,7 +359,7 @@
                     "B4248SWF"  // Plat Lu
                 ];
                 
-                // FAILSAFE BUAT DINO JIKA DATABASE TYPO
+                // JIKA PLAT ADA DI DAFTAR ATAU NAMANYA MENGANDUNG "DINO" (Bypass Typo DB)
                 if(allowedAdmins.includes(plat) || nama.includes("DINO")) {
                     isAdmin = true;
                 }
@@ -471,114 +475,3 @@
                 document.getElementById('modalTitleText').innerText = "Edit Anggota";
                 const d = JSON.parse(decodeURIComponent(dataString));
                 document.getElementById('formId').value = d.id;
-                document.getElementById('formNamaKtp').value = d.namaKtp || d.nama || '';
-                document.getElementById('formNamaWa').value = d.namaWa || d.nama || '';
-                document.getElementById('formPlat').value = d.plat || '';
-                document.getElementById('formHp').value = d.hp || '';
-                document.getElementById('formRole').value = d.role || 'MEMBER';
-                document.getElementById('formType').value = d.type || d.vendor || 'TRANSGO';
-                
-                // MATA DEWA: BACA PIN LOGIN
-                if (isSuperAdmin) {
-                    document.getElementById('formPinLogin').value = d.pin_login || d.pin || '';
-                }
-                
-                if(d.foto && d.foto.length > 50) {
-                    currentPhotoBase64 = d.foto;
-                    const p = document.getElementById('previewFoto');
-                    p.src = currentPhotoBase64;
-                    p.style.display = 'block';
-                } else {
-                    currentPhotoBase64 = "";
-                    document.getElementById('previewFoto').style.display = 'none';
-                }
-            }
-
-            modal.style.display = 'flex'; 
-            setTimeout(()=>modal.classList.add('show'), 10);
-        };
-        
-        window.closeModal = () => { 
-            modal.classList.remove('show'); 
-            setTimeout(()=>modal.style.display = 'none', 300);
-        };
-
-        window.saveData = async () => {
-            const namaKtp = document.getElementById('formNamaKtp').value.trim().toUpperCase();
-            const namaWa = document.getElementById('formNamaWa').value.trim().toUpperCase();
-            const platRaw = document.getElementById('formPlat').value.trim().toUpperCase();
-            const platClean = platRaw.replace(/\s+/g, ''); 
-            const hp = document.getElementById('formHp').value.trim();
-            const role = document.getElementById('formRole').value;
-            const type = document.getElementById('formType').value;
-            const actionType = document.getElementById('formActionType').value;
-            const oldId = document.getElementById('formId').value;
-
-            if(!namaKtp || !platRaw) return showCustomAlert("PERHATIAN", "Nama KTP dan Plat Nomor Wajib Diisi!", "error");
-
-            const btn = document.getElementById('btnSave');
-            btn.innerText = "MENYIMPAN..."; btn.style.opacity = '0.7';
-
-            try {
-                const newId = platClean;
-                
-                let payload = {
-                    namaKtp: namaKtp,
-                    namaWa: namaWa,
-                    nama: namaWa || namaKtp, 
-                    plat: platRaw,
-                    hp: hp,
-                    role: role,
-                    type: type,
-                };
-
-                // JIKA SUPER ADMIN (MATA DEWA) MENGISI PIN, SIMPAN PIN-NYA
-                if (isSuperAdmin) {
-                    const inputPin = document.getElementById('formPinLogin').value.trim();
-                    if (inputPin !== "") {
-                        payload.pin_login = inputPin;
-                    }
-                }
-
-                if(currentPhotoBase64) {
-                    payload.foto = currentPhotoBase64;
-                }
-
-                if (actionType === 'edit' && oldId && oldId !== newId) {
-                    const oldDataIndex = membersData.findIndex(m => m.id === oldId);
-                    if(oldDataIndex !== -1) {
-                        const dLama = membersData[oldDataIndex];
-                        payload.tabungan = dLama.tabungan || 0;
-                        if(dLama.pin_tabungan) payload.pin_tabungan = dLama.pin_tabungan;
-                        
-                        if(!isSuperAdmin && dLama.pin_login) payload.pin_login = dLama.pin_login;
-                        
-                        if(dLama.faceDescriptor) payload.faceDescriptor = dLama.faceDescriptor;
-                        if(dLama.kodeUnik) payload.kodeUnik = dLama.kodeUnik;
-                    }
-                    await deleteDoc(doc(db, "anggota", oldId));
-                }
-
-                await setDoc(doc(db, "anggota", newId), payload, { merge: true });
-
-                closeModal();
-                showCustomAlert("SUKSES", "Data anggota berhasil disimpan.", "success");
-            } catch (e) {
-                showCustomAlert("GAGAL", "Gagal menyimpan: " + e.message, "error");
-            } finally {
-                btn.innerText = "SIMPAN DATA"; btn.style.opacity = '1';
-            }
-        };
-
-        window.deleteMember = async (id, nama) => { 
-            const ok = await showCustomConfirm("HAPUS ANGGOTA", `Yakin ingin menghapus data <b>${nama}</b> secara permanen?<br><br><span style='color:var(--danger);'>Semua data Tabungan & Keamanan orang ini akan ikut hilang!</span>`);
-            if(ok) {
-                await deleteDoc(doc(db, "anggota", id)); 
-                showCustomAlert("DIHAPUS", "Data anggota berhasil dihapus.", "success");
-            }
-        };
-
-        window.filterList = () => { const txt = document.getElementById('searchInput').value.toLowerCase(); const filtered = membersData.filter(m => (m.namaKtp && m.namaKtp.toLowerCase().includes(txt)) || (m.namaWa && m.namaWa.toLowerCase().includes(txt)) || (m.plat && m.plat.toLowerCase().includes(txt)) || (m.role && m.role.toLowerCase().includes(txt))); renderList(filtered); };
-    </script>
-</body>
-</html>

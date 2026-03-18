@@ -100,7 +100,7 @@
         .btn-radar-go { background:var(--royal-blue); color:black; padding:8px 15px; border-radius:12px; font-family:'Space Grotesk'; font-size:10px; font-weight:800; text-decoration:none; box-shadow:0 5px 15px rgba(212,255,0,0.2); display: flex; align-items: center; gap: 5px;}
 
         /* TIKTOK PROMO */
-        .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; margin-top: 15px; }
+        .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; margin-top: 15px; }
         .tiktok-premium-card:active { transform: scale(0.96); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .tk-glow { position: absolute; width: 100px; height: 100px; filter: blur(40px); border-radius: 50%; opacity: 0.5; z-index: 1; }
         .tk-cyan { top: -20px; left: -20px; background: #00f2fe; } .tk-magenta { bottom: -20px; right: 20%; background: #fe0979; }
@@ -261,11 +261,11 @@
             <a href="tabungan_kc.html" class="menu-btn"><div class="icon-box ic-tabungan"><i class="fas fa-piggy-bank"></i></div><div class="menu-title">Tabungan KC</div></a>
             <a href="info_kc.html" class="menu-btn"><div class="icon-box ic-info"><i class="fas fa-info-circle"></i></div><div class="menu-title">Info KC</div></a>
             
-            <a href="urc_kc.html" class="menu-btn id-menu-secret" style="display: none;">
+            <a href="urc_kc.html" class="menu-btn id-menu-urc" style="display: none;">
                 <div class="icon-box ic-urc"><i class="fas fa-crosshairs"></i></div>
                 <div class="menu-title" style="color: var(--danger);">URC Command</div>
             </a>
-            <a href="javascript:void(0)" class="menu-btn id-menu-secret" style="display: none;" onclick="openBroadcastModal()">
+            <a href="javascript:void(0)" class="menu-btn id-menu-broadcast" style="display: none;" onclick="openBroadcastModal()">
                 <div class="icon-box ic-broadcast"><i class="fas fa-bullhorn"></i></div>
                 <div class="menu-title" style="color: #f472b6;">Broadcast Pesan</div>
             </a>
@@ -460,16 +460,22 @@
         const myRole = (uData.role || "MEMBER").toUpperCase();
         const myPlatClean = myPlat.replace(/\s+/g, '').toUpperCase();
 
-        // CEK HAK AKSES UNTUK TOMBOL EDIT PAPAN PENGUMUMAN
+        // ===============================================
+        // CEK HAK AKSES UNTUK TOMBOL EDIT PAPAN PENGUMUMAN DAN BROADCAST
+        // Berlaku untuk semua pengurus (Bukan MEMBER / GUEST / KELUARGA)
+        // ===============================================
         const isPengurus = (myRole !== "MEMBER" && myRole !== "KELUARGA MLU" && myRole !== "GUEST") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
         if(isPengurus) {
             document.getElementById('btnEditBoard').style.display = 'block';
+            document.querySelectorAll('.id-menu-broadcast').forEach(el => el.style.display = 'flex');
         }
 
-        // CEK HAK AKSES KHUSUS URC & BROADCAST MENU
+        // ===============================================
+        // CEK HAK AKSES KHUSUS URC MENU (Lebih Ketat)
+        // ===============================================
         const isTacticalTeam = myRole.includes("URC") || myRole.includes("KETUA") || myRole.includes("WAKIL") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
         if (isTacticalTeam) {
-            document.querySelectorAll('.id-menu-secret').forEach(el => el.style.display = 'flex');
+            document.querySelectorAll('.id-menu-urc').forEach(el => el.style.display = 'flex');
         }
 
         let map = null, markers = {}, watchId = null;

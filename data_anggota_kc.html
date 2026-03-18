@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DATA_VERSION = "2.0"; 
+        const DATA_VERSION = "2.1"; // Dinaikkan ke 2.1 biar HP Dino kena reset paksa
         if (localStorage.getItem('maka_data_version') !== DATA_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -116,9 +116,6 @@
     </style>
 </head>
 <body>
-
-    <div class="ambient-light light-1"></div>
-    <div class="ambient-light light-2"></div>
 
     <header class="header-main">
         <span class="sub-tag">DATABASE KOMUNITAS</span>
@@ -337,7 +334,7 @@
         const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
         const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
 
-        // SISTEM HAK AKSES ADMIN BERDASARKAN WHITELIST PLAT NOMOR (SANGAT KETAT)
+        // SISTEM HAK AKSES ADMIN 
         let uData = null;
         let isAdmin = false;
         let isSuperAdmin = false;
@@ -346,6 +343,7 @@
             uData = JSON.parse(localStorage.getItem('maka_user')); 
             if(uData) {
                 const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
+                const nama = (uData.namaKtp || uData.namaWa || uData.nama || "").toUpperCase();
                 
                 // DAFTAR PLAT YANG DIIZINKAN EDIT/TAMBAH ANGGOTA
                 const allowedAdmins = [
@@ -357,7 +355,8 @@
                     "B4248SWF"  // Plat Lu
                 ];
                 
-                if(allowedAdmins.includes(plat)) {
+                // FAILSAFE BUAT DINO JIKA DATABASE TYPO
+                if(allowedAdmins.includes(plat) || nama.includes("DINO")) {
                     isAdmin = true;
                 }
 

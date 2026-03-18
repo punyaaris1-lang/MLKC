@@ -46,7 +46,7 @@
         .btn-logout { width: 45px; height: 45px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--danger); cursor: pointer; transition: 0.2s;}
         .btn-logout:active { transform: scale(0.9); }
 
-        /* === DESAIN PROFIL DI TENGAH (CENTERED) === */
+        /* === DESAIN PROFIL DI TENGAH === */
         .profile-card { border-radius: 28px; padding: 30px 20px 25px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
         
         /* Posisi Radar */
@@ -100,7 +100,7 @@
         .btn-radar-go { background:var(--royal-blue); color:black; padding:8px 15px; border-radius:12px; font-family:'Space Grotesk'; font-size:10px; font-weight:800; text-decoration:none; box-shadow:0 5px 15px rgba(212,255,0,0.2); display: flex; align-items: center; gap: 5px;}
 
         /* TIKTOK PROMO */
-        .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; margin-top: 5px; }
+        .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; margin-top: 15px; }
         .tiktok-premium-card:active { transform: scale(0.96); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .tk-glow { position: absolute; width: 100px; height: 100px; filter: blur(40px); border-radius: 50%; opacity: 0.5; z-index: 1; }
         .tk-cyan { top: -20px; left: -20px; background: #00f2fe; } .tk-magenta { bottom: -20px; right: 20%; background: #fe0979; }
@@ -143,15 +143,16 @@
         .btn-sos { border: 2px solid rgba(255,255,255,0.2); background: linear-gradient(135deg, #ef4444, #991b1b); animation: pulseSOS 2s infinite; }
         @keyframes pulseSOS { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
-        /* MODAL GLASS */
+        /* MODAL GLASS UMUM */
         .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .modal-glass-overlay.show { opacity: 1; }
         .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: left; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
         .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
-        .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px;}
+        .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
+        .btn-modal:active { transform: scale(0.95); }
 
-        /* CLASS INPUT FORM UNTUK MODAL EDIT BOARD */
-        .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 14px; outline: none; }
+        /* CLASS INPUT FORM UNTUK MODAL EDIT & BROADCAST */
+        .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 14px; outline: none; resize: none; }
         .form-input:focus { border-color: var(--kc-yellow); }
 
         /* DOCK KC (BAWAH) */
@@ -264,7 +265,7 @@
                 <div class="icon-box ic-urc"><i class="fas fa-crosshairs"></i></div>
                 <div class="menu-title" style="color: var(--danger);">URC Command</div>
             </a>
-            <a href="#" class="menu-btn id-menu-secret" style="display: none;" onclick="alert('Fitur Broadcast Sedang Dalam Pengembangan. Harap gunakan MCC Pusat untuk mengirim pesan.');">
+            <a href="javascript:void(0)" class="menu-btn id-menu-secret" style="display: none;" onclick="openBroadcastModal()">
                 <div class="icon-box ic-broadcast"><i class="fas fa-bullhorn"></i></div>
                 <div class="menu-title" style="color: #f472b6;">Broadcast Pesan</div>
             </a>
@@ -274,6 +275,27 @@
     <div class="float-container">
         <a href="https://wa.me/6281234567890" target="_blank" class="btn-float btn-wa-cs"><i class="fab fa-whatsapp"></i></a>
         <div class="btn-float btn-sos" onclick="openSosModal()"><i class="fas fa-ambulance"></i></div>
+    </div>
+
+    <div class="modal-glass-overlay" id="customAlertModal" style="z-index: 100000;">
+        <div class="modal-glass-box" style="text-align: center;">
+            <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
+            <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px;">TITLE</h3>
+            <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
+            <button class="btn-modal" style="background:var(--kc-yellow); color:black; width:100%;" onclick="closeCustomAlert()">SAYA MENGERTI</button>
+        </div>
+    </div>
+
+    <div class="modal-glass-overlay" id="customConfirmModal" style="z-index: 100000;">
+        <div class="modal-glass-box" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 15px; color: var(--kc-yellow);"><i class="fas fa-question-circle"></i></div>
+            <h3 id="confirmTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; color: var(--kc-yellow); font-size: 20px;">KONFIRMASI</h3>
+            <p id="confirmMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-modal" style="background:#333; color:white;" onclick="resolveConfirm(false)">BATAL</button>
+                <button class="btn-modal" style="background:var(--danger); color:white; box-shadow:0 5px 15px rgba(239, 68, 68, 0.4);" onclick="resolveConfirm(true)">YA, YAKIN</button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-glass-overlay" id="sosModal">
@@ -289,9 +311,9 @@
                 <option>Begal / Kriminal</option>
             </select>
             
-            <textarea id="sosDesc" style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:#222; color:white; font-family:'Inter'; outline:none;" rows="3" placeholder="Tambahan info (Opsional)..."></textarea>
+            <textarea id="sosDesc" class="form-input" rows="3" placeholder="Tambahan info (Opsional)..." style="margin-bottom: 15px;"></textarea>
             
-            <div style="margin-top:20px; display:flex; gap:10px;">
+            <div style="display:flex; gap:10px;">
                 <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('sosModal').classList.remove('show'); setTimeout(()=>document.getElementById('sosModal').style.display='none',300);">BATAL</button>
                 <button class="btn-modal" style="background:var(--danger); color:white; box-shadow:0 5px 15px rgba(239, 68, 68, 0.4);" onclick="sendSosURC()">KIRIM KE URC</button>
             </div>
@@ -300,17 +322,44 @@
 
     <div class="modal-glass-overlay" id="boardEditModal">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--kc-yellow); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT INFO DASHBOARD</h3>
+            <h3 style="font-family:'Outfit'; color:var(--kc-yellow); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Info:</label>
             <input type="text" id="inputBoardTitle" class="form-input" placeholder="Judul Info" style="margin-bottom:15px;">
             
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Isi Pesan Singkat:</label>
-            <textarea id="inputBoardDesc" class="form-input" rows="3" placeholder="Isi pengumuman pendek..."></textarea>
+            <textarea id="inputBoardDesc" class="form-input" rows="3" placeholder="Isi pengumuman pendek..." style="margin-bottom: 15px;"></textarea>
             
-            <div style="margin-top:20px; display:flex; gap:10px;">
+            <div style="display:flex; gap:10px;">
                 <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('boardEditModal').classList.remove('show'); setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300);">BATAL</button>
                 <button class="btn-modal" style="background:var(--kc-yellow); color:black;" onclick="saveBoardInfo()">SIMPAN</button>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-glass-overlay" id="broadcastModalKC">
+        <div class="modal-glass-box">
+            <h3 style="font-family:'Outfit'; color:#f472b6; margin-top:0; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> BROADCAST PESAN</h3>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Pesan massal ini akan muncul sebagai Pop-Up (Alert) di layar seluruh anggota yang sedang membuka aplikasi.</p>
+            
+            <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Pesan:</label>
+            <input type="text" id="inputBroadcastTitle" class="form-input" placeholder="Contoh: INFO KOPDAR" style="margin-bottom:15px;">
+            
+            <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Isi Pesan:</label>
+            <textarea id="inputBroadcastDesc" class="form-input" rows="4" placeholder="Tulis isi pesan di sini..." style="margin-bottom: 15px;"></textarea>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('broadcastModalKC').classList.remove('show'); setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);">BATAL</button>
+                <button class="btn-modal" id="btnSendBroadcast" style="background:#db2777; color:white; box-shadow:0 5px 15px rgba(219, 39, 119, 0.4);" onclick="sendBroadcastKC()">KIRIM PESAN</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-glass-overlay" id="receiveBroadcastModal" style="z-index: 105000;">
+        <div class="modal-glass-box" style="text-align: center; border-color: #db2777; background: linear-gradient(180deg, rgba(219, 39, 119, 0.1) 0%, #111 100%);">
+            <div style="font-size: 45px; margin-bottom: 10px; color: #db2777; animation: pulseSOS 2s infinite;"><i class="fas fa-broadcast-tower"></i></div>
+            <h3 id="recvBcTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:15px; font-size: 22px; color: white;">INFO PENTING</h3>
+            <p id="recvBcMessage" style="font-size:13px; color:#cbd5e1; margin-bottom:25px; line-height: 1.6; font-weight: 500;"></p>
+            <button class="btn-modal" style="background:#db2777; color:white; width:100%; box-shadow:0 5px 15px rgba(219, 39, 119, 0.4);" onclick="closeReceivedBroadcast()">SAYA MENGERTI</button>
         </div>
     </div>
 
@@ -322,20 +371,77 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // KONEKSI DATABASE KC (UTAMA)
+        const firebaseConfig = { apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", authDomain: "rtomaka-e67b5.firebaseapp.com", projectId: "rtomaka-e67b5" };
+        const app = initializeApp(firebaseConfig); 
+        const db = getFirestore(app);
+
         const appKC = initializeApp({ 
             apiKey: "AIzaSyDfsTAGclYUSRe6YhiljS-xb-v-9RBYVEM",
             authDomain: "antriankcnew.firebaseapp.com",
-            projectId: "antriankcnew"
-        });
+            projectId: "antriankcnew",
+            storageBucket: "antriankcnew.firebasestorage.app",
+            messagingSenderId: "348986439499",
+            appId: "1:348986439499:web:99578753dc9547d727dace"
+        }, "AppKC");
         const dbKC = getFirestore(appKC);
         const refKC = doc(dbKC, "antrian", "utama");
 
+        // ==========================================
+        // FUNGSI CUSTOM MODAL PENGGANTI ALERT/CONFIRM
+        // ==========================================
+        window.showCustomAlert = (title, message, type = 'info') => {
+            const modal = document.getElementById('customAlertModal');
+            const icon = document.getElementById('alertIcon');
+            const titleEl = document.getElementById('alertTitle');
+            
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success); filter: drop-shadow(0 0 10px var(--success));"></i>';
+                titleEl.style.color = 'var(--success)';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
+                titleEl.style.color = 'var(--danger)';
+            } else {
+                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--kc-yellow); filter: drop-shadow(0 0 10px var(--kc-yellow));"></i>';
+                titleEl.style.color = 'var(--kc-yellow)';
+            }
+            
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        };
+
+        window.closeCustomAlert = () => {
+            const modal = document.getElementById('customAlertModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        };
+
+        let confirmResolver = null;
+        window.showCustomConfirm = (title, message) => {
+            return new Promise((resolve) => {
+                document.getElementById('confirmTitle').innerText = title;
+                document.getElementById('confirmMessage').innerText = message;
+                const modal = document.getElementById('customConfirmModal');
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                confirmResolver = resolve;
+            });
+        };
+        window.resolveConfirm = (result) => {
+            const modal = document.getElementById('customConfirmModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+            if (confirmResolver) confirmResolver(result);
+        };
+
         // FUNGSI LOGOUT / KELUAR APLIKASI
-        window.logoutApp = () => {
-            if(confirm("Apakah Anda yakin ingin Keluar dari Aplikasi KC?")) {
+        window.logoutApp = async () => {
+            const ok = await showCustomConfirm("LOGOUT", "Apakah Anda yakin ingin Keluar dari Aplikasi KC?");
+            if(ok) {
                 localStorage.removeItem('maka_user');
                 localStorage.removeItem('maka_loc_share');
                 localStorage.removeItem('myPlat');
@@ -355,7 +461,6 @@
         const myPlatClean = myPlat.replace(/\s+/g, '').toUpperCase();
 
         // CEK HAK AKSES UNTUK TOMBOL EDIT PAPAN PENGUMUMAN
-        // Semua pengurus (selain MEMBER biasa) diijinkan mengedit papan pengumuman
         const isPengurus = (myRole !== "MEMBER" && myRole !== "KELUARGA MLU" && myRole !== "GUEST") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
         if(isPengurus) {
             document.getElementById('btnEditBoard').style.display = 'block';
@@ -397,11 +502,11 @@
                 showRadar(); 
                 startTracking(); 
             } else {
-                // Kalkulasi Jarak Default (Tanpa GPS)
                 document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> Area Operasional`;
             }
 
             initKCData(); 
+            startBroadcastListener();
         });
 
         // ==========================================
@@ -452,15 +557,97 @@
             const titleInput = document.getElementById('inputBoardTitle').value.trim();
             const descInput = document.getElementById('inputBoardDesc').value.trim();
             
-            if(!titleInput || !descInput) return alert("Judul dan pesan tidak boleh kosong!");
+            if(!titleInput || !descInput) {
+                showCustomAlert("PERHATIAN", "Judul dan pesan pengumuman tidak boleh kosong!", "error");
+                return;
+            }
 
             try {
                 await setDoc(doc(dbKC, "settings", "board_info"), { title: titleInput, desc: descInput }, { merge: true });
                 document.getElementById('boardEditModal').classList.remove('show'); 
                 setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300);
+                showCustomAlert("BERHASIL", "Papan Pengumuman telah diperbarui.", "success");
             } catch (e) {
-                alert("Gagal menyimpan pengumuman: " + e.message);
+                showCustomAlert("GAGAL", "Gagal menyimpan pengumuman: " + e.message, "error");
             }
+        };
+
+        // ==========================================
+        // FUNGSI BROADCAST PESAN (PENGIRIM & PENERIMA)
+        // ==========================================
+        window.openBroadcastModal = () => {
+            document.getElementById('inputBroadcastTitle').value = '';
+            document.getElementById('inputBroadcastDesc').value = '';
+            const m = document.getElementById('broadcastModalKC'); 
+            m.style.display='flex'; 
+            setTimeout(()=>m.classList.add('show'),10); 
+        };
+
+        window.sendBroadcastKC = async () => {
+            const title = document.getElementById('inputBroadcastTitle').value.trim();
+            const desc = document.getElementById('inputBroadcastDesc').value.trim();
+            
+            if(!title || !desc) {
+                showCustomAlert("PERHATIAN", "Judul dan isi pesan Broadcast tidak boleh kosong!", "error");
+                return;
+            }
+
+            const btn = document.getElementById('btnSendBroadcast');
+            btn.innerText = "MENGIRIM...";
+            btn.style.opacity = '0.7';
+
+            try {
+                // Menyimpan pesan broadcast ke koleksi info_kc dengan format khusus (type: 'BROADCAST')
+                await addDoc(collection(dbKC, "info_kc"), {
+                    title: title,
+                    content: desc,
+                    author: myName,
+                    type: 'BROADCAST',
+                    timestamp: Date.now()
+                });
+                
+                document.getElementById('broadcastModalKC').classList.remove('show'); 
+                setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);
+                
+                showCustomAlert("TRANSMISI BERHASIL", "Pesan Broadcast berhasil dikirim dan akan muncul di layar semua anggota yang sedang membuka aplikasi.", "success");
+            } catch (e) {
+                showCustomAlert("GAGAL", "Gagal mengirim pesan: " + e.message, "error");
+            } finally {
+                btn.innerText = "KIRIM PESAN";
+                btn.style.opacity = '1';
+            }
+        };
+
+        // LISTENER PENERIMA BROADCAST (DIJALANKAN DI HP SEMUA ORANG)
+        function startBroadcastListener() {
+            // Kita hanya ambil 1 pesan paling baru bertipe BROADCAST
+            const qBroadcast = query(collection(dbKC, "info_kc"), where("type", "==", "BROADCAST"), orderBy("timestamp", "desc"), limit(1));
+            
+            onSnapshot(qBroadcast, (snap) => {
+                if(snap.empty) return;
+                
+                const bcData = snap.docs[0].data();
+                const lastSeenTime = parseInt(localStorage.getItem('maka_last_broadcast_kc') || '0');
+
+                // Jika ada pesan baru yang jamnya melebihi memori HP member
+                if(bcData.timestamp > lastSeenTime) {
+                    document.getElementById('recvBcTitle').innerText = bcData.title;
+                    document.getElementById('recvBcMessage').innerText = bcData.content;
+                    
+                    const m = document.getElementById('receiveBroadcastModal');
+                    m.style.display = 'flex';
+                    setTimeout(() => m.classList.add('show'), 50);
+
+                    // Simpan jam pesan tersebut agar tidak muncul berulang kali
+                    localStorage.setItem('maka_last_broadcast_kc', bcData.timestamp.toString());
+                }
+            });
+        }
+
+        window.closeReceivedBroadcast = () => {
+            const m = document.getElementById('receiveBroadcastModal');
+            m.classList.remove('show');
+            setTimeout(() => m.style.display = 'none', 300);
         };
 
         // ==========================================
@@ -560,8 +747,11 @@
         window.openSosModal = () => { const m = document.getElementById('sosModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
 
         window.sendSosURC = () => {
-            const nomorURC = "6287711069877"; // Ganti dengan nomor grup/koordinator URC KC
-            if(!navigator.geolocation) return alert("GPS tidak didukung di HP Anda.");
+            const nomorURC = "6287711069877"; 
+            if(!navigator.geolocation) {
+                showCustomAlert("GPS DITOLAK", "Anda harus Mengizinkan Akses Lokasi (GPS) agar fitur ini berfungsi!", "error");
+                return;
+            }
             
             const btn = document.querySelector('.btn-modal[onclick="sendSosURC()"]');
             const originalText = btn.innerHTML;
@@ -584,7 +774,7 @@
                 btn.innerHTML = originalText;
 
             }, () => {
-                alert("Anda harus Mengizinkan Akses Lokasi (GPS) agar Maps bisa dikirim!");
+                showCustomAlert("GPS DITOLAK", "Anda harus Mengizinkan Akses Lokasi (GPS) di pengaturan HP Anda agar Maps bisa dikirim!", "error");
                 btn.innerHTML = originalText;
             }, { enableHighAccuracy: true });
         };

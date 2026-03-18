@@ -371,7 +371,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", authDomain: "rtomaka-e67b5.firebaseapp.com", projectId: "rtomaka-e67b5" };
         const app = initializeApp(firebaseConfig); 
@@ -747,7 +747,7 @@
         window.openSosModal = () => { const m = document.getElementById('sosModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
 
         window.sendSosURC = () => {
-            const nomorURC = "6287711069877"; 
+            const nomorURC = "6287711069877"; // Ganti dengan nomor grup/koordinator URC KC
             if(!navigator.geolocation) {
                 showCustomAlert("GPS DITOLAK", "Anda harus Mengizinkan Akses Lokasi (GPS) agar fitur ini berfungsi!", "error");
                 return;

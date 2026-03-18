@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "3.5"; 
+        const DASH_VERSION = "3.6"; // Dinaikkan ke 3.6 buat fix Broadcast
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -153,7 +153,7 @@
         .btn-modal:active { transform: scale(0.95); }
 
         .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 14px; outline: none; resize: none; }
-        .form-input:focus { border-color: var(--kc-yellow); }
+        .form-input:focus { border-color: var(--royal-blue); }
 
         .dock-container { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); padding: 15px 35px; border-radius: 50px; display: flex; justify-content: space-around; align-items: center; z-index: 9999; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; transition: 0.3s; gap: 4px; }
@@ -281,14 +281,14 @@
             <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
             <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px;">TITLE</h3>
             <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
-            <button class="btn-modal" style="background:var(--kc-yellow); color:black; width:100%;" onclick="closeCustomAlert()">SAYA MENGERTI</button>
+            <button class="btn-modal" style="background:var(--royal-blue); color:black; width:100%;" onclick="closeCustomAlert()">SAYA MENGERTI</button>
         </div>
     </div>
 
     <div class="modal-glass-overlay" id="customConfirmModal" style="text-align: center; z-index: 100000;">
         <div class="modal-glass-box" style="text-align: center;">
-            <div style="font-size: 40px; margin-bottom: 15px; color: var(--kc-yellow);"><i class="fas fa-question-circle"></i></div>
-            <h3 id="confirmTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; color: var(--kc-yellow); font-size: 20px;">KONFIRMASI</h3>
+            <div style="font-size: 40px; margin-bottom: 15px; color: var(--royal-blue);"><i class="fas fa-question-circle"></i></div>
+            <h3 id="confirmTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; color: var(--royal-blue); font-size: 20px;">KONFIRMASI</h3>
             <p id="confirmMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
             <div style="display:flex; gap:10px;">
                 <button class="btn-modal" style="background:#333; color:white;" onclick="resolveConfirm(false)">BATAL</button>
@@ -321,7 +321,7 @@
 
     <div class="modal-glass-overlay" id="boardEditModal">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--kc-yellow); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
+            <h3 style="font-family:'Outfit'; color:var(--royal-blue); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Info:</label>
             <input type="text" id="inputBoardTitle" class="form-input" placeholder="Judul Info" style="margin-bottom:15px;">
             
@@ -330,7 +330,7 @@
             
             <div style="display:flex; gap:10px;">
                 <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('boardEditModal').classList.remove('show'); setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300);">BATAL</button>
-                <button class="btn-modal" style="background:var(--kc-yellow); color:black;" onclick="saveBoardInfo()">SIMPAN</button>
+                <button class="btn-modal" style="background:var(--royal-blue); color:black;" onclick="saveBoardInfo()">SIMPAN</button>
             </div>
         </div>
     </div>
@@ -370,7 +370,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // REMOVED "where" DARI IMPORT KARENA SUDAH TIDAK DIPAKAI LAGI DI QUERY BROADCAST
+        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, deleteDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", authDomain: "rtomaka-e67b5.firebaseapp.com", projectId: "rtomaka-e67b5" };
         const app = initializeApp(firebaseConfig); 
@@ -402,8 +403,8 @@
                 icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
                 titleEl.style.color = 'var(--danger)';
             } else {
-                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--kc-yellow); filter: drop-shadow(0 0 10px var(--kc-yellow));"></i>';
-                titleEl.style.color = 'var(--kc-yellow)';
+                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
+                titleEl.style.color = 'var(--royal-blue)';
             }
             
             modal.style.display = 'flex';
@@ -454,7 +455,6 @@
         const myRole = (uData.role || "MEMBER").toUpperCase();
         const myPlatClean = myPlat.replace(/\s+/g, '').toUpperCase();
 
-        // VARIABEL GLOBAL BUAT RADAR
         let myCurrentPhoto = myPhoto;
         let myCurrentName = myName;
 
@@ -500,28 +500,21 @@
             initKCData(); 
             startBroadcastListener();
 
-            // ==========================================
-            // RADAR REALTIME PROFIL (SOLUSI FOTO GA UPDATE)
-            // ==========================================
             onSnapshot(doc(dbKC, "anggota", myPlatClean), (snap) => {
                 if(snap.exists()) {
                     const d = snap.data();
                     
-                    // 1. Update Foto di Layar
                     if(d.foto && d.foto.length > 50) {
                         document.getElementById('userPhoto').src = d.foto;
-                        myCurrentPhoto = d.foto; // Update variabel untuk radar
+                        myCurrentPhoto = d.foto; 
                     }
                     
-                    // 2. Update Nama di Layar
                     const freshName = d.namaKtp || d.namaWa || d.nama || "User";
                     document.getElementById('userName').innerText = freshName.split(' ')[0];
-                    myCurrentName = freshName; // Update variabel untuk radar
+                    myCurrentName = freshName; 
 
-                    // 3. Update Jabatan
                     document.getElementById('userRole').innerText = d.role || "MEMBER";
                     
-                    // 4. Update Memori HP (LocalStorage) biar permanen pas refresh
                     let localUser = JSON.parse(localStorage.getItem('maka_user')) || {};
                     localUser = { ...localUser, ...d };
                     localStorage.setItem('maka_user', JSON.stringify(localUser));
@@ -592,6 +585,9 @@
             setTimeout(()=>m.classList.add('show'),10); 
         };
 
+        // ==========================================
+        // FUNGSI BROADCAST - PINDAH KOLEKSI BIAR GAK ERROR INDEX
+        // ==========================================
         window.sendBroadcastKC = async () => {
             const title = document.getElementById('inputBroadcastTitle').value.trim();
             const desc = document.getElementById('inputBroadcastDesc').value.trim();
@@ -606,18 +602,18 @@
             btn.style.opacity = '0.7';
 
             try {
-                await addDoc(collection(dbKC, "info_kc"), {
+                // SEKARANG DISIMPAN DI FOLDER KHUSUS "broadcasts_kc"
+                await addDoc(collection(dbKC, "broadcasts_kc"), {
                     title: title,
                     content: desc,
-                    author: myName,
-                    type: 'BROADCAST',
+                    author: myCurrentName,
                     timestamp: Date.now()
                 });
                 
                 document.getElementById('broadcastModalKC').classList.remove('show'); 
                 setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);
                 
-                showCustomAlert("TRANSMISI BERHASIL", "Pesan Broadcast berhasil dikirim dan akan muncul di layar semua anggota yang sedang membuka aplikasi.", "success");
+                showCustomAlert("TRANSMISI BERHASIL", "Pesan Broadcast berhasil dikirim ke semua anggota KC yang sedang aktif.", "success");
             } catch (e) {
                 showCustomAlert("GAGAL", "Gagal mengirim pesan: " + e.message, "error");
             } finally {
@@ -626,8 +622,12 @@
             }
         };
 
+        // ==========================================
+        // LISTENER BROADCAST - HILANGIN WHERE()
+        // ==========================================
         function startBroadcastListener() {
-            const qBroadcast = query(collection(dbKC, "info_kc"), where("type", "==", "BROADCAST"), orderBy("timestamp", "desc"), limit(1));
+            // MENGAMBIL DATA LANGSUNG DARI KOLEKSI KHUSUS, BEBAS DARI ERROR COMPOSITE INDEX FIREBASE
+            const qBroadcast = query(collection(dbKC, "broadcasts_kc"), orderBy("timestamp", "desc"), limit(1));
             
             onSnapshot(qBroadcast, (snap) => {
                 if(snap.empty) return;
@@ -726,7 +726,6 @@
                     document.getElementById('radarTerdekatBox').style.display = 'flex';
                     document.getElementById('radarExtraDist').innerText = `${distGading.toFixed(1)} KM (~${Math.ceil((distGading/25)*60)} Menit)`;
 
-                    // NGIRIM KE RADAR PAKAI FOTO DAN NAMA TERBARU
                     const trackRef = doc(dbKC, "live_tracking", uData.id || myPlat.replace(/\s+/g, ''));
                     setDoc(trackRef, { lat: uLat, lng: uLng, nama: myCurrentName, plat: myPlat, hp: uData.hp || uData.wa || "", foto: myCurrentPhoto, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
 

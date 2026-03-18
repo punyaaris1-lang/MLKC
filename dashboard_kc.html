@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC - Dashboard Premium</title>
     
+    <script>
+        // ==========================================
+        // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
+        // ==========================================
+        const DASH_VERSION = "3.5"; 
+        if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
+            if ('caches' in window) {
+                caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
+            }
+            localStorage.setItem('maka_dash_kc_v', DASH_VERSION);
+            window.location.reload(true); 
+        }
+    </script>
+
     <link rel="manifest" href="manifest_kc.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,14 +56,11 @@
         .greeting { font-family: 'Outfit'; font-size: 32px; font-weight: 900; color: var(--text-main); line-height: 1; letter-spacing: -1px; margin-bottom: 8px;}
         .date-text { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; color: var(--royal-blue); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         
-        /* Tombol Logout Pengganti Setting */
         .btn-logout { width: 45px; height: 45px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--danger); cursor: pointer; transition: 0.2s;}
         .btn-logout:active { transform: scale(0.9); }
 
-        /* === DESAIN PROFIL DI TENGAH === */
         .profile-card { border-radius: 28px; padding: 30px 20px 25px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
         
-        /* Posisi Radar */
         .loc-toggle { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 10;}
         .loc-label { font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;}
         .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
@@ -61,11 +72,11 @@
 
         .photo-wrap { position: relative; width: 100px; height: 100px; border-radius: 25px; background: #000; display: flex; align-items: center; justify-content: center; border: 4px solid var(--kc-green); flex-shrink: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); overflow: hidden; margin-bottom: 15px; z-index: 2;}
         .photo-bg-dash { position: absolute; inset: 0; background-image: url('bg_maka.jpg'); background-size: cover; background-position: center; opacity: 1; z-index: 1; border-radius: 20px;}
-        .p-photo { position: relative; width: 100%; height: 100%; object-fit: cover; z-index: 2; border-radius: 18px; border: none; box-shadow: none; background: transparent;}
+        .p-photo { position: relative; width: 100%; height: 100%; object-fit: cover; z-index: 2; border-radius: 18px; border: none; box-shadow: none; background: transparent; transition: 0.3s;}
         
         .p-info { display: flex; flex-direction: column; align-items: center; z-index: 2;}
         .p-role { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 900; background: var(--royal-blue); color: black; padding: 3px 12px; border-radius: 50px; display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .p-name { font-family: 'Outfit'; font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px; line-height: 1.2; text-transform: uppercase; }
+        .p-name { font-family: 'Outfit'; font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px; line-height: 1.2; text-transform: uppercase; transition: 0.3s;}
         .p-plat { font-family: 'Inter'; font-size: 12px; font-weight: 700; color: var(--electric-blue); background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.2);}
 
         .board-pengumuman { background: linear-gradient(90deg, rgba(212,255,0,0.1) 0%, rgba(16,185,129,0.05) 100%); border-left: 4px solid var(--royal-blue); border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; position: relative;}
@@ -75,13 +86,11 @@
         .board-content p { margin: 0; font-size: 11px; color: #cbd5e1; line-height: 1.5; font-weight: 500;}
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* TOMBOL EDIT PENGUMUMAN (KHUSUS ADMIN) */
         #btnEditBoard { position: absolute; right: 10px; top: 15px; cursor: pointer; color: var(--kc-yellow); font-size: 16px; padding: 5px; transition: 0.2s; display: none; }
         #btnEditBoard:active { transform: scale(0.9); }
 
         .dash-container { padding: 0 20px; margin-bottom: 20px; position: relative; z-index: 10; display: flex; flex-direction: column; gap: 15px; }
         
-        /* BANNER UTAMA (KC) */
         .fc-banner { border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; cursor: pointer; gap: 10px; transition: 0.5s; }
         .fc-banner.mode-kc { background: linear-gradient(135deg, #111 0%, #000 100%); border: 1px solid rgba(212, 255, 0, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
         .banner-left { flex: 1; min-width: 0; } 
@@ -92,14 +101,12 @@
         .fc-banner.mode-kc .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--kc-green); text-shadow: 0 0 15px rgba(212, 255, 0, 0.4); line-height: 1;}
         .fc-banner.mode-kc .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
 
-        /* RADAR BOX STASIUN TERDEKAT (GADING) */
         .radar-box-bottom { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: rgba(15,15,15,0.8); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
         .lbl-radar-extra { font-size:9px; font-weight:800; color:#94A3B8; letter-spacing:1px; margin-bottom:2px;}
         .radar-extra-name { font-family:'Outfit'; font-size:14px; font-weight:900; color:#cbd5e1; }
         .radar-extra-dist { font-size:10px; font-weight:700; color:#10B981; }
         .btn-radar-go { background:var(--royal-blue); color:black; padding:8px 15px; border-radius:12px; font-family:'Space Grotesk'; font-size:10px; font-weight:800; text-decoration:none; box-shadow:0 5px 15px rgba(212,255,0,0.2); display: flex; align-items: center; gap: 5px;}
 
-        /* TIKTOK PROMO */
         .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; margin-top: 15px; }
         .tiktok-premium-card:active { transform: scale(0.96); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .tk-glow { position: absolute; width: 100px; height: 100px; filter: blur(40px); border-radius: 50%; opacity: 0.5; z-index: 1; }
@@ -111,12 +118,10 @@
         .tk-text p { margin: 0; color: #CBD5E1; font-size: 11px; font-family: 'Inter'; font-weight: 500; line-height: 1.4; padding-right: 5px; }
         .tk-btn { background: white; color: black; font-family: 'Space Grotesk'; font-weight: 900; font-size: 11px; padding: 10px 18px; border-radius: 50px; z-index: 2; display: flex; align-items: center; gap: 6px; box-shadow: 0 5px 15px rgba(255,255,255,0.2); flex-shrink: 0; }
 
-        /* RADAR MAP STYLES */
         .custom-div-icon { background: transparent; border: none; }
         .marker-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: #111; color: #D4FF00; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; white-space: nowrap; border: 1px solid #D4FF00; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
         #radarMap { width: 100%; height: 100%; }
 
-        /* MENU GRID */
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .menu-btn { background: rgba(15, 15, 15, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.2s; }
         .menu-btn:active { transform: scale(0.96); background: rgba(30, 30, 30, 0.9); }
@@ -128,14 +133,11 @@
         .ic-keuangan { background: linear-gradient(135deg, #64748b 0%, #334155 100%); } 
         .ic-tabungan { background: linear-gradient(135deg, #10b981 0%, #047857 100%); } 
         .ic-info { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); } 
-        
-        /* WARNA KHUSUS URC & BROADCAST (ADMIN ONLY) */
         .ic-urc { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
         .ic-broadcast { background: linear-gradient(135deg, #f472b6 0%, #db2777 100%); }
 
         .menu-title { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: #e2e8f0; }
 
-        /* FLOATING ACTION SOS */
         .float-container { position: fixed; bottom: 100px; right: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 2000; }
         .btn-float { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.8); transition: 0.3s; text-decoration: none;}
         .btn-float:active { transform: scale(0.9); }
@@ -143,7 +145,6 @@
         .btn-sos { border: 2px solid rgba(255,255,255,0.2); background: linear-gradient(135deg, #ef4444, #991b1b); animation: pulseSOS 2s infinite; }
         @keyframes pulseSOS { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
-        /* MODAL GLASS UMUM */
         .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .modal-glass-overlay.show { opacity: 1; }
         .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: left; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
@@ -151,11 +152,9 @@
         .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
         .btn-modal:active { transform: scale(0.95); }
 
-        /* CLASS INPUT FORM UNTUK MODAL EDIT & BROADCAST */
         .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 14px; outline: none; resize: none; }
         .form-input:focus { border-color: var(--kc-yellow); }
 
-        /* DOCK KC (BAWAH) */
         .dock-container { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); padding: 15px 35px; border-radius: 50px; display: flex; justify-content: space-around; align-items: center; z-index: 9999; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; transition: 0.3s; gap: 4px; }
         .nav-item.active { color: var(--royal-blue); transform: translateY(-4px);}
@@ -277,7 +276,7 @@
         <div class="btn-float btn-sos" onclick="openSosModal()"><i class="fas fa-ambulance"></i></div>
     </div>
 
-    <div class="modal-glass-overlay" id="customAlertModal" style="z-index: 100000;">
+    <div class="modal-glass-overlay" id="customAlertModal" style="text-align: center; z-index: 100000;">
         <div class="modal-glass-box" style="text-align: center;">
             <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
             <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px;">TITLE</h3>
@@ -286,7 +285,7 @@
         </div>
     </div>
 
-    <div class="modal-glass-overlay" id="customConfirmModal" style="z-index: 100000;">
+    <div class="modal-glass-overlay" id="customConfirmModal" style="text-align: center; z-index: 100000;">
         <div class="modal-glass-box" style="text-align: center;">
             <div style="font-size: 40px; margin-bottom: 15px; color: var(--kc-yellow);"><i class="fas fa-question-circle"></i></div>
             <h3 id="confirmTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; color: var(--kc-yellow); font-size: 20px;">KONFIRMASI</h3>
@@ -388,9 +387,6 @@
         const dbKC = getFirestore(appKC);
         const refKC = doc(dbKC, "antrian", "utama");
 
-        // ==========================================
-        // FUNGSI CUSTOM MODAL PENGGANTI ALERT/CONFIRM
-        // ==========================================
         window.showCustomAlert = (title, message, type = 'info') => {
             const modal = document.getElementById('customAlertModal');
             const icon = document.getElementById('alertIcon');
@@ -438,7 +434,6 @@
             if (confirmResolver) confirmResolver(result);
         };
 
-        // FUNGSI LOGOUT / KELUAR APLIKASI
         window.logoutApp = async () => {
             const ok = await showCustomConfirm("LOGOUT", "Apakah Anda yakin ingin Keluar dari Aplikasi KC?");
             if(ok) {
@@ -449,7 +444,6 @@
             }
         };
 
-        // --- SISTEM LOGIN & HAK AKSES ---
         let uData = null;
         try { uData = JSON.parse(localStorage.getItem('maka_user')); } catch (e) {}
         if (!uData || !uData.plat) window.location.href = 'index_kc.html'; 
@@ -460,31 +454,26 @@
         const myRole = (uData.role || "MEMBER").toUpperCase();
         const myPlatClean = myPlat.replace(/\s+/g, '').toUpperCase();
 
-        // ===============================================
-        // CEK HAK AKSES UNTUK TOMBOL EDIT PAPAN PENGUMUMAN DAN BROADCAST
-        // Berlaku untuk semua pengurus (Bukan MEMBER / GUEST / KELUARGA)
-        // ===============================================
+        // VARIABEL GLOBAL BUAT RADAR
+        let myCurrentPhoto = myPhoto;
+        let myCurrentName = myName;
+
         const isPengurus = (myRole !== "MEMBER" && myRole !== "KELUARGA MLU" && myRole !== "GUEST") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
         if(isPengurus) {
             document.getElementById('btnEditBoard').style.display = 'block';
             document.querySelectorAll('.id-menu-broadcast').forEach(el => el.style.display = 'flex');
         }
 
-        // ===============================================
-        // CEK HAK AKSES KHUSUS URC MENU (Lebih Ketat)
-        // ===============================================
         const isTacticalTeam = myRole.includes("URC") || myRole.includes("KETUA") || myRole.includes("WAKIL") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
         if (isTacticalTeam) {
             document.querySelectorAll('.id-menu-urc').forEach(el => el.style.display = 'flex');
         }
 
         let map = null, markers = {}, watchId = null;
-        // KOORDINAT STASIUN
         const LAT_KC = -6.2285953; const LNG_KC = 106.819502;
         const LAT_GADING = -6.159389; const LNG_GADING = 106.901416;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // SET WAKTU DAN NAMA
             document.getElementById('displayDate').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             const hr = new Date().getHours();
             document.getElementById('greetingText').innerText = hr<10?"Selamat Pagi,":hr<15?"Selamat Siang,":hr<18?"Selamat Sore,":"Selamat Malam,";
@@ -494,14 +483,11 @@
             document.getElementById('userPlat').innerText = myPlat;
             document.getElementById('userRole').innerText = uData.role || "MEMBER";
             
-            // RENDER FOTO PROFIL
             if (uData.foto && uData.foto.length > 10) {
                 const imgEl = document.getElementById('userPhoto');
                 imgEl.src = uData.foto;
-                imgEl.onload = () => { imgEl.style.opacity = '1'; };
             }
 
-            // AUTO-START GPS JIKA SEBELUMNYA AKTIF
             const savedLoc = localStorage.getItem('maka_loc_share'); 
             if(savedLoc === 'ON') { 
                 document.getElementById('toggleLocation').checked = true; 
@@ -513,13 +499,37 @@
 
             initKCData(); 
             startBroadcastListener();
+
+            // ==========================================
+            // RADAR REALTIME PROFIL (SOLUSI FOTO GA UPDATE)
+            // ==========================================
+            onSnapshot(doc(dbKC, "anggota", myPlatClean), (snap) => {
+                if(snap.exists()) {
+                    const d = snap.data();
+                    
+                    // 1. Update Foto di Layar
+                    if(d.foto && d.foto.length > 50) {
+                        document.getElementById('userPhoto').src = d.foto;
+                        myCurrentPhoto = d.foto; // Update variabel untuk radar
+                    }
+                    
+                    // 2. Update Nama di Layar
+                    const freshName = d.namaKtp || d.namaWa || d.nama || "User";
+                    document.getElementById('userName').innerText = freshName.split(' ')[0];
+                    myCurrentName = freshName; // Update variabel untuk radar
+
+                    // 3. Update Jabatan
+                    document.getElementById('userRole').innerText = d.role || "MEMBER";
+                    
+                    // 4. Update Memori HP (LocalStorage) biar permanen pas refresh
+                    let localUser = JSON.parse(localStorage.getItem('maka_user')) || {};
+                    localUser = { ...localUser, ...d };
+                    localStorage.setItem('maka_user', JSON.stringify(localUser));
+                }
+            });
         });
 
-        // ==========================================
-        // DATA ANTREAN DAN PAPAN PENGUMUMAN KC
-        // ==========================================
         function initKCData() {
-            // 1. DATA ANTREAN KC
             onSnapshot(refKC, (snap) => { 
                 if(!snap.exists()) return; 
                 const d = snap.data();
@@ -538,7 +548,6 @@
                 }
             }); 
             
-            // 2. DATA PAPAN PENGUMUMAN KC
             const refBoard = doc(dbKC, "settings", "board_info");
             onSnapshot(refBoard, (snap) => {
                 if(snap.exists()) {
@@ -548,9 +557,6 @@
             });
         }
 
-        // ==========================================
-        // FUNGSI EDIT PAPAN PENGUMUMAN
-        // ==========================================
         window.openEditBoard = () => {
             document.getElementById('inputBoardTitle').value = document.getElementById('kcBoardTitle').innerText;
             document.getElementById('inputBoardDesc').value = document.getElementById('kcBoardDesc').innerText;
@@ -578,9 +584,6 @@
             }
         };
 
-        // ==========================================
-        // FUNGSI BROADCAST PESAN (PENGIRIM & PENERIMA)
-        // ==========================================
         window.openBroadcastModal = () => {
             document.getElementById('inputBroadcastTitle').value = '';
             document.getElementById('inputBroadcastDesc').value = '';
@@ -603,7 +606,6 @@
             btn.style.opacity = '0.7';
 
             try {
-                // Menyimpan pesan broadcast ke koleksi info_kc dengan format khusus (type: 'BROADCAST')
                 await addDoc(collection(dbKC, "info_kc"), {
                     title: title,
                     content: desc,
@@ -624,9 +626,7 @@
             }
         };
 
-        // LISTENER PENERIMA BROADCAST (DIJALANKAN DI HP SEMUA ORANG)
         function startBroadcastListener() {
-            // Kita hanya ambil 1 pesan paling baru bertipe BROADCAST
             const qBroadcast = query(collection(dbKC, "info_kc"), where("type", "==", "BROADCAST"), orderBy("timestamp", "desc"), limit(1));
             
             onSnapshot(qBroadcast, (snap) => {
@@ -635,7 +635,6 @@
                 const bcData = snap.docs[0].data();
                 const lastSeenTime = parseInt(localStorage.getItem('maka_last_broadcast_kc') || '0');
 
-                // Jika ada pesan baru yang jamnya melebihi memori HP member
                 if(bcData.timestamp > lastSeenTime) {
                     document.getElementById('recvBcTitle').innerText = bcData.title;
                     document.getElementById('recvBcMessage').innerText = bcData.content;
@@ -644,7 +643,6 @@
                     m.style.display = 'flex';
                     setTimeout(() => m.classList.add('show'), 50);
 
-                    // Simpan jam pesan tersebut agar tidak muncul berulang kali
                     localStorage.setItem('maka_last_broadcast_kc', bcData.timestamp.toString());
                 }
             });
@@ -656,9 +654,6 @@
             setTimeout(() => m.style.display = 'none', 300);
         };
 
-        // ==========================================
-        // SISTEM PINTAR KALKULASI JARAK & RADAR
-        // ==========================================
         function calculateDist(lat1, lon1, lat2, lon2) { 
             const p = 0.017453292519943295; const c = Math.cos; 
             const a = 0.5 - c((lat2 - lat1) * p)/2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))/2; 
@@ -724,18 +719,16 @@
                     const uLat = pos.coords.latitude;
                     const uLng = pos.coords.longitude;
 
-                    // 1. UPDATE JARAK KE FC KC (Banner Utama)
                     const distKC = calculateDist(LAT_KC, LNG_KC, uLat, uLng);
                     document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ~${distKC.toFixed(1)} KM (${Math.ceil((distKC/25)*60)} Menit)`;
                     
-                    // 2. UPDATE JARAK KE FC GADING (Stasiun Terdekat Alternatif)
                     const distGading = calculateDist(LAT_GADING, LNG_GADING, uLat, uLng);
                     document.getElementById('radarTerdekatBox').style.display = 'flex';
                     document.getElementById('radarExtraDist').innerText = `${distGading.toFixed(1)} KM (~${Math.ceil((distGading/25)*60)} Menit)`;
 
-                    // 3. KIRIM TITIK LOKASI KE RADAR KC
+                    // NGIRIM KE RADAR PAKAI FOTO DAN NAMA TERBARU
                     const trackRef = doc(dbKC, "live_tracking", uData.id || myPlat.replace(/\s+/g, ''));
-                    setDoc(trackRef, { lat: uLat, lng: uLng, nama: myName, plat: myPlat, hp: uData.hp || uData.wa || "", foto: myPhoto, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
+                    setDoc(trackRef, { lat: uLat, lng: uLng, nama: myCurrentName, plat: myPlat, hp: uData.hp || uData.wa || "", foto: myCurrentPhoto, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
 
                 }, null, {enableHighAccuracy:true}); 
             } 
@@ -747,13 +740,10 @@
             deleteDoc(trackRef).catch(e => console.log(e)); 
         }
 
-        // ==========================================
-        // FITUR S.O.S KE URC ROOM
-        // ==========================================
         window.openSosModal = () => { const m = document.getElementById('sosModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
 
         window.sendSosURC = () => {
-            const nomorURC = "6287711069877"; // Ganti dengan nomor grup/koordinator URC KC
+            const nomorURC = "6287711069877"; 
             if(!navigator.geolocation) {
                 showCustomAlert("GPS DITOLAK", "Anda harus Mengizinkan Akses Lokasi (GPS) agar fitur ini berfungsi!", "error");
                 return;
@@ -767,11 +757,10 @@
                 const lat = pos.coords.latitude; const lng = pos.coords.longitude;
                 const jenis = document.getElementById('sosType').value; const ket = document.getElementById('sosDesc').value;
 
-                // Mengirim sinyal S.O.S ke Live Tracking URC KC
                 const trackRef = doc(dbKC, "live_tracking", uData.id || myPlat.replace(/\s+/g, ''));
                 setDoc(trackRef, { isSOS: true, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
 
-                const pesan = `🚨 *DARURAT S.O.S (KC)* 🚨\n\n👤 *Nama:* ${myName}\n🏍️ *Plat:* ${myPlat}\n⚠️ *Kasus:* ${jenis}\n📝 *Ket:* ${ket ? ket : '-'}\n\n📍 *LOKASI KORBAN:* \nhttps://maps.google.com/?q=${lat},${lng}\n\n_Mohon segera diluncurkan bantuan!_`;
+                const pesan = `🚨 *DARURAT S.O.S (KC)* 🚨\n\n👤 *Nama:* ${myCurrentName}\n🏍️ *Plat:* ${myPlat}\n⚠️ *Kasus:* ${jenis}\n📝 *Ket:* ${ket ? ket : '-'}\n\n📍 *LOKASI KORBAN:* \nhttps://maps.google.com/?q=${lat},${lng}\n\n_Mohon segera diluncurkan bantuan!_`;
                 const linkWA = `https://wa.me/${nomorURC}?text=${encodeURIComponent(pesan)}`;
                 window.open(linkWA, '_blank');
 

@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const TABUNGAN_VERSION = "2.8"; // TEMA CYBER NAVY & KODE UNIK HIERARKI
+        const TABUNGAN_VERSION = "2.9"; // FIX FACE ID & SMART FALLBACK PIN
         if (localStorage.getItem('maka_tabungan_v') !== TABUNGAN_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -370,7 +370,6 @@
 
         // ==============================================================
         // SISTEM KEAMANAN DEWA (STRICT WHITELIST)
-        // Hanya plat ini yang diizinkan untuk mengelola / memvalidasi
         // ==============================================================
         const theGods = [
             "B4124SWI", // Agus Sukmana (Ketua)
@@ -383,20 +382,30 @@
         const isSuperAdmin = (cleanPlat === "B4248SWF" || uData.id === "ghost_admin");
         
         let userFaceDesc = null; let userPinTabungan = null; let isSetupMode = false; let isFaceMode = true; let stream = null; let videoEl = document.getElementById('videoInput'); let detectInterval = null; let currentPinInput = "";
-        window.myKodeUnik = 999; // Default Fallback
+        window.myKodeUnik = 999; 
+        
+        // STATUS API WAJAH (SMART FALLBACK SYSTEM)
+        let faceApiLoaded = false;
 
-        // Failsafe Loading Face API
+        // Failsafe Loading Face API (Server Resmi GitHub Pages anti-blokir)
+        const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+        
         Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),
-            faceapi.nets.faceRecognitionNet.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
         ]).then(() => { 
+            faceApiLoaded = true;
             checkUserStatus(); 
-            // Hanya Dewa yang boleh menghitung total tabungan Global
             if(isTrueAdmin) listenGlobalSaldo(); 
         }).catch((err) => { 
-            document.getElementById('loaderOverlay').style.display = 'none';
-            showCustomAlert("ERROR", "Gagal memuat sistem Keamanan Wajah. Coba gunakan koneksi WiFi atau refresh ulang.", "error"); 
+            console.error("Face API Error:", err);
+            // JIKA FACE ID GAGAL LOAD, OTOMATIS LANJUT KE MODE PIN!
+            faceApiLoaded = false; 
+            checkUserStatus(); 
+            if(isTrueAdmin) listenGlobalSaldo(); 
+            // Sembunyikan pesan error kalau nggak mau terlalu ganggu, atau tampilkan kecil
+            setTimeout(() => { document.getElementById('loaderOverlay').style.display = 'none'; }, 500);
         });
 
         // ------------------ ISOLASI DATA GLOBAL (KHUSUS DEWA) ------------------
@@ -418,13 +427,11 @@
                 let allM = [];
                 snap.forEach(d => {
                     const data = d.data();
-                    // Abaikan Ghost Admin dari perhitungan nomor urut
                     if(data.plat && data.plat.replace(/\s+/g, '').toUpperCase() !== "B4248SWF") {
                         allM.push({id: d.id, ...data});
                     }
                 });
 
-                // Urutkan berdasarkan Jabatan lalu Nama
                 allM.sort((a,b) => {
                     const rankA = getRank(a.role); const rankB = getRank(b.role);
                     if (rankA !== rankB) return rankA - rankB;
@@ -432,9 +439,9 @@
                 });
                 
                 let idx = allM.findIndex(m => m.id === userId);
-                if(idx === -1) idx = allM.length; // Jika tidak ada, taruh di paling bawah
+                if(idx === -1) idx = allM.length; 
                 
-                window.myKodeUnik = idx + 1; // Index 0 jadi 1 (Agus Ketum = 001)
+                window.myKodeUnik = idx + 1; 
                 document.getElementById('kodeUnikTxt').innerText = window.myKodeUnik.toString().padStart(3, '0');
             } catch(e) {
                 console.log("Gagal hitung kode unik: ", e);
@@ -447,16 +454,14 @@
             onSnapshot(doc(db, "anggota", userId), async (docSnap) => {
                 if(docSnap.exists()) {
                     const d = docSnap.data();
-                    
-                    // Hitung dan dapatkan Kode Unik Dinamis berdasarkan Hierarki
                     await calculateKodeUnik();
 
-                    // HIDE LOADER KARENA DATA BERHASIL DITEMUKAN
-                    document.getElementById('loaderOverlay').style.display = 'none';
+                    // HIDE LOADER
+                    setTimeout(() => { document.getElementById('loaderOverlay').style.display = 'none'; }, 300);
+                    
                     document.getElementById('myBalance').innerText = `Rp ${(d.tabungan||0).toLocaleString('id-ID')}`;
                     loadHistory();
                     
-                    // MENYEMBUNYIKAN MENU JIKA BUKAN DEWA
                     if(isTrueAdmin) {
                         document.getElementById('btnTabAdmin').style.display = 'block';
                         document.getElementById('btnTabApprove').style.display = 'block';
@@ -465,12 +470,23 @@
                     }
                     if(isSuperAdmin) document.getElementById('btnResetData').style.display = 'block';
 
-                    // SISTEM LOGIN WAJAH/PIN
+                    // SISTEM LOGIN WAJAH/PIN (DENGAN SMART FALLBACK)
                     if (d.pin_tabungan) {
                         userPinTabungan = d.pin_tabungan; isSetupMode = false; 
-                        if(d.faceDescriptor) { userFaceDesc = new Float32Array(Object.values(d.faceDescriptor)); showLoginScreen(); } 
-                        else { document.getElementById('btnBawahKamera').style.display = 'none'; window.switchMode(); }
-                    } else { isSetupMode = true; showActivationScreen(); }
+                        // Cek apakah Face API berhasil diload dan member punya data wajah
+                        if(d.faceDescriptor && faceApiLoaded) { 
+                            userFaceDesc = new Float32Array(Object.values(d.faceDescriptor)); 
+                            showLoginScreen(); 
+                        } else { 
+                            // OTOMATIS BUKA PIN MODE JIKA FACE API ERROR / BELUM SET WAJAH
+                            document.getElementById('btnBawahKamera').style.display = 'none'; 
+                            isFaceMode = true; // Set true dulu buat trigger toggle
+                            window.switchMode(true); // Force ke mode PIN
+                        }
+                    } else { 
+                        isSetupMode = true; 
+                        showActivationScreen(); 
+                    }
                 } else {
                     document.getElementById('loaderOverlay').style.display = 'none';
                     showCustomAlert("AKUN TIDAK DITEMUKAN", "Sistem tidak dapat menemukan data tabungan Anda. Silakan hubungi pengurus.", "error");
@@ -525,7 +541,27 @@
         }
 
         function showActivationScreen() { document.getElementById('agreeModal').style.display = 'flex'; }
-        window.acceptAgreement = () => { document.getElementById('agreeModal').style.display = 'none'; document.getElementById('secTitle').innerText = "REGISTRASI WAJAH"; document.getElementById('btnMainAction').innerText = "SCAN & SIMPAN WAJAH"; document.getElementById('btnMainAction').style.display = 'block'; document.getElementById('btnBawahKamera').style.display = 'none'; startCamera(); };
+        
+        window.acceptAgreement = () => { 
+            document.getElementById('agreeModal').style.display = 'none'; 
+            
+            if(faceApiLoaded) {
+                document.getElementById('secTitle').innerText = "REGISTRASI WAJAH"; 
+                document.getElementById('btnMainAction').innerText = "SCAN & SIMPAN WAJAH"; 
+                document.getElementById('btnMainAction').style.display = 'block'; 
+                document.getElementById('btnBawahKamera').style.display = 'none'; 
+                startCamera(); 
+            } else {
+                // JIKA FACE API MATI, LANGSUNG LOMPAT KE PEMBUATAN PIN
+                document.getElementById('secTitle').innerText = "BUAT PIN 6 DIGIT"; 
+                document.getElementById('camWrap').style.display = 'none'; 
+                document.getElementById('pinArea').style.display = 'flex'; 
+                document.getElementById('btnMainAction').style.display = 'none'; 
+                isFaceMode = false;
+                if(document.getElementById('btnSwitch')) document.getElementById('btnSwitch').style.display = 'none';
+            }
+        };
+
         function showLoginScreen() { document.getElementById('secTitle').innerText = "VERIFIKASI WAJAH"; document.getElementById('btnMainAction').style.display = 'none'; startCamera(); }
 
         async function startCamera() {
@@ -548,7 +584,7 @@
                         }, 500);
                     }
                 });
-            } catch (e) { window.switchMode(); }
+            } catch (e) { window.switchMode(true); }
         }
 
         window.handleAction = async () => {
@@ -563,8 +599,11 @@
         };
 
         function stopCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); if (detectInterval) clearInterval(detectInterval); document.getElementById('faceFrame').classList.remove('scanning'); }
-        window.switchMode = () => { 
+        
+        window.switchMode = (forcePin = false) => { 
+            if (forcePin) isFaceMode = true; // Biar ke-toggle jadi false di baris bawah
             isFaceMode = !isFaceMode; 
+            
             if (isFaceMode) { 
                 startCamera(); 
                 document.getElementById('btnSwitch').innerText = "Gunakan PIN (6 Digit)"; 
@@ -575,10 +614,17 @@
                 stopCamera(); 
                 document.getElementById('camWrap').style.display = 'none'; 
                 document.getElementById('pinArea').style.display = 'flex'; 
-                document.getElementById('btnSwitch').innerText = "Gunakan Face ID"; 
-                document.getElementById('btnSwitch').classList.remove('btn-outline'); 
-                document.getElementById('btnSwitch').style.background='var(--cyan-logo)'; 
-                document.getElementById('btnSwitch').style.color='black'; 
+                document.getElementById('secTitle').innerText = "MASUKKAN PIN";
+                document.getElementById('secDesc').innerText = "Gunakan 6 Digit PIN Tabungan KC.";
+                
+                if (document.getElementById('btnSwitch')) {
+                    document.getElementById('btnSwitch').innerText = "Gunakan Face ID"; 
+                    document.getElementById('btnSwitch').classList.remove('btn-outline'); 
+                    document.getElementById('btnSwitch').style.background='var(--cyan-logo)'; 
+                    document.getElementById('btnSwitch').style.color='black'; 
+                    // Sembunyikan opsi Face ID kalau emang dari awal API-nya gagal load
+                    if(!faceApiLoaded) document.getElementById('btnSwitch').style.display = 'none';
+                }
             } 
         };
         
@@ -591,12 +637,15 @@
             if (isSetupMode) {
                 const conf = await showCustomConfirm("SIMPAN PIN", `Jadikan <b style="color:var(--cyan-logo);">${currentPinInput}</b> sebagai PIN Tabungan KC Anda?`);
                 if(conf) {
-                    const faceObj = { ...userFaceDesc }; 
+                    const faceObj = userFaceDesc ? { ...userFaceDesc } : null; 
                     updateDoc(doc(db, "anggota", userId), { faceDescriptor: faceObj, pin_tabungan: currentPinInput }).then(() => { unlockApp(); });
                 } else { window.clearPin(); }
             } else {
                 if (currentPinInput === userPinTabungan) unlockApp(); 
-                else { await showCustomAlert("AKSES DITOLAK", "PIN yang Anda masukkan Salah!", "error"); window.clearPin(); }
+                else { 
+                    await showCustomAlert("AKSES DITOLAK", "PIN yang Anda masukkan Salah!", "error"); 
+                    window.clearPin(); 
+                }
             }
         }
         function unlockApp() { document.getElementById('securityScreen').style.opacity = 0; setTimeout(() => { document.getElementById('securityScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }, 500); }
@@ -621,7 +670,7 @@
             const qApp = query(collection(db, "tabungan_trx"), where("status", "==", "PENDING"));
             onSnapshot(qApp, (snap) => {
                 const cont = document.getElementById('approvalList'); cont.innerHTML = "";
-                if(snap.empty) { cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Tidak ada antrean validasi pengajuan.</div>`; return;}
+                if(snap.empty) { cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8; font-size:11px;">Tidak ada antrean validasi pengajuan.</div>`; return;}
                 let arrApp = []; snap.forEach(d => arrApp.push({id: d.id, ...d.data()}));
                 arrApp.sort((a,b) => a.timestamp - b.timestamp);
                 arrApp.forEach(data => {
@@ -811,4 +860,3 @@
     </script>
 </body>
 </html>
-v

@@ -26,7 +26,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "4.1"; // Update Mode Siluman & Author Board
+        const DASH_VERSION = "5.6"; // TEMA CYBER NAVY + CYAN MENU GRID
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -44,32 +44,54 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        /* === TEMA HITAM PEKAT (PITCH BLACK KC) === */
+        /* === TEMA CYBER NAVY & CYAN (LOGO BARU MAKA LINTAS KC) === */
         :root { 
-            --royal-blue: #D4FF00; 
-            --electric-blue: #10B981; 
-            --gold-lux: #D4AF37;
-            --bg-surface: #000000; 
+            --cyan-logo: #00E5FF;     /* Biru Neon/Cyan terang MAKA LINTAS */
+            --cyan-dark: #0077B6;     /* Biru metallic gelap MAKA LINTAS */
+            --yellow-logo: #FFFF00;   /* Kuning terang KARTIKA CHANDRA */
+            --yellow-dark: #D4AF37;   /* Kuning emas gelap */
+            --navy-bg: #050B14;       /* Biru Navy sangat gelap untuk transisi BG */
+            --bg-surface: #000000;    /* Hitam pekat */
+            
             --text-main: #F8FAFC; 
             --text-muted: #94A3B8; 
             --danger: #EF4444; 
-            --kc-green: #D4FF00;
-            --cyan-neon: #00E5FF;
+            --success: #10B981;
+            
+            /* Glassmorphism dengan tint Navy & Border Cyan tipis */
+            --glass-bg: rgba(5, 11, 20, 0.85); 
+            --glass-border: rgba(0, 229, 255, 0.25);
+            --shadow-cyan: 0 10px 30px rgba(0, 229, 255, 0.15);
         }
-        body { margin: 0; background: #000000; font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 120px; overflow-x: hidden; position: relative; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
+        
+        /* Background Kombinasi Hitam & Navy */
+        body { 
+            margin: 0; 
+            background-color: var(--bg-surface);
+            background-image: radial-gradient(circle at top right, var(--navy-bg) 0%, var(--bg-surface) 70%);
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main); 
+            padding-bottom: 120px; 
+            overflow-x: hidden; 
+            position: relative; 
+            -webkit-tap-highlight-color: transparent; 
+            min-height: 100vh;
+        }
+        
         * { box-sizing: border-box; outline: none; text-decoration: none; }
 
-        .ambient-light { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; animation: floatLight 10s infinite alternate; }
-        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: #D4FF00; }
-        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: #10B981; animation-delay: 2s; }
+        /* AMBIENT LIGHTS MENGGUNAKAN CYAN & NAVY */
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.25; animation: floatLight 10s infinite alternate; }
+        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: var(--cyan-dark); }
+        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: var(--cyan-logo); animation-delay: 2s; opacity: 0.15; }
         @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
 
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: var(--shadow-soft); position: relative; overflow: hidden; }
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: var(--shadow-cyan); position: relative; overflow: hidden; }
 
         .dashboard-header { padding: 40px 20px 15px; position: relative; z-index: 10; }
         .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
         .greeting { font-family: 'Outfit'; font-size: 32px; font-weight: 900; color: var(--text-main); line-height: 1; letter-spacing: -1px; margin-bottom: 8px;}
-        .date-text { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; color: var(--royal-blue); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .date-text { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; color: var(--cyan-logo); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         
         .btn-logout { width: 45px; height: 45px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--danger); cursor: pointer; transition: 0.2s;}
         .btn-logout:active { transform: scale(0.9); }
@@ -82,87 +104,102 @@
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; transition: .4s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);}
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--electric-blue); border-color: var(--electric-blue);}
+        input:checked + .slider { background-color: var(--cyan-logo); border-color: var(--cyan-logo);}
         input:checked + .slider:before { transform: translateX(16px); }
 
-        .photo-wrap { position: relative; width: 100px; height: 100px; border-radius: 25px; background: #000; display: flex; align-items: center; justify-content: center; border: 4px solid var(--kc-green); flex-shrink: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); overflow: hidden; margin-bottom: 15px; z-index: 2;}
+        /* FOTO PROFIL DENGAN BORDER CYAN */
+        .photo-wrap { position: relative; width: 100px; height: 100px; border-radius: 25px; background: #000; display: flex; align-items: center; justify-content: center; border: 3px solid var(--cyan-logo); flex-shrink: 0; box-shadow: 0 10px 25px rgba(0, 229, 255, 0.4); overflow: hidden; margin-bottom: 15px; z-index: 2;}
         .photo-bg-dash { position: absolute; inset: 0; background-image: url('bg_maka.jpg'); background-size: cover; background-position: center; opacity: 1; z-index: 1; border-radius: 20px;}
         .p-photo { position: relative; width: 100%; height: 100%; object-fit: cover; z-index: 2; border-radius: 18px; border: none; box-shadow: none; background: transparent; transition: 0.3s;}
         
         .p-info { display: flex; flex-direction: column; align-items: center; z-index: 2;}
-        .p-role { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 900; background: var(--royal-blue); color: black; padding: 3px 12px; border-radius: 50px; display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .p-role { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 900; background: var(--yellow-logo); color: black; padding: 3px 12px; border-radius: 50px; display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(255,255,0,0.3);}
         .p-name { font-family: 'Outfit'; font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px; line-height: 1.2; text-transform: uppercase; transition: 0.3s;}
-        .p-plat { font-family: 'Inter'; font-size: 12px; font-weight: 700; color: var(--electric-blue); background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.2);}
+        .p-plat { font-family: 'Inter'; font-size: 12px; font-weight: 700; color: #000; background: var(--cyan-logo); padding: 4px 12px; border-radius: 8px; border: 1px solid var(--cyan-logo); box-shadow: 0 0 10px rgba(0,229,255,0.4);}
 
-        .board-pengumuman { background: linear-gradient(90deg, rgba(212,255,0,0.1) 0%, rgba(16,185,129,0.05) 100%); border-left: 4px solid var(--royal-blue); border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; position: relative;}
-        .board-icon { font-size: 20px; color: var(--royal-blue); animation: pulse 2s infinite; }
+        .board-pengumuman { background: linear-gradient(90deg, rgba(0, 229, 255, 0.1) 0%, rgba(0,0,0,0) 100%); border-left: 4px solid var(--cyan-logo); border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; position: relative;}
+        .board-icon { font-size: 20px; color: var(--yellow-logo); animation: pulse 2s infinite; }
         .board-content { flex: 1; padding-right: 25px; }
-        .board-content h4 { margin: 0 0 5px 0; font-family: 'Space Grotesk'; font-size: 12px; color: var(--royal-blue); letter-spacing: 1px; }
+        .board-content h4 { margin: 0 0 5px 0; font-family: 'Space Grotesk'; font-size: 12px; color: var(--cyan-logo); letter-spacing: 1px; }
         .board-content p { margin: 0; font-size: 11px; color: #cbd5e1; line-height: 1.5; font-weight: 500;}
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
-        #btnEditBoard { position: absolute; right: 10px; top: 15px; cursor: pointer; color: var(--kc-yellow); font-size: 16px; padding: 5px; transition: 0.2s; display: none; }
+        #btnEditBoard { position: absolute; right: 10px; top: 15px; cursor: pointer; color: var(--yellow-logo); font-size: 16px; padding: 5px; transition: 0.2s; display: none; }
         #btnEditBoard:active { transform: scale(0.9); }
 
         .dash-container { padding: 0 20px; margin-bottom: 20px; position: relative; z-index: 10; display: flex; flex-direction: column; gap: 15px; }
         
-        /* BANNER UTAMA DINAMIS */
+        /* BANNER UTAMA (KC CYBER MODE) */
         .fc-banner { border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; cursor: pointer; gap: 10px; transition: 0.5s; }
-        
-        .fc-banner.mode-kc { background: linear-gradient(135deg, #111 0%, #000 100%); border: 1px solid rgba(212, 255, 0, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .fc-banner.mode-kc { background: linear-gradient(135deg, #000000 0%, var(--navy-bg) 100%); border: 1px solid var(--glass-border); box-shadow: var(--shadow-cyan); }
+        .banner-left { flex: 1; min-width: 0; z-index: 2;} 
+        .banner-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; z-index: 2;}
         .fc-banner.mode-kc .banner-title { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: 1px;}
-        .fc-banner.mode-kc .banner-title i { color: var(--kc-green); margin-right: 5px;}
+        .fc-banner.mode-kc .banner-title i { color: var(--cyan-logo); margin-right: 5px;}
         .fc-banner.mode-kc .banner-desc { font-size: 11px; font-weight: 600; color: #aaa; display: flex; align-items: center; gap: 4px;}
-        .fc-banner.mode-kc .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--kc-green); text-shadow: 0 0 15px rgba(212, 255, 0, 0.4); line-height: 1;}
+        .fc-banner.mode-kc .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--cyan-logo); text-shadow: 0 0 15px rgba(0, 229, 255, 0.5); line-height: 1;}
         .fc-banner.mode-kc .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
+        
+        /* Logo Watermark di dalam Banner */
+        .fc-banner::before { content: ''; position: absolute; right: -20px; top: -20px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%); z-index: 1;}
 
-        .fc-banner.mode-gading { background: linear-gradient(135deg, #050505 0%, #111 100%); border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        /* MODE GADING (PENGGANTI) */
+        .fc-banner.mode-gading { background: linear-gradient(135deg, #000000 0%, #064E3B 100%); border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 15px 40px rgba(6, 78, 59, 0.4); }
         .fc-banner.mode-gading .banner-title { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: 1px;}
-        .fc-banner.mode-gading .banner-title i { color: var(--electric-blue); margin-right: 5px;}
+        .fc-banner.mode-gading .banner-title i { color: var(--success); margin-right: 5px;}
         .fc-banner.mode-gading .banner-desc { font-size: 11px; font-weight: 600; color: #aaa; display: flex; align-items: center; gap: 4px;}
-        .fc-banner.mode-gading .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--electric-blue); text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); line-height: 1;}
+        .fc-banner.mode-gading .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--success); text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); line-height: 1;}
         .fc-banner.mode-gading .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
 
-        .banner-left { flex: 1; min-width: 0; } 
-        .banner-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
-
-        .radar-box-bottom { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: rgba(15,15,15,0.8); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
+        /* RADAR BOX STASIUN TERDEKAT */
+        .radar-box-bottom { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: rgba(5, 11, 20, 0.6); border-radius: 20px; border: 1px dashed var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.5);}
         .lbl-radar-extra { font-size:9px; font-weight:800; color:#94A3B8; letter-spacing:1px; margin-bottom:2px;}
-        .radar-extra-name { font-family:'Outfit'; font-size:14px; font-weight:900; color:#cbd5e1; }
-        .radar-extra-dist { font-size:10px; font-weight:700; color:#10B981; }
-        .btn-radar-go { background:var(--royal-blue); color:black; padding:8px 15px; border-radius:12px; font-family:'Space Grotesk'; font-size:10px; font-weight:800; text-decoration:none; box-shadow:0 5px 15px rgba(212,255,0,0.2); display: flex; align-items: center; gap: 5px;}
+        .radar-extra-name { font-family:'Outfit'; font-size:14px; font-weight:900; color:#F8FAFC; }
+        .radar-extra-dist { font-size:10px; font-weight:700; color:var(--cyan-logo); }
+        .btn-radar-go { background:var(--cyan-logo); color:black; padding:8px 15px; border-radius:12px; font-family:'Space Grotesk'; font-size:10px; font-weight:800; text-decoration:none; box-shadow:0 5px 15px rgba(0, 229, 255, 0.3); display: flex; align-items: center; gap: 5px;}
 
-        .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #111 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; margin-top: 15px; }
-        .tiktok-premium-card:active { transform: scale(0.96); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .tk-glow { position: absolute; width: 100px; height: 100px; filter: blur(40px); border-radius: 50%; opacity: 0.5; z-index: 1; }
-        .tk-cyan { top: -20px; left: -20px; background: #00f2fe; } .tk-magenta { bottom: -20px; right: 20%; background: #fe0979; }
+        /* TIKTOK PROMO */
+        .tiktok-premium-card { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(5,11,20,0.8) 0%, #000 100%); border-radius: 24px; padding: 22px 20px; position: relative; overflow: hidden; text-decoration: none; border: 1px solid var(--glass-border); box-shadow: var(--shadow-cyan); transition: 0.3s; margin-top: 15px; }
+        .tiktok-premium-card:active { transform: scale(0.96); box-shadow: 0 10px 20px rgba(0,229,255,0.1); }
+        .tk-glow { position: absolute; width: 100px; height: 100px; filter: blur(40px); border-radius: 50%; opacity: 0.3; z-index: 1; }
+        .tk-cyan { top: -20px; left: -20px; background: var(--cyan-logo); } .tk-magenta { bottom: -20px; right: 20%; background: var(--cyan-dark); }
         .tk-content { display: flex; align-items: center; gap: 15px; z-index: 2; flex: 1; }
-        .tk-icon-wrap { width: 50px; height: 50px; border-radius: 16px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); flex-shrink: 0; }
-        .tk-icon-wrap i { font-size: 28px; color: white; filter: drop-shadow(2px 2px 0px #00f2fe) drop-shadow(-2px -2px 0px #fe0979); }
+        .tk-icon-wrap { width: 50px; height: 50px; border-radius: 16px; background: rgba(0, 229, 255, 0.05); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0, 229, 255, 0.2); backdrop-filter: blur(5px); flex-shrink: 0; }
+        .tk-icon-wrap i { font-size: 28px; color: white; filter: drop-shadow(2px 2px 0px var(--cyan-logo)); }
         .tk-text h4 { margin: 0 0 5px 0; color: white; font-family: 'Outfit'; font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
         .tk-text p { margin: 0; color: #CBD5E1; font-size: 11px; font-family: 'Inter'; font-weight: 500; line-height: 1.4; padding-right: 5px; }
         .tk-btn { background: white; color: black; font-family: 'Space Grotesk'; font-weight: 900; font-size: 11px; padding: 10px 18px; border-radius: 50px; z-index: 2; display: flex; align-items: center; gap: 6px; box-shadow: 0 5px 15px rgba(255,255,255,0.2); flex-shrink: 0; }
 
+        /* RADAR MAP STYLES */
         .custom-div-icon { background: transparent; border: none; }
-        .marker-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: #111; color: #D4FF00; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; white-space: nowrap; border: 1px solid #D4FF00; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+        .marker-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: #111; color: var(--cyan-logo); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; white-space: nowrap; border: 1px solid var(--cyan-logo); box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
         #radarMap { width: 100%; height: 100%; }
 
+        /* ==========================================
+           LIST MENU GRID (WARNA CYAN DARI LOGO BARU) 
+           ========================================== */
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .menu-btn { background: rgba(15, 15, 15, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.2s; }
-        .menu-btn:active { transform: scale(0.96); background: rgba(30, 30, 30, 0.9); }
-        .icon-box { width: 50px; height: 50px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .menu-btn { background: rgba(5, 11, 20, 0.6); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 24px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .menu-btn:active { transform: scale(0.96); background: rgba(0, 229, 255, 0.05); border-color: var(--cyan-logo); }
         
-        .ic-anggota { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); } 
-        .ic-pengurus { background: linear-gradient(135deg, #eab308 0%, #a16207 100%); } 
-        .ic-chat { background: linear-gradient(135deg, #d4ff00 0%, #84cc16 100%); color: #000 !important; }
-        .ic-keuangan { background: linear-gradient(135deg, #64748b 0%, #334155 100%); } 
-        .ic-tabungan { background: linear-gradient(135deg, #10b981 0%, #047857 100%); } 
-        .ic-info { background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%); } 
-        .ic-urc { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
-        .ic-broadcast { background: linear-gradient(135deg, #00f2fe 0%, #0891b2 100%); color: #000 !important;}
+        /* Ikon Kotak pakai Gradasi Cyan Logo */
+        .icon-box { width: 50px; height: 50px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; color: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.25); }
+        
+        .ic-anggota { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
+        .ic-pengurus { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
+        .ic-chat { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
+        .ic-keuangan { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
+        .ic-tabungan { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
+        .ic-info { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
+        
+        /* Menu Khusus Admin */
+        .ic-urc { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); color: white;}
+        /* Broadcast dibikin Kuning KARTIKA CHANDRA buat variasi aksen */
+        .ic-broadcast { background: linear-gradient(135deg, var(--yellow-logo) 0%, var(--yellow-dark) 100%); color: black; box-shadow: 0 5px 20px rgba(255, 255, 0, 0.25);}
 
         .menu-title { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: #e2e8f0; }
 
+        /* FLOATING ACTION SOS */
         .float-container { position: fixed; bottom: 100px; right: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 2000; }
         .btn-float { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.8); transition: 0.3s; text-decoration: none;}
         .btn-float:active { transform: scale(0.9); }
@@ -170,19 +207,21 @@
         .btn-sos { border: 2px solid rgba(255,255,255,0.2); background: linear-gradient(135deg, #ef4444, #991b1b); animation: pulseSOS 2s infinite; }
         @keyframes pulseSOS { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
+        /* MODAL GLASS UMUM */
         .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         .modal-glass-overlay.show { opacity: 1; }
-        .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: left; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
+        .modal-glass-box { background: var(--navy-bg); border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: left; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid var(--cyan-logo);}
         .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
         .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; margin: 0 5px; transition: 0.2s;}
         .btn-modal:active { transform: scale(0.95); }
 
         .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: 'Inter'; font-size: 14px; outline: none; resize: none; }
-        .form-input:focus { border-color: var(--royal-blue); }
+        .form-input:focus { border-color: var(--cyan-logo); }
 
-        .dock-container { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); padding: 15px 35px; border-radius: 50px; display: flex; justify-content: space-around; align-items: center; z-index: 9999; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        /* DOCK KC (BAWAH) */
+        .dock-container { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 380px; background: rgba(5, 11, 20, 0.95); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); padding: 15px 35px; border-radius: 50px; display: flex; justify-content: space-around; align-items: center; z-index: 9999; box-shadow: 0 20px 50px rgba(0,0,0,0.9); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; transition: 0.3s; gap: 4px; }
-        .nav-item.active { color: var(--royal-blue); transform: translateY(-4px);}
+        .nav-item.active { color: var(--cyan-logo); transform: translateY(-4px);}
         .nav-text { font-family: 'Space Grotesk'; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
     </style>
 </head>
@@ -226,7 +265,7 @@
                 <div class="board-content">
                     <h4 id="kcBoardTitle">INFO KARTIKA CHANDRA</h4>
                     <p id="kcBoardDesc">Selamat datang di Dashboard KC. Pastikan radar selalu aktif saat di perjalanan.</p>
-                    <div id="kcBoardAuthor" style="font-size: 9px; color: var(--gold-lux); margin-top: 8px; font-weight: 800; letter-spacing: 0.5px; border-top: 1px dashed rgba(212,175,55,0.3); padding-top: 5px; display: none;"></div>
+                    <div id="kcBoardAuthor" style="font-size: 9px; color: var(--cyan-logo); margin-top: 8px; font-weight: 800; letter-spacing: 0.5px; border-top: 1px dashed rgba(0,229,255,0.3); padding-top: 5px; display: none;"></div>
                 </div>
                 <div id="btnEditBoard" onclick="openEditBoard()">
                     <i class="fas fa-pen"></i>
@@ -238,7 +277,7 @@
     <div class="dash-container">
         
         <div id="linkKCKecil" style="display: none; text-align: right; margin-bottom: -5px; padding-right: 5px; z-index: 20; position: relative;">
-            <a href="antriankc.html" style="color: var(--kc-green); font-size: 11px; font-weight: 800; text-decoration: none; letter-spacing: 1px;"><i class="fas fa-external-link-alt"></i> BUKA ANTRIAN KC</a>
+            <a href="antriankc.html" style="color: var(--cyan-logo); font-size: 11px; font-weight: 800; text-decoration: none; letter-spacing: 1px;"><i class="fas fa-external-link-alt"></i> BUKA ANTRIAN KC</a>
         </div>
 
         <div id="mainFcBanner" class="fc-banner mode-kc" onclick="handleFCBannerClick()">
@@ -274,9 +313,9 @@
             <div class="tk-btn">FOLLOW <i class="fas fa-chevron-right"></i></div>
         </a>
 
-        <div id="radarContainer" class="glass-panel" style="display:none; width: 100%; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative; height: 220px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); margin-top: 15px;">
-            <div style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); padding:8px 16px; border-radius:20px; font-family:'Space Grotesk'; font-weight:900; font-size:10px; color:var(--royal-blue); z-index:999; box-shadow:0 5px 20px rgba(0,0,0,0.5); display:flex; align-items:center; gap:6px; border: 1px solid rgba(212,255,0,0.2);">
-                <div style="width:8px; height:8px; background:#D4FF00; border-radius:50%; animation:blink 1.5s infinite;"></div> RADAR LOKASI
+        <div id="radarContainer" class="glass-panel" style="display:none; width: 100%; border-radius: 24px; overflow: hidden; border: 1px solid var(--glass-border); position: relative; height: 220px; box-shadow: var(--shadow-cyan); margin-top: 15px;">
+            <div style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); padding:8px 16px; border-radius:20px; font-family:'Space Grotesk'; font-weight:900; font-size:10px; color:var(--cyan-logo); z-index:999; box-shadow:0 5px 20px rgba(0,0,0,0.5); display:flex; align-items:center; gap:6px; border: 1px solid rgba(0,229,255,0.3);">
+                <div style="width:8px; height:8px; background:var(--cyan-logo); border-radius:50%; animation:blink 1.5s infinite;"></div> RADAR LOKASI
             </div>
             <div id="radarMap"></div>
         </div>
@@ -297,7 +336,7 @@
             </a>
             <a href="javascript:void(0)" class="menu-btn id-menu-broadcast" style="display: none;" onclick="openBroadcastModal()">
                 <div class="icon-box ic-broadcast"><i class="fas fa-bullhorn"></i></div>
-                <div class="menu-title" style="color: var(--cyan-neon);">Broadcast Pesan</div>
+                <div class="menu-title" style="color: var(--yellow-logo);">Broadcast Pesan</div>
             </a>
         </div>
     </div>
@@ -312,17 +351,17 @@
             <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
             <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px;">TITLE</h3>
             <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
-            <button class="btn-modal" style="background:var(--royal-blue); color:black; width:100%;" onclick="closeCustomAlert()">SAYA MENGERTI</button>
+            <button class="btn-modal" style="background:var(--cyan-logo); color:black; width:100%;" onclick="closeCustomAlert()">SAYA MENGERTI</button>
         </div>
     </div>
 
     <div class="modal-glass-overlay" id="customConfirmModal" style="text-align: center; z-index: 100000;">
         <div class="modal-glass-box" style="text-align: center;">
-            <div style="font-size: 40px; margin-bottom: 15px; color: var(--royal-blue);"><i class="fas fa-question-circle"></i></div>
-            <h3 id="confirmTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; color: var(--royal-blue); font-size: 20px;">KONFIRMASI</h3>
+            <div style="font-size: 40px; margin-bottom: 15px; color: var(--cyan-logo);"><i class="fas fa-question-circle"></i></div>
+            <h3 id="confirmTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; color: var(--cyan-logo); font-size: 20px;">KONFIRMASI</h3>
             <p id="confirmMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
             <div style="display:flex; gap:10px;">
-                <button class="btn-modal" style="background:#333; color:white;" onclick="resolveConfirm(false)">BATAL</button>
+                <button class="btn-modal" style="background:#111; color:white; border: 1px solid #333;" onclick="resolveConfirm(false)">BATAL</button>
                 <button class="btn-modal" style="background:var(--danger); color:white; box-shadow:0 5px 15px rgba(239, 68, 68, 0.4);" onclick="resolveConfirm(true)">YA, YAKIN</button>
             </div>
         </div>
@@ -333,7 +372,7 @@
             <h3 style="font-family:'Outfit'; color:#EF4444; margin-top:0; margin-bottom:15px;"><i class="fas fa-broadcast-tower"></i> DARURAT S.O.S KC</h3>
             <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Pesan darurat akan dikirim langsung ke WhatsApp URC beserta lokasi Anda.</p>
             
-            <select id="sosType" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:#222; color:white; font-family:'Inter'; outline:none;">
+            <select id="sosType" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:#111; color:white; font-family:'Inter'; outline:none;">
                 <option>Unit Mogok / Trouble</option>
                 <option>Ban Bocor</option>
                 <option>Kecelakaan</option>
@@ -344,7 +383,7 @@
             <textarea id="sosDesc" class="form-input" rows="3" placeholder="Tambahan info (Opsional)..." style="margin-bottom: 15px;"></textarea>
             
             <div style="display:flex; gap:10px;">
-                <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('sosModal').classList.remove('show'); setTimeout(()=>document.getElementById('sosModal').style.display='none',300);">BATAL</button>
+                <button class="btn-modal" style="background:#111; color:white; border: 1px solid #333;" onclick="document.getElementById('sosModal').classList.remove('show'); setTimeout(()=>document.getElementById('sosModal').style.display='none',300);">BATAL</button>
                 <button class="btn-modal" style="background:var(--danger); color:white; box-shadow:0 5px 15px rgba(239, 68, 68, 0.4);" onclick="sendSosURC()">KIRIM KE URC</button>
             </div>
         </div>
@@ -352,7 +391,7 @@
 
     <div class="modal-glass-overlay" id="boardEditModal">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--royal-blue); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
+            <h3 style="font-family:'Outfit'; color:var(--cyan-logo); margin-top:0; margin-bottom:15px;"><i class="fas fa-pen"></i> EDIT PENGUMUMAN</h3>
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block;">Judul Info:</label>
             <input type="text" id="inputBoardTitle" class="form-input" placeholder="Judul Info" style="margin-bottom:15px;">
             
@@ -360,15 +399,15 @@
             <textarea id="inputBoardDesc" class="form-input" rows="3" placeholder="Isi pengumuman pendek..." style="margin-bottom: 15px;"></textarea>
             
             <div style="display:flex; gap:10px;">
-                <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('boardEditModal').classList.remove('show'); setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300);">BATAL</button>
-                <button class="btn-modal" style="background:var(--royal-blue); color:black;" onclick="saveBoardInfo()">SIMPAN</button>
+                <button class="btn-modal bg-dark" onclick="document.getElementById('boardEditModal').classList.remove('show'); setTimeout(()=>document.getElementById('boardEditModal').style.display='none',300);">BATAL</button>
+                <button class="btn-modal" style="background:var(--cyan-logo); color:black;" onclick="saveBoardInfo()">SIMPAN</button>
             </div>
         </div>
     </div>
 
     <div class="modal-glass-overlay" id="broadcastModalKC">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--cyan-neon); margin-top:0; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> BROADCAST PESAN</h3>
+            <h3 style="font-family:'Outfit'; color:var(--yellow-logo); margin-top:0; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> BROADCAST PESAN</h3>
             <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Kirim pesan pop-up langsung ke layar seluruh anggota yang sedang membuka aplikasi.</p>
             
             <div style="margin-bottom:15px; text-align: left;">
@@ -378,27 +417,27 @@
             </div>
 
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block; text-align: left;">Judul Pesan:</label>
-            <input type="text" id="inputBroadcastTitle" class="form-input" placeholder="Contoh: INFO KOPDAR" style="margin-bottom:15px;">
+            <input type="text" id="inputBroadcastTitle" class="form-input" placeholder="Contoh: INFO KOPDAR" style="margin-bottom:15px; border-color: var(--yellow-logo);">
             
             <label style="font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; display:block; text-align: left;">Isi Pesan:</label>
-            <textarea id="inputBroadcastDesc" class="form-input" rows="4" placeholder="Tulis isi pesan di sini..." style="margin-bottom: 15px;"></textarea>
+            <textarea id="inputBroadcastDesc" class="form-input" rows="4" placeholder="Tulis isi pesan di sini..." style="margin-bottom: 15px; border-color: var(--yellow-logo);"></textarea>
             
             <div style="display:flex; gap:10px;">
-                <button class="btn-modal" style="background:#333; color:white;" onclick="document.getElementById('broadcastModalKC').classList.remove('show'); setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);">BATAL</button>
-                <button class="btn-modal" id="btnSendBroadcast" style="background:var(--cyan-neon); color:black; box-shadow:0 5px 15px rgba(0, 229, 255, 0.4);" onclick="sendBroadcastKC()">KIRIM PESAN</button>
+                <button class="btn-modal bg-dark" onclick="document.getElementById('broadcastModalKC').classList.remove('show'); setTimeout(()=>document.getElementById('broadcastModalKC').style.display='none',300);">BATAL</button>
+                <button class="btn-modal" id="btnSendBroadcast" style="background:var(--yellow-logo); color:black; box-shadow:0 5px 15px rgba(255, 255, 0, 0.4);" onclick="sendBroadcastKC()">KIRIM PESAN</button>
             </div>
         </div>
     </div>
 
     <div class="modal-glass-overlay" id="receiveBroadcastModal" style="z-index: 105000;">
-        <div class="modal-glass-box" style="text-align: center; border-color: var(--cyan-neon); background: linear-gradient(180deg, rgba(0, 229, 255, 0.1) 0%, #111 100%);">
-            <div style="font-size: 45px; margin-bottom: 10px; color: var(--cyan-neon); animation: pulseSOS 2s infinite;"><i class="fas fa-broadcast-tower"></i></div>
+        <div class="modal-glass-box" style="text-align: center; border-color: var(--yellow-logo); background: linear-gradient(180deg, rgba(255, 255, 0, 0.1) 0%, var(--navy-bg) 100%);">
+            <div style="font-size: 45px; margin-bottom: 10px; color: var(--yellow-logo); animation: pulseSOS 2s infinite;"><i class="fas fa-broadcast-tower"></i></div>
             <h3 id="recvBcTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:15px; font-size: 22px; color: white;">INFO PENTING</h3>
             
-            <img id="recvBcFoto" style="width:100%; max-height:200px; object-fit:contain; border-radius:12px; margin-bottom:15px; display:none; border: 1px solid rgba(0,229,255,0.3);">
+            <img id="recvBcFoto" style="width:100%; max-height:200px; object-fit:contain; border-radius:12px; margin-bottom:15px; display:none; border: 1px solid rgba(255,255,0,0.3);">
 
             <p id="recvBcMessage" style="font-size:13px; color:#cbd5e1; margin-bottom:25px; line-height: 1.6; font-weight: 500;"></p>
-            <button class="btn-modal" style="background:var(--cyan-neon); color:black; width:100%; box-shadow:0 5px 15px rgba(0, 229, 255, 0.4); font-weight: 900;" onclick="closeReceivedBroadcast()">SAYA MENGERTI</button>
+            <button class="btn-modal" style="background:var(--yellow-logo); color:black; width:100%; box-shadow:0 5px 15px rgba(255, 255, 0, 0.4); font-weight: 900;" onclick="closeReceivedBroadcast()">SAYA MENGERTI</button>
         </div>
     </div>
 
@@ -459,8 +498,8 @@
                 icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
                 titleEl.style.color = 'var(--danger)';
             } else {
-                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
-                titleEl.style.color = 'var(--royal-blue)';
+                icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--cyan-logo); filter: drop-shadow(0 0 10px var(--cyan-logo));"></i>';
+                titleEl.style.color = 'var(--cyan-logo)';
             }
             
             modal.style.display = 'flex';
@@ -504,10 +543,10 @@
         let statusGadingHtml = "Memuat...";
 
         // CEK AKSES
-        const isPengurus = (myRole !== "MEMBER" && myRole !== "KELUARGA MLU" && myRole !== "GUEST") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
+        const isPengurus = (myRole !== "MEMBER" && myRole !== "KELUARGA MLU" && myRole !== "GUEST") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF" || uData.id === "ghost_admin";
         if(isPengurus) { document.getElementById('btnEditBoard').style.display = 'block'; document.querySelectorAll('.id-menu-broadcast').forEach(el => el.style.display = 'flex'); }
 
-        const isTacticalTeam = myRole.includes("URC") || myRole.includes("KETUA") || myRole.includes("WAKIL") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF";
+        const isTacticalTeam = myRole.includes("URC") || myRole.includes("KETUA") || myRole.includes("WAKIL") || myPlatClean === "B4124SWI" || myPlatClean === "B4248SWF" || uData.id === "ghost_admin";
         if (isTacticalTeam) { document.querySelectorAll('.id-menu-urc').forEach(el => el.style.display = 'flex'); }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -520,15 +559,13 @@
             document.getElementById('userRole').innerText = uData.role || "MEMBER";
             if (uData.foto && uData.foto.length > 10) document.getElementById('userPhoto').src = uData.foto;
 
-            // Saklar cuma buat nampilin peta
             const savedLoc = localStorage.getItem('maka_loc_share'); 
-            if(savedLoc === 'ON') { document.getElementById('toggleLocation').checked = true; showRadar(); } 
+            if(savedLoc === 'ON') { document.getElementById('toggleLocation').checked = true; showRadar(); startTracking(); } 
 
             initFCListeners();
-            startSmartBunglonTracker(); // GPS lari otomatis di belakang layar
+            startSmartBunglonTracker(); 
             startBroadcastListener();
 
-            // Radar Profil Realtime
             onSnapshot(doc(dbKC, "anggota", myPlatClean), (snap) => {
                 if(snap.exists()) {
                     const d = snap.data();
@@ -541,11 +578,7 @@
             });
         });
 
-        // ==========================================
-        // SISTEM DENGAR DATA KEDUA STASIUN
-        // ==========================================
         function initFCListeners() {
-            // Dengar KC
             onSnapshot(refKC, (snap) => { 
                 if(!snap.exists()) return; 
                 const d = snap.data();
@@ -555,7 +588,7 @@
                 let available = 0; for(let i=0; i<5; i++) { if(slots[i] === null && !dis[i]) available++; }
 
                 if(qLen > 0) {
-                    statusKCHtml = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--kc-green);">${qLen}</span>`;
+                    statusKCHtml = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--cyan-logo);">${qLen}</span>`;
                     window.kcLbl = "ANTRIAN LIVE";
                 } else {
                     statusKCHtml = `<span style="font-size:22px; font-weight:900; color:var(--success);">${available} SLOT</span>`;
@@ -564,7 +597,6 @@
                 updateBunglonUI();
             }); 
             
-            // Dengar Gading
             onSnapshot(refGading, (snap) => {
                 if(!snap.exists()) return;
                 const d = snap.data();
@@ -574,7 +606,7 @@
                 let available = 0; for(let i=0; i<3; i++) { if(slots[i] === null && !dis[i]) available++; }
 
                 if(qLen > 0) {
-                    statusGadingHtml = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--electric-blue);">${qLen}</span>`;
+                    statusGadingHtml = `<span style="font-size:30px; font-family:'Space Grotesk'; font-weight:900; color:var(--success);">${qLen}</span>`;
                     window.gdLbl = "ANTRIAN LIVE";
                 } else {
                     statusGadingHtml = `<span style="font-size:22px; font-weight:900; color:var(--success);">${available} SLOT</span>`;
@@ -602,9 +634,6 @@
             });
         }
 
-        // ==========================================
-        // SISTEM AUTO-BUNGLON TAMPILAN BANNER
-        // ==========================================
         function updateBunglonUI() {
             const box = document.getElementById('mainFcBanner');
             const title = document.getElementById('mainFcTitle');
@@ -617,14 +646,13 @@
                 title.innerHTML = `<i class="fas fa-bolt"></i> FC KARTIKA CHANDRA`;
                 val.innerHTML = statusKCHtml;
                 lbl.innerText = window.kcLbl || "STATUS LIVE";
-                linkKC.style.display = 'none'; // Sembunyiin tulisan KC kecil
+                linkKC.style.display = 'none';
             } else {
-                // GADING AMBIL ALIH BANNER
                 box.className = 'fc-banner mode-gading';
-                title.innerHTML = `<i class="fas fa-charging-station" style="color:var(--electric-blue);"></i> FC KELAPA GADING`;
+                title.innerHTML = `<i class="fas fa-charging-station" style="color:var(--success);"></i> FC KELAPA GADING`;
                 val.innerHTML = statusGadingHtml;
                 lbl.innerText = window.gdLbl || "STATUS LIVE";
-                linkKC.style.display = 'block'; // Munculin tulisan KC kecil di atas
+                linkKC.style.display = 'block'; 
             }
         }
 
@@ -633,9 +661,6 @@
             else { window.location.href = 'antrian_gading.html'; }
         };
 
-        // ==========================================
-        // PELACAKAN OTOMATIS DI BELAKANG LAYAR
-        // ==========================================
         function calculateDist(lat1, lon1, lat2, lon2) { 
             const p = 0.017453292519943295; const c = Math.cos; 
             const a = 0.5 - c((lat2 - lat1) * p)/2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))/2; 
@@ -657,12 +682,9 @@
                 let distKCText = `~${distKC.toFixed(1)} KM (${Math.ceil((distKC/25)*60)} Menit)`;
                 let distGadingText = `~${distGading.toFixed(1)} KM (${Math.ceil((distGading/25)*60)} Menit)`;
 
-                // LOGIKA BUNGLON RADIUS 1 KM
                 if(distGading <= 1.0) {
                     isBannerKC = false;
                     document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ${distGadingText}`;
-                    
-                    // Alternatif box di bawah jadi KC
                     document.getElementById('radarTerdekatBox').style.display = 'flex';
                     document.getElementById('radarExtraName').innerText = "FC KARTIKA CHANDRA";
                     document.getElementById('radarExtraDist').innerText = distKCText;
@@ -671,8 +693,6 @@
                 } else {
                     isBannerKC = true;
                     document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ${distKCText}`;
-                    
-                    // Alternatif box di bawah jadi Gading
                     document.getElementById('radarTerdekatBox').style.display = 'flex';
                     document.getElementById('radarExtraName').innerText = "FC KELAPA GADING";
                     document.getElementById('radarExtraDist').innerText = distGadingText;
@@ -682,7 +702,6 @@
 
                 updateBunglonUI();
 
-                // SILENT LIVE TRACKING UPLOAD
                 const trackRef = doc(dbKC, "live_tracking", uData.id || myPlatClean);
                 setDoc(trackRef, { lat: uLat, lng: uLng, nama: myCurrentName, plat: myPlat, hp: uData.hp || uData.wa || "", foto: myCurrentPhoto, timestamp: Date.now() }, { merge: true }).catch(e => console.log(e));
 
@@ -691,7 +710,6 @@
             }, {enableHighAccuracy: true, maximumAge: 10000});
         }
 
-        // TOMBOL PETA RADAR (CUMA BUAT UI AJA)
         window.toggleLoc = (el) => { 
             if(el.checked) { localStorage.setItem('maka_loc_share', 'ON'); showRadar(); } 
             else { localStorage.setItem('maka_loc_share', 'OFF'); hideRadar(); } 
@@ -704,7 +722,6 @@
                     map = L.map('radarMap').setView([LAT_KC, LNG_KC], 13); 
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap KC'}).addTo(map); 
                     
-                    // DENGARKAN MARKER ORANG LAIN
                     onSnapshot(collection(dbKC, "live_tracking"), (snap) => { 
                         const currentIds = [];
                         snap.forEach(docSnap => { 
@@ -715,7 +732,7 @@
                                 const shortName = (m.nama || 'User').split(' ')[0];
                                 
                                 const iconHtml = `
-                                    <div style="position:relative; width:30px; height:30px; border-radius:50%; border:2px solid #D4FF00; overflow:hidden; box-shadow:0 0 10px #D4FF00; background:#000;">
+                                    <div style="position:relative; width:30px; height:30px; border-radius:50%; border:2px solid #00E5FF; overflow:hidden; box-shadow:0 0 10px #00E5FF; background:#000;">
                                         <img src="${photoUrl}" style="width:100%; height:100%; object-fit:cover;">
                                     </div>
                                     <div class="marker-label">${shortName}</div>
@@ -735,9 +752,6 @@
 
         function hideRadar() { document.getElementById('radarContainer').style.display = 'none'; }
 
-        // ==========================================
-        // LAINNYA: EDIT PENGUMUMAN & BROADCAST & SOS
-        // ==========================================
         window.openEditBoard = () => { document.getElementById('inputBoardTitle').value = document.getElementById('kcBoardTitle').innerText; document.getElementById('inputBoardDesc').value = document.getElementById('kcBoardDesc').innerText; const m = document.getElementById('boardEditModal'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10); };
         
         window.saveBoardInfo = async () => { 
@@ -797,7 +811,7 @@
                     content: desc, 
                     foto: currentBroadcastPhotoBase64, 
                     author: myCurrentName, 
-                    type: "BROADCAST", // Penanda spesial
+                    type: "BROADCAST", 
                     timestamp: Date.now() 
                 }); 
                 document.getElementById('broadcastModalKC').classList.remove('show'); 

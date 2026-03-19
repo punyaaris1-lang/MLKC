@@ -10,68 +10,69 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
-        /* === TEMA TACTICAL KC === */
+        /* === TEMA CYBER NAVY & CYAN === */
         :root { 
-            --kc-yellow: #D4FF00; 
-            --bg-black: #050505;
+            --cyan-logo: #00E5FF;     
+            --cyan-dark: #0077B6;     
+            --yellow-logo: #FFFF00;   
+            --navy-bg: #050B14;       
+            --bg-surface: #000000;    
+            
             --danger: #EF4444;
-            --info: #3B82F6;
-            --wa-green: #10B981;
+            --success: #10B981;
+            --glass-bg: rgba(5, 11, 20, 0.85); 
+            --glass-border: rgba(0, 229, 255, 0.25);
         }
-        body { margin: 0; background: var(--bg-black); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; -webkit-tap-highlight-color: transparent;}
+        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; -webkit-tap-highlight-color: transparent;}
         * { box-sizing: border-box; outline: none; }
 
         /* HEADER PANIC ROOM */
-        .header { position: absolute; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 1000; border-bottom: 2px solid var(--kc-yellow); box-shadow: 0 5px 20px rgba(0,0,0,0.8);}
+        .header { position: absolute; top: 0; left: 0; right: 0; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 1000; border-bottom: 1px solid var(--glass-border); box-shadow: 0 5px 20px rgba(0,0,0,0.8);}
         .header-left { display: flex; align-items: center; gap: 15px; }
-        .btn-back { color: black; font-size: 18px; width: 35px; height: 35px; background: var(--kc-yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 900;}
-        .header-title h1 { margin: 0; font-family: 'Space Grotesk'; font-size: 20px; color: var(--kc-yellow); letter-spacing: 1px; }
+        .btn-back { color: var(--cyan-logo); font-size: 18px; width: 35px; height: 35px; background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 900; transition: 0.2s;}
+        .btn-back:active { transform: scale(0.9); }
+        
+        .header-title h1 { margin: 0; font-family: 'Space Grotesk'; font-size: 20px; color: var(--cyan-logo); letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,229,255,0.3);}
         .header-title p { margin: 0; font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 2px; }
         
-        .live-indicator { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk'; font-size: 12px; font-weight: 900; color: var(--kc-yellow); background: rgba(212,255,0,0.1); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(212,255,0,0.3);}
-        .dot-pulse { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; animation: blink 1s infinite; }
+        .live-indicator { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk'; font-size: 12px; font-weight: 900; color: var(--cyan-logo); background: rgba(0,229,255,0.1); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(0,229,255,0.3);}
+        .dot-pulse { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 10px var(--danger);}
         @keyframes blink { 0% {opacity:1;} 50% {opacity:0.2;} 100% {opacity:1;} }
 
-        /* MAP AREA (PUTIH BERSIH OPENSTREETMAP) */
+        /* MAP AREA (FULL SCREEN) */
         #map { width: 100vw; height: 100vh; z-index: 1; background: #E5E3DF; }
 
         /* MARKERS */
-        .custom-div-icon { background: transparent; border: none; }
-        .fc-marker { width: 40px; height: 40px; background: #000; border: 3px solid var(--kc-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--kc-yellow); font-size: 18px; box-shadow: 0 0 20px rgba(212,255,0,0.8); z-index: 1000 !important;}
+        .fc-marker { width: 40px; height: 40px; background: #000; border: 3px solid var(--cyan-logo); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--cyan-logo); font-size: 18px; box-shadow: 0 0 20px rgba(0,229,255,0.8); z-index: 1000 !important;}
+        .member-normal { width: 15px; height: 15px; background: var(--cyan-dark); border: 2px solid var(--cyan-logo); border-radius: 50%; box-shadow: 0 0 10px rgba(0,229,255,0.5); }
+        .member-label { background: rgba(5,11,20,0.9); color: white; border: 1px solid var(--cyan-logo); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; font-family: 'Outfit'; white-space: nowrap; margin-top: -5px; margin-left: 10px;}
         
-        /* FOTO MARKER NORMAL */
-        .normal-photo-wrap { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--info); overflow: hidden; box-shadow: 0 0 10px rgba(59,130,246,0.8); background: #000; position: relative; margin: 0 auto;}
-        .normal-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .member-label { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; font-family: 'Outfit'; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
-        
-        /* FOTO MARKER SOS (DARURAT) */
-        .sos-photo-wrap { width: 45px; height: 45px; border-radius: 50%; border: 3px solid white; overflow: hidden; box-shadow: 0 0 25px rgba(239,68,68,0.9); animation: pulseSOS 1s infinite; background: #000; position: relative; margin: 0 auto;}
-        .sos-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .sos-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; font-family: 'Outfit'; white-space: nowrap; box-shadow: 0 0 10px rgba(239,68,68,0.5);}
-        @keyframes pulseSOS { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.7); border-color: var(--danger);} 70% { transform: scale(1.15); box-shadow: 0 0 0 20px rgba(239,68,68,0); border-color: white;} 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0); border-color: var(--danger);} }
+        .member-sos { width: 25px; height: 25px; background: var(--danger); border: 3px solid white; border-radius: 50%; box-shadow: 0 0 20px rgba(239,68,68,0.8); animation: pulseSOS 1s infinite; }
+        .sos-label { background: var(--danger); color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; font-family: 'Outfit'; white-space: nowrap; margin-top: -10px; margin-left: 15px; box-shadow: 0 0 10px rgba(239,68,68,0.5);}
+        @keyframes pulseSOS { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { transform: scale(1.2); box-shadow: 0 0 0 20px rgba(239,68,68,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
 
-        /* PANEL KIRI BAWAH (DAFTAR SOS & AGEN TERDEKAT) */
-        .sos-panel { position: absolute; bottom: 30px; left: 20px; width: 340px; max-width: calc(100% - 40px); background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border: 1px solid var(--danger); border-radius: 16px; padding: 15px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; gap: 10px; max-height: 80vh; overflow-y: auto;}
-        .panel-header { font-family: 'Outfit'; font-size: 14px; font-weight: 900; color: var(--danger); display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed #333; padding-bottom: 10px;}
+        /* PANEL KIRI BAWAH */
+        .sos-panel { position: absolute; bottom: 30px; left: 20px; width: 340px; max-width: calc(100% - 40px); background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--danger); border-radius: 16px; padding: 15px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; gap: 10px; max-height: 80vh; overflow-y: auto;}
+        .panel-header { font-family: 'Outfit'; font-size: 14px; font-weight: 900; color: var(--danger); display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed rgba(239,68,68,0.3); padding-bottom: 10px;}
         
-        .sos-card { background: #111; border: 1px solid #333; border-top: 4px solid var(--danger); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; position: relative;}
+        .sos-card { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-top: 4px solid var(--danger); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; position: relative;}
         .sos-name { font-family: 'Space Grotesk'; font-size: 18px; font-weight: 900; color: white; margin: 0; line-height: 1;}
-        .sos-plat { font-size: 11px; color: var(--kc-yellow); font-weight: 800; background: rgba(212,255,0,0.1); padding: 2px 6px; border-radius: 4px; width: fit-content;}
+        .sos-plat { font-size: 11px; color: var(--yellow-logo); font-weight: 800; background: rgba(255,255,0,0.1); padding: 2px 6px; border-radius: 4px; width: fit-content;}
         
         /* DAFTAR AGEN TERDEKAT */
-        .nearest-box { background: #000; border: 1px solid #222; border-radius: 8px; padding: 10px; margin-top: 5px;}
-        .nearest-title { font-size: 9px; color: var(--info); font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px dashed #222; padding-bottom: 5px; display: flex; align-items: center; gap: 5px;}
-        .nearest-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #111;}
+        .nearest-box { background: rgba(0,0,0,0.8); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 10px; margin-top: 5px;}
+        .nearest-title { font-size: 9px; color: var(--cyan-logo); font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px dashed rgba(0,229,255,0.3); padding-bottom: 5px; display: flex; align-items: center; gap: 5px;}
+        .nearest-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);}
         .nearest-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none;}
         .ni-name { font-family: 'Outfit'; font-size: 12px; font-weight: 800; color: white; margin-bottom: 2px;}
-        .ni-dist { font-size: 9px; font-weight: 700; color: var(--kc-yellow); background: rgba(212,255,0,0.1); padding: 2px 6px; border-radius: 4px;}
+        .ni-dist { font-size: 9px; font-weight: 700; color: var(--cyan-logo); background: rgba(0,229,255,0.1); padding: 2px 6px; border-radius: 4px;}
         
-        .btn-wa-mini { background: var(--wa-green); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 900; font-family: 'Space Grotesk'; font-size: 10px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.2s;}
+        .btn-wa-mini { background: var(--success); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 900; font-family: 'Space Grotesk'; font-size: 10px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.2s;}
         .btn-wa-mini:active { transform: scale(0.9); }
 
-        .btn-lacak { background: var(--danger); color: white; border: none; padding: 8px; border-radius: 6px; font-family: 'Outfit'; font-weight: 900; font-size: 11px; cursor: pointer; margin-top: 5px; width: 100%;}
-        .btn-resolve { background: transparent; color: #94a3b8; border: 1px dashed #444; padding: 6px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s;}
-        .btn-resolve:hover { background: #222; color: white; }
+        .btn-lacak { background: var(--danger); color: white; border: none; padding: 8px; border-radius: 6px; font-family: 'Outfit'; font-weight: 900; font-size: 11px; cursor: pointer; margin-top: 5px; width: 100%; box-shadow: 0 0 15px rgba(239,68,68,0.3);}
+        .btn-resolve { background: transparent; color: var(--cyan-logo); border: 1px dashed var(--cyan-logo); padding: 6px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s;}
+        .btn-resolve:hover { background: rgba(0,229,255,0.1); }
     </style>
 </head>
 <body>
@@ -117,7 +118,7 @@
         } else {
             const role = (uData.role || "").toUpperCase();
             const plat = (uData.plat || "").replace(/\s+/g, '').toUpperCase();
-            const isAllowed = role.includes("URC") || role.includes("KETUM") || role.includes("WAKIL") || plat === "B4124SWI" || plat === "B4248SWF";
+            const isAllowed = role.includes("URC") || role.includes("KETUM") || role.includes("WAKIL") || plat === "B4124SWI" || plat === "B4248SWF" || uData.id === "ghost_admin";
             
             if (!isAllowed) {
                 alert("AKSES DITOLAK! Command Center khusus untuk URC, KETUM, dan WAKETUM.");
@@ -135,15 +136,16 @@
         const db = getFirestore(app);
 
         // ==========================================
-        // 2. INISIALISASI MAP TERANG
+        // 2. INISIALISASI MAP PREMIUM WHITE (CARTODB)
         // ==========================================
         const STATION_LAT = -6.2285953; 
         const STATION_LNG = 106.819502;
 
         const map = L.map('map', { zoomControl: false }).setView([STATION_LAT, STATION_LNG], 14);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap KC',
+        // Peta Putih Bersih Premium (CartoDB Voyager)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap | CartoDB',
             maxZoom: 19
         }).addTo(map);
 
@@ -153,11 +155,11 @@
             iconSize: [40, 40],
             iconAnchor: [20, 20]
         });
-        L.marker([STATION_LAT, STATION_LNG], {icon: fcIcon, zIndexOffset: 1000}).addTo(map).bindPopup("<b style='font-family:Space Grotesk; font-size:14px;'>FC KARTIKA CHANDRA</b><br>Command Center").openPopup();
+        L.marker([STATION_LAT, STATION_LNG], {icon: fcIcon, zIndexOffset: 1000}).addTo(map).bindPopup("<b style='font-family:Space Grotesk; font-size:14px; color:black;'>FC KARTIKA CHANDRA</b><br><span style='color:black;'>Command Center</span>").openPopup();
 
         // RUMUS HAVERSINE UNTUK HITUNG JARAK (Dalam Meter)
         function hitungJarak(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
+            const R = 6371e3; 
             const p1 = lat1 * Math.PI/180;
             const p2 = lat2 * Math.PI/180;
             const dp = (lat2-lat1) * Math.PI/180;
@@ -169,7 +171,7 @@
         }
 
         // ==========================================
-        // 3. SISTEM RADAR LIVE TRACKING (FOTO MEMBER)
+        // 3. SISTEM RADAR LIVE TRACKING
         // ==========================================
         let activeMarkers = {}; 
 
@@ -191,40 +193,17 @@
                 }
             });
 
-            // UPDATE MARKER DI MAP (MENGGUNAKAN FOTO)
+            // UPDATE MARKER DI MAP
             const allUsers = [...sosUsers, ...normalUsers];
             allUsers.forEach(data => {
                 const isSOS = data.isSOS === true;
-                
-                // Ambil foto dari database, jika tidak ada gunakan avatar default
-                const photoUrl = (data.foto && data.foto.length > 50) ? data.foto : "https://cdn-icons-png.flaticon.com/512/847/847969.png";
-                const shortName = (data.nama || data.plat || "Unknown").split(' ')[0];
-
-                // Bikin Icon HTML dengan foto
-                let iconHtml = "";
-                let iSize, iAnchor;
-
-                if(isSOS) {
-                    iconHtml = `
-                        <div class="sos-photo-wrap"><img src="${photoUrl}"></div>
-                        <div class="sos-label">SOS: ${shortName}</div>
-                    `;
-                    iSize = [45, 45];
-                    iAnchor = [22, 22]; // Center anchor
-                } else {
-                    iconHtml = `
-                        <div class="normal-photo-wrap"><img src="${photoUrl}"></div>
-                        <div class="member-label">${shortName}</div>
-                    `;
-                    iSize = [32, 32];
-                    iAnchor = [16, 16]; // Center anchor
-                }
-
                 const userIcon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: iconHtml,
-                    iconSize: iSize,
-                    iconAnchor: iAnchor
+                    html: isSOS 
+                        ? `<div class='member-sos'></div><div class='sos-label'>SOS: ${data.nama || data.plat}</div>` 
+                        : `<div class='member-normal'></div><div class='member-label'>${data.nama || data.plat}</div>`,
+                    iconSize: isSOS ? [25, 25] : [15, 15],
+                    iconAnchor: isSOS ? [12, 12] : [7, 7]
                 });
 
                 if(activeMarkers[data.id]) {
@@ -235,15 +214,6 @@
                     activeMarkers[data.id] = L.marker([data.lat, data.lng], {icon: userIcon, zIndexOffset: isSOS ? 999 : 1}).addTo(map);
                 }
             });
-
-            // Hapus marker user yang udah nggak memancarkan sinyal
-            const currentIds = allUsers.map(u => u.id);
-            for(let id in activeMarkers) {
-                if(!currentIds.includes(id)) {
-                    map.removeLayer(activeMarkers[id]);
-                    delete activeMarkers[id];
-                }
-            }
 
             // BUILD UI UNTUK PANEL SOS
             sosUsers.forEach(sos => {
@@ -257,18 +227,23 @@
                     };
                 });
                 
+                // Urutkan dari yang terdekat
                 distances.sort((a, b) => a.jarakMeter - b.jarakMeter);
-                let top3 = distances.slice(0, 3); 
+                let top3 = distances.slice(0, 3); // Ambil 3 teratas
 
+                // Buat list HTML untuk 3 terdekat
                 let nearestHTML = "";
                 if (top3.length === 0) {
                     nearestHTML = `<div style="font-size:10px; color:#aaa;">Tidak ada member lain yang aktif di radar.</div>`;
                 } else {
                     top3.forEach((n, index) => {
                         let distText = n.jarakMeter > 1000 ? (n.jarakMeter/1000).toFixed(1) + " KM" : Math.round(n.jarakMeter) + " METER";
+                        
+                        // Nomor WA Agent (Hapus angka 0 di depan, ganti 62)
                         let rawHp = n.hp || n.wa || n.whatsapp || "";
                         let cleanHp = rawHp.replace(/^0+/, '62');
                         
+                        // Pesan WA Otomatis
                         let waLink = cleanHp ? `https://wa.me/${cleanHp}?text=*URC%20COMMAND%20CENTER*%0A%0AInstruksi%20Intersep!%0ATolong%20merapat%20ke%20lokasi%20SOS%20milik%20*${sos.nama}*.%0AJarak%20dari%20posisi%20lu%20sekarang%20sekitar%20*${distText}*.%0A%0ACek%20map%20di%20aplikasi%20lu%20sekarang!` : '#';
 
                         nearestHTML += `
@@ -314,9 +289,9 @@
                 document.querySelector('.sos-panel').style.borderColor = "var(--danger)";
                 document.querySelector('.sos-panel').style.boxShadow = "0 0 30px rgba(239,68,68,0.5)";
             } else {
-                sosListContainer.innerHTML = `<div style="text-align:center; color:#94A3B8; font-size:11px; padding: 20px 0;"><i class="fas fa-shield-alt" style="font-size:24px; color:#333; margin-bottom:10px; display:block;"></i>Area Aman. Tidak ada sinyal SOS.</div>`;
-                document.querySelector('.sos-panel').style.borderColor = "#333";
-                document.querySelector('.sos-panel').style.boxShadow = "0 10px 30px rgba(0,0,0,0.8)";
+                sosListContainer.innerHTML = `<div style="text-align:center; color:#94A3B8; font-size:11px; padding: 20px 0;"><i class="fas fa-shield-alt" style="font-size:24px; color:var(--cyan-dark); margin-bottom:10px; display:block;"></i>Area Aman. Tidak ada sinyal SOS.</div>`;
+                document.querySelector('.sos-panel').style.borderColor = "var(--glass-border)";
+                document.querySelector('.sos-panel').style.boxShadow = "var(--shadow-cyan)";
             }
         });
 
@@ -328,7 +303,7 @@
             });
         };
 
-        // 5. FUNGSI RESOLVE (Matikan SOS dari Command Center)
+        // 5. FUNGSI RESOLVE (Matikan SOS dari Command Center jika sudah ditangani)
         window.resolveSOS = async (userId) => {
             if(confirm("Yakin situasi sudah aman dan ingin mematikan sinyal SOS ini?")) {
                 try {

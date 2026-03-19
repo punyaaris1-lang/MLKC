@@ -5,179 +5,188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC - Smart Charging Hub</title>
     
+    <script>
+        const ANTRIAN_VERSION = "2.0"; // TEMA CYBER NAVY & CYAN
+        if (localStorage.getItem('maka_antrian_kc_v') !== ANTRIAN_VERSION) {
+            if ('caches' in window) { caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); }); }
+            localStorage.setItem('maka_antrian_kc_v', ANTRIAN_VERSION);
+            window.location.reload(true); 
+        }
+    </script>
+
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#050B14">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* === TEMA PITCH BLACK & NEON KC === */
+        /* === TEMA CYBER NAVY & CYAN === */
         :root { 
-            --royal-blue: #D4FF00; /* Neon Yellow KC */
-            --electric-blue: #10B981; /* Emerald Green */
-            --bg-surface: #000000; /* Pitch Black */
+            --cyan-logo: #00E5FF;     
+            --cyan-dark: #0077B6;     
+            --yellow-logo: #FFFF00;   
+            --yellow-dark: #D4AF37;   
+            --navy-bg: #050B14;       
+            --bg-surface: #000000;    
+            
             --white: #FFFFFF; 
             --text-main: #F8FAFC; 
             --text-muted: #94A3B8; 
             --danger: #EF4444; 
             --success: #10B981; 
-            --gold: #D4AF37;
             
-            --glow-blue: 0 10px 30px rgba(212, 255, 0, 0.25);
-            --glow-red: 0 10px 25px rgba(239, 68, 68, 0.25);
-            --glow-green: 0 10px 25px rgba(16, 185, 129, 0.25);
-            --glow-gold: 0 10px 25px rgba(212, 175, 55, 0.25);
+            --glass-bg: rgba(5, 11, 20, 0.75); 
+            --glass-border: rgba(0, 229, 255, 0.25);
+            --shadow-cyan: 0 10px 30px rgba(0, 229, 255, 0.15);
+            --shadow-yellow: 0 10px 30px rgba(255, 255, 0, 0.15);
         }
         
-        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 120px; -webkit-font-smoothing: antialiased; overflow-x: hidden; position: relative; }
+        body { margin: 0; background-color: var(--bg-surface); background-image: radial-gradient(circle at top right, var(--navy-bg) 0%, var(--bg-surface) 70%); font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 120px; -webkit-font-smoothing: antialiased; overflow-x: hidden; position: relative; min-height: 100vh;}
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
-        /* AMBIENT LIGHT & BACKGROUND */
-        .ambient-light { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; animation: floatLight 10s infinite alternate; }
-        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: #D4FF00; }
-        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: #10B981; animation-delay: 2s; }
-        .bg-watermark { position: fixed; top: 15%; right: -15%; width: 100%; height: 80%; background-image: url('bg_maka.jpg'); background-repeat: no-repeat; background-size: contain; background-position: center; opacity: 0.05; transform: rotate(-15deg); z-index: -2; pointer-events: none; }
+        /* AMBIENT LIGHTS */
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.25; animation: floatLight 10s infinite alternate; }
+        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: var(--cyan-dark); }
+        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: var(--cyan-logo); animation-delay: 2s; opacity: 0.15;}
         @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
 
         /* --- HEADER MEWAH GLOWING --- */
         .header-premium { 
-            background: linear-gradient(160deg, #111 0%, #000 100%); 
+            background: linear-gradient(160deg, var(--navy-bg) 0%, #000 100%); 
             padding: 50px 20px 80px; 
             border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; 
             color: white; position: relative; z-index: 10; 
-            box-shadow: var(--glow-blue); border-bottom: 2px solid rgba(212,255,0,0.3);
+            box-shadow: var(--shadow-cyan); border-bottom: 2px solid rgba(0,229,255,0.3);
         }
         .head-flex { display: flex; justify-content: space-between; align-items: flex-start; }
-        .sub-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--royal-blue); text-transform: uppercase; margin-bottom: 4px; display: block; text-shadow: 0 0 10px rgba(212,255,0,0.5); }
+        .sub-tag { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--cyan-logo); text-transform: uppercase; margin-bottom: 4px; display: block; text-shadow: 0 0 10px rgba(0,229,255,0.5); }
         .main-title { font-family: 'Space Grotesk'; font-size: 26px; font-weight: 900; margin: 0; line-height: 1.1; }
         
-        /* --- WIDGET SHOLAT GLOWING --- */
+        /* --- WIDGET SHOLAT GLOWING (CYAN VERSION) --- */
         .ramadan-widget { 
             margin-top: 25px; border-radius: 20px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; 
-            background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3);
-            box-shadow: var(--glow-green); position: relative; overflow: hidden; backdrop-filter: blur(5px);
+            background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.3);
+            box-shadow: var(--shadow-cyan); position: relative; overflow: hidden; backdrop-filter: blur(5px);
         }
         .rw-left { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
-        .rw-icon { font-size: 28px; color: var(--success); animation: pulseGlow 2s infinite; filter: drop-shadow(0 0 8px rgba(16,185,129,0.5)); }
+        .rw-icon { font-size: 28px; color: var(--cyan-logo); animation: pulseGlow 2s infinite; filter: drop-shadow(0 0 8px rgba(0,229,255,0.5)); }
         @keyframes pulseGlow { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
         .rw-lbl { font-size: 9px; font-weight: 800; color: #CBD5E1; text-transform: uppercase; letter-spacing: 1px; }
-        .rw-time { font-family: 'Space Grotesk'; font-size: 24px; font-weight: 900; color: #fff; margin-top: 2px; text-shadow: 0 0 10px rgba(16,185,129,0.4);}
-        .rw-target { font-size: 11px; font-weight: 800; color: #000; background: var(--success); padding: 6px 14px; border-radius: 12px; box-shadow: 0 4px 10px rgba(16,185,129,0.4); position: relative; z-index: 2; }
+        .rw-time { font-family: 'Space Grotesk'; font-size: 24px; font-weight: 900; color: #fff; margin-top: 2px; text-shadow: 0 0 10px rgba(0,229,255,0.4);}
+        .rw-target { font-size: 11px; font-weight: 800; color: #000; background: var(--cyan-logo); padding: 6px 14px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,229,255,0.4); position: relative; z-index: 2; }
 
-        .admin-badge { display: none; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); padding: 5px 10px; border-radius: 12px; font-size: 9px; font-weight: 800; align-items: center; gap: 4px; box-shadow: var(--glow-red); }
-        .gps-badge { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 6px 15px; border-radius: 20px; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; box-shadow: 0 5px 15px rgba(212,175,55,0.3); z-index: 15; white-space: nowrap; }
-        .gps-badge.ok { background: var(--success); box-shadow: var(--glow-green); color: #000;}
-        .gps-badge.err { background: var(--danger); box-shadow: var(--glow-red); color: #fff;}
+        .admin-badge { display: none; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); padding: 5px 10px; border-radius: 12px; font-size: 9px; font-weight: 800; align-items: center; gap: 4px; box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+        .gps-badge { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: var(--yellow-logo); color: #000; padding: 6px 15px; border-radius: 20px; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; box-shadow: 0 5px 15px rgba(255,255,0,0.3); z-index: 15; white-space: nowrap; }
+        .gps-badge.ok { background: var(--cyan-logo); box-shadow: var(--shadow-cyan); color: #000;}
+        .gps-badge.err { background: var(--danger); box-shadow: 0 0 15px rgba(239,68,68,0.3); color: #fff;}
 
         /* --- POP-UP BEDUG --- */
         .buka-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px; text-align: center; }
-        .buka-box { background: #111; padding: 40px 20px; border-radius: 35px; box-shadow: var(--glow-gold); border: 1px solid rgba(212,175,55,0.3); width: 100%; max-width: 350px; transform: scale(0.8); animation: popBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .buka-box { background: var(--navy-bg); padding: 40px 20px; border-radius: 35px; box-shadow: var(--shadow-cyan); border: 1px solid var(--cyan-logo); width: 100%; max-width: 350px; transform: scale(0.8); animation: popBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popBounce { to { transform: scale(1); } }
-        .bedug-icon { font-size: 70px; margin-bottom: 15px; animation: beatDrum 0.4s infinite alternate; display: inline-block; filter: drop-shadow(0 10px 15px rgba(212,175,55,0.3)); color: var(--gold);}
+        .bedug-icon { font-size: 70px; margin-bottom: 15px; animation: beatDrum 0.4s infinite alternate; display: inline-block; filter: drop-shadow(0 10px 15px rgba(0,229,255,0.3)); color: var(--cyan-logo);}
         @keyframes beatDrum { 0% { transform: rotate(-15deg) scale(1); } 100% { transform: rotate(15deg) scale(1.1); } }
-        .buka-title { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 900; color: var(--gold); margin: 0 0 10px 0; letter-spacing: 1px; text-shadow: 0 2px 10px rgba(212,175,55,0.2);}
+        .buka-title { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 900; color: var(--cyan-logo); margin: 0 0 10px 0; letter-spacing: 1px; text-shadow: 0 2px 10px rgba(0,229,255,0.2);}
         .buka-desc { color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 25px; font-weight: 600; }
-        .btn-tutup-buka { background: var(--royal-blue); color: #000; border: none; padding: 16px 30px; border-radius: 16px; font-family: 'Space Grotesk'; font-weight: 900; font-size: 14px; cursor: pointer; width: 100%; box-shadow: var(--glow-blue); }
+        .btn-tutup-buka { background: var(--cyan-logo); color: #000; border: none; padding: 16px 30px; border-radius: 16px; font-family: 'Space Grotesk'; font-weight: 900; font-size: 14px; cursor: pointer; width: 100%; box-shadow: var(--shadow-cyan); }
 
         /* --- QUEUE STATUS GLASS --- */
         .status-overlap { padding: 0 20px; margin-top: -35px; position: relative; z-index: 11; }
         .status-card { 
-            background: rgba(20,20,20,0.85); backdrop-filter: blur(15px);
+            background: var(--glass-bg); backdrop-filter: blur(15px);
             border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: space-between; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8); border: 1px solid rgba(212,255,0,0.15); cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8); border: 1px solid var(--glass-border); cursor: pointer;
         }
-        .sc-left { border-left: 4px solid var(--royal-blue); padding-left: 12px; }
+        .sc-left { border-left: 4px solid var(--cyan-logo); padding-left: 12px; }
         .sc-lbl { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .sc-val { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: var(--royal-blue); margin-top: 4px; text-transform: uppercase; }
+        .sc-val { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: var(--cyan-logo); margin-top: 4px; text-transform: uppercase; }
         .sc-right { text-align: right; }
-        .sc-tot { font-family: 'Space Grotesk'; font-size: 32px; font-weight: 900; color: var(--royal-blue); line-height: 1; text-shadow: 0 0 10px rgba(212,255,0,0.2);}
+        .sc-tot { font-family: 'Space Grotesk'; font-size: 32px; font-weight: 900; color: var(--cyan-logo); line-height: 1; text-shadow: 0 0 10px rgba(0,229,255,0.2);}
 
         /* --- SLOT BAY GLASSMORPHISM --- */
         .slot-container { padding: 40px 20px 10px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 10;}
         .slot-bay { 
-            background: rgba(20,20,20,0.8); backdrop-filter: blur(10px);
+            background: rgba(5,11,20,0.6); backdrop-filter: blur(10px);
             border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; 
             display: flex; align-items: center; gap: 15px; position: relative; transition: 0.3s; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
         }
-        .slot-bay.is-active { border: 1px solid rgba(212,255,0,0.3); box-shadow: var(--glow-blue); background: rgba(212,255,0,0.05); }
-        .slot-bay.is-admin { border: 1px solid rgba(212,175,55,0.4); box-shadow: var(--glow-gold); background: rgba(212,175,55,0.05); }
+        .slot-bay.is-active { border: 1px solid rgba(0,229,255,0.3); box-shadow: var(--shadow-cyan); background: rgba(0,229,255,0.05); }
+        .slot-bay.is-admin { border: 1px solid rgba(255,255,0,0.3); box-shadow: var(--shadow-yellow); background: rgba(255,255,0,0.05); }
         
-        .sb-num { width: 50px; height: 50px; border-radius: 16px; background: #222; color: #94A3B8; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #333;}
-        .slot-bay.is-active .sb-num { background: var(--royal-blue); color: #000; box-shadow: 0 5px 15px rgba(212,255,0,0.4); border-color: var(--royal-blue);}
-        .slot-bay.is-admin .sb-num { background: var(--gold); color: #000; box-shadow: 0 5px 15px rgba(212,175,55,0.4); border-color: var(--gold);}
+        .sb-num { width: 50px; height: 50px; border-radius: 16px; background: #111; color: #94A3B8; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #333;}
+        .slot-bay.is-active .sb-num { background: var(--cyan-logo); color: #000; box-shadow: 0 5px 15px rgba(0,229,255,0.4); border-color: var(--cyan-logo);}
+        .slot-bay.is-admin .sb-num { background: var(--yellow-logo); color: #000; box-shadow: 0 5px 15px rgba(255,255,0,0.4); border-color: var(--yellow-logo);}
 
         .sb-info { flex: 1; min-width: 0; }
         .sb-name { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px;}
-        .sb-plat { font-family: 'Space Grotesk'; font-size: 20px; font-weight: 900; color: var(--royal-blue); line-height: 1; }
+        .sb-plat { font-family: 'Space Grotesk'; font-size: 20px; font-weight: 900; color: var(--cyan-logo); line-height: 1; }
         .slot-bay.is-empty .sb-plat { color: #64748B; }
         .sb-timer { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
         
-        .badge-pengurus { background: rgba(212,175,55,0.1); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); font-size: 8px; font-weight: 900; padding: 3px 6px; border-radius: 6px; letter-spacing: 1px; }
-        .badge-batre { color: var(--royal-blue); font-size: 10px; font-weight: 900; }
+        .badge-pengurus { background: rgba(255,255,0,0.1); color: var(--yellow-logo); border: 1px solid rgba(255,255,0,0.3); font-size: 8px; font-weight: 900; padding: 3px 6px; border-radius: 6px; letter-spacing: 1px; }
+        .badge-batre { color: var(--cyan-logo); font-size: 10px; font-weight: 900; }
 
-        .btn-dots { width: 40px; height: 40px; border-radius: 50%; background: #222; color: var(--text-main); border: 1px solid #333; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-dots:active { background: rgba(212,255,0,0.1); border-color: var(--royal-blue); color: var(--royal-blue); transform: scale(0.9); }
+        .btn-dots { width: 40px; height: 40px; border-radius: 50%; background: #111; color: var(--text-main); border: 1px solid #333; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-dots:active { background: rgba(0,229,255,0.1); border-color: var(--cyan-logo); color: var(--cyan-logo); transform: scale(0.9); }
         .admin-only { display: none; }
 
-        .btn-action-main { padding: 10px 20px; border-radius: 14px; border: none; font-family: 'Space Grotesk'; font-size: 12px; font-weight: 800; cursor: pointer; }
-        .btn-fill { background: var(--royal-blue); color: #000; box-shadow: var(--glow-blue); }
-        .btn-disabled { background: #222; color: #64748B; cursor: not-allowed; box-shadow: none; border: 1px solid #333;}
+        .btn-action-main { padding: 10px 20px; border-radius: 14px; border: none; font-family: 'Space Grotesk'; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s;}
+        .btn-fill { background: var(--cyan-logo); color: #000; box-shadow: var(--shadow-cyan); }
+        .btn-disabled { background: #111; color: #64748B; cursor: not-allowed; box-shadow: none; border: 1px solid #333;}
 
         /* --- BOTTOM ACTIONS --- */
         .action-hub { padding: 10px 20px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 10;}
         .btn-hub { width: 100%; padding: 18px; border-radius: 20px; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
-        .btn-take-q { background: var(--success); color: #000; box-shadow: var(--glow-green); display: none; }
+        .btn-take-q { background: var(--cyan-logo); color: #000; box-shadow: var(--shadow-cyan); display: none; }
         .btn-take-q:active { transform: scale(0.98); }
         .btn-cancel-me { background: rgba(239,68,68,0.05); color: var(--danger); border: 2px dashed rgba(239,68,68,0.4); display: none; }
-        .btn-cancel-me:active { background: var(--danger); color: white; box-shadow: var(--glow-red);}
-        .btn-manage-q { background: #222; color: var(--royal-blue); border: 1px solid var(--royal-blue); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); display: none; }
-        .btn-manage-q:active { transform: scale(0.98); }
+        .btn-cancel-me:active { background: var(--danger); color: white; box-shadow: 0 0 15px rgba(239,68,68,0.4);}
+        .btn-manage-q { background: #111; color: var(--cyan-logo); border: 1px solid var(--cyan-logo); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); display: none; }
+        .btn-manage-q:active { transform: scale(0.98); background: var(--cyan-logo); color: black;}
 
         /* --- MODERN BOTTOM SHEET GLASS --- */
         .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: flex-end; z-index: 20000; opacity: 0; transition: opacity 0.3s; }
         .sheet-overlay.show { display: flex; opacity: 1; }
         .bottom-sheet { 
-            width: 100%; background: rgba(15,15,15,0.95); backdrop-filter: blur(20px);
-            border-radius: 35px 35px 0 0; border-top: 1px solid rgba(212,255,0,0.2);
+            width: 100%; background: rgba(5,11,20,0.95); backdrop-filter: blur(20px);
+            border-radius: 35px 35px 0 0; border-top: 1px solid rgba(0,229,255,0.2);
             padding: 20px 25px 40px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1); 
             box-shadow: 0 -10px 40px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; 
         }
         .sheet-overlay.show .bottom-sheet { transform: translateY(0); }
         .sheet-handle { width: 50px; height: 5px; background: #444; border-radius: 5px; margin: 0 auto 25px; }
         
-        .sheet-title { font-family: 'Space Grotesk'; font-size: 20px; font-weight: 900; color: var(--royal-blue); margin-bottom: 20px; text-align: center; }
+        .sheet-title { font-family: 'Space Grotesk'; font-size: 20px; font-weight: 900; color: var(--cyan-logo); margin-bottom: 20px; text-align: center; }
         
         .sheet-menu { display: flex; flex-direction: column; gap: 10px; }
-        .sm-btn { width: 100%; padding: 16px 20px; background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 16px; display: flex; align-items: center; gap: 15px; font-family: 'Inter'; font-size: 14px; font-weight: 700; color: var(--text-main); cursor: pointer; transition: 0.2s; text-align: left; }
-        .sm-btn:active { background: rgba(212,255,0,0.05); border-color: rgba(212,255,0,0.3); transform: scale(0.98); }
+        .sm-btn { width: 100%; padding: 16px 20px; background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 16px; display: flex; align-items: center; gap: 15px; font-family: 'Inter'; font-size: 14px; font-weight: 700; color: var(--text-main); cursor: pointer; transition: 0.2s; text-align: left; }
+        .sm-btn:active { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.3); transform: scale(0.98); }
         .sm-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .bg-blue { background: rgba(212,255,0,0.1); color: var(--royal-blue); }
+        .bg-blue { background: rgba(0,229,255,0.1); color: var(--cyan-logo); }
         .bg-red { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .bg-dark { background: #222; color: var(--white); border: 1px solid #444;}
+        .bg-dark { background: #111; color: var(--white); border: 1px solid #333;}
         
-        /* TOMBOL KUDETA KHUSUS */
-        .btn-kudeta { background: linear-gradient(135deg, var(--danger), #B91C1C); color: white; border: none; box-shadow: var(--glow-red); justify-content: center; font-family: 'Space Grotesk'; font-weight: 900; letter-spacing: 1px; }
+        .btn-kudeta { background: linear-gradient(135deg, var(--danger), #B91C1C); color: white; border: none; box-shadow: 0 0 15px rgba(239,68,68,0.4); justify-content: center; font-family: 'Space Grotesk'; font-weight: 900; letter-spacing: 1px; }
         .btn-kudeta:active { transform: scale(0.96); background: #991B1B;}
 
-        .sheet-input { width: 100%; padding: 16px; border-radius: 16px; border: 1px solid #333; background: #111; color: white; font-family: 'Space Grotesk'; font-size: 16px; font-weight: 800; text-align: center; text-transform: uppercase; margin-bottom: 12px; outline: none; transition: 0.2s; }
-        .sheet-input:focus { border-color: var(--royal-blue); box-shadow: 0 0 15px rgba(212,255,0,0.1); background: #000; }
+        .sheet-input { width: 100%; padding: 16px; border-radius: 16px; border: 1px solid #333; background: #000; color: white; font-family: 'Space Grotesk'; font-size: 16px; font-weight: 800; text-align: center; text-transform: uppercase; margin-bottom: 12px; outline: none; transition: 0.2s; }
+        .sheet-input:focus { border-color: var(--cyan-logo); box-shadow: 0 0 15px rgba(0,229,255,0.1); }
 
-        .q-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: #111; border: 1px solid #333; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+        .q-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: #000; border: 1px solid #222; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
         .qi-ctrl { display: flex; gap: 5px; }
         .qi-btn { width: 32px; height: 32px; border-radius: 10px; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .qi-btn:active { transform: scale(0.9); }
 
         .back-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 100;}
-        .btn-premium-back { background: rgba(10,10,10,0.95); backdrop-filter: blur(15px); border: 1px solid rgba(212,255,0,0.2); padding: 16px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--royal-blue); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .btn-premium-back { background: rgba(5,11,20,0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); padding: 16px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--cyan-logo); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--shadow-cyan); }
     </style>
 </head>
 <body>
 
     <div class="ambient-light light-1"></div>
     <div class="ambient-light light-2"></div>
-    <div class="bg-watermark"></div>
 
     <header class="header-premium">
         <div class="head-flex">
@@ -281,7 +290,7 @@
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn-hub btn-fill" style="flex:1; font-size:12px; padding: 15px;" onclick="adminSubmitDaftar('antrian')"><i class="fas fa-list-ol"></i> MASUK ANTRIAN</button>
-                <button class="btn-hub" style="background:var(--success); color:#000; flex:1; font-size:12px; padding: 15px; box-shadow:var(--glow-green);" onclick="adminSubmitDaftar('slot')"><i class="fas fa-bolt"></i> MASUK SLOT</button>
+                <button class="btn-hub" style="background:var(--yellow-logo); color:#000; flex:1; font-size:12px; padding: 15px; box-shadow:0 0 15px rgba(255,255,0,0.3);" onclick="adminSubmitDaftar('slot')"><i class="fas fa-bolt"></i> MASUK SLOT</button>
             </div>
         </div>
     </div>
@@ -378,8 +387,8 @@
 
         function showBedugPopup(namaWaktu) {
             const title = document.getElementById('bedugTitle'); const desc = document.getElementById('bedugDesc');
-            if(namaWaktu === 'MAGHRIB') { title.innerText = "ALHAMDULILLAH"; title.style.color = "var(--gold)"; desc.innerText = "Telah masuk waktu Maghrib untuk wilayah Jakarta dan sekitarnya. Selamat berbuka puasa!"; } 
-            else { title.innerText = "WAKTU " + namaWaktu; title.style.color = "var(--electric-blue)"; desc.innerText = `Mari sejenak hentikan aktivitas. Telah masuk waktu sholat ${namaWaktu} untuk wilayah Jakarta dan sekitarnya.`; }
+            if(namaWaktu === 'MAGHRIB') { title.innerText = "ALHAMDULILLAH"; title.style.color = "var(--cyan-logo)"; desc.innerText = "Telah masuk waktu Maghrib untuk wilayah Jakarta dan sekitarnya. Selamat berbuka puasa!"; } 
+            else { title.innerText = "WAKTU " + namaWaktu; title.style.color = "var(--yellow-logo)"; desc.innerText = `Mari sejenak hentikan aktivitas. Telah masuk waktu sholat ${namaWaktu} untuk wilayah Jakarta dan sekitarnya.`; }
             document.getElementById('bukaPuasaPopup').style.display = 'flex';
         }
 
@@ -397,7 +406,6 @@
                 
                 const wktSholat = [ {n:'SUBUH', v:jadwalSholat.subuh}, {n:'DZUHUR', v:jadwalSholat.dzuhur}, {n:'ASHAR', v:jadwalSholat.ashar}, {n:'MAGHRIB', v:jadwalSholat.maghrib}, {n:'ISYA', v:jadwalSholat.isya} ];
                 
-                // CEK JADWAL SHOLAT DENGAN TOLERANSI 10 MENIT
                 wktSholat.forEach(t => {
                     let parts = t.v.split(':');
                     let sholatMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
@@ -426,7 +434,7 @@
         setInterval(updateTimer, 1000);
 
         // --- SISTEM FIREBASE DATA ---
-        let localSlots = [null, null, null, null, null]; // 5 Slot
+        let localSlots = [null, null, null, null, null]; 
         let localQueue = []; 
         let blockedList = [];
         let currentTargetSlot = -1;
@@ -484,17 +492,16 @@
 
                     const durationMin = Math.floor((Date.now() - (s.startTime || Date.now())) / 60000);
                     
-                    // --- TOMBOL KUDETA USER BIASA ---
                     let userKudetaBtn = '';
                     if (!isMe) { 
                         if (myQIndex === 0 && durationMin >= 20) {
-                            userKudetaBtn = `<button style="background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger); padding:4px 8px; border-radius:6px; font-family:'Space Grotesk'; font-size:9px; font-weight:900; cursor:pointer; margin-left:8px; box-shadow:var(--glow-red);" onclick="event.stopPropagation(); userTriggerKudeta(${i}, '${escapeHtml(s.plat)}')">⚡ KUDETA</button>`;
+                            userKudetaBtn = `<button style="background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger); padding:4px 8px; border-radius:6px; font-family:'Space Grotesk'; font-size:9px; font-weight:900; cursor:pointer; margin-left:8px; box-shadow:0 0 10px rgba(239,68,68,0.3);" onclick="event.stopPropagation(); userTriggerKudeta(${i}, '${escapeHtml(s.plat)}')">⚡ KUDETA</button>`;
                         } else if (myQIndex === 1 && durationMin >= 25) {
-                            userKudetaBtn = `<button style="background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger); padding:4px 8px; border-radius:6px; font-family:'Space Grotesk'; font-size:9px; font-weight:900; cursor:pointer; margin-left:8px; box-shadow:var(--glow-red);" onclick="event.stopPropagation(); userTriggerKudeta(${i}, '${escapeHtml(s.plat)}')">⚡ KUDETA</button>`;
+                            userKudetaBtn = `<button style="background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger); padding:4px 8px; border-radius:6px; font-family:'Space Grotesk'; font-size:9px; font-weight:900; cursor:pointer; margin-left:8px; box-shadow:0 0 10px rgba(239,68,68,0.3);" onclick="event.stopPropagation(); userTriggerKudeta(${i}, '${escapeHtml(s.plat)}')">⚡ KUDETA</button>`;
                         }
                     }
 
-                    let timerHTML = isMe ? `<div class="sb-timer" style="color:var(--royal-blue)"><i class="fas fa-bolt"></i> ${durationMin} MIN (ANDA)</div>` : `<div class="sb-timer"><i class="fas fa-clock"></i> ${durationMin} MIN RUNNING ${userKudetaBtn}</div>`;
+                    let timerHTML = isMe ? `<div class="sb-timer" style="color:var(--cyan-logo)"><i class="fas fa-bolt"></i> ${durationMin} MIN (ANDA)</div>` : `<div class="sb-timer"><i class="fas fa-clock"></i> ${durationMin} MIN RUNNING ${userKudetaBtn}</div>`;
                     
                     let adminBtn = isSuperAdmin ? `<button class="btn-dots" onclick="openMenuIsi(${i}, '${escapeHtml(s.plat)}')"><i class="fas fa-ellipsis-v"></i></button>` : '';
                     
@@ -517,13 +524,12 @@
                     
                     if(isMe) { div.onclick = () => { if(confirm("Selesai pengisian?")) stopCharging(i); }; div.style.cursor = "pointer"; }
                 } else {
-                    // SLOT KOSONG
                     div.className = `slot-bay is-empty`;
                     let adminBtn = isSuperAdmin ? `<button class="btn-dots" onclick="bukaDaftarAdmin(${i})"><i class="fas fa-plus"></i></button>` : '';
                     let actionHtml = '';
 
                     if (myQIndex > -1) {
-                        actionHtml = `<button class="btn-action-main btn-fill" style="background:var(--success); color:#000; box-shadow:var(--glow-green);" onclick="pindahDariAntrianKeSlot(${i})"><i class="fas fa-bolt"></i> MASUK SLOT</button>`; 
+                        actionHtml = `<button class="btn-action-main btn-fill" style="background:var(--cyan-logo); color:#000; box-shadow:var(--shadow-cyan);" onclick="pindahDariAntrianKeSlot(${i})"><i class="fas fa-bolt"></i> MASUK SLOT</button>`; 
                     } 
                     else if (localQueue.length === 0 && !amIFilling) {
                         if (isInLocation || isSuperAdmin) actionHtml = `<button class="btn-action-main btn-fill" onclick="mintaBatre('slot', ${i})">MASUK SLOT</button>`; 
@@ -689,12 +695,12 @@
                 body.innerHTML += `
                     <div class="q-item">
                         <div>
-                            <div style="font-family:'Space Grotesk'; font-size:16px; font-weight:900; color:var(--royal-blue);">#${i+1} | ${q.plat}</div>
+                            <div style="font-family:'Space Grotesk'; font-size:16px; font-weight:900; color:var(--cyan-logo);">#${i+1} | ${q.plat}</div>
                             <div style="font-size:10px; color:var(--text-muted);">${q.userName}${batreInfo}</div>
                         </div>
                         <div class="qi-ctrl">
-                            <button class="qi-btn" style="background:var(--success); color:#000; box-shadow:var(--glow-green);" onclick="adminPromoteToSlot(${i})" title="Masukkan ke Slot Kosong"><i class="fas fa-bolt"></i></button>
-                            ${i > 0 ? `<button class="qi-btn" style="background:var(--electric-blue); color:#000; box-shadow:var(--glow-blue);" onclick="adminReorder(${i}, -1)"><i class="fas fa-arrow-up"></i></button>` : ''}
+                            <button class="qi-btn" style="background:var(--cyan-logo); color:#000; box-shadow:var(--shadow-cyan);" onclick="adminPromoteToSlot(${i})" title="Masukkan ke Slot Kosong"><i class="fas fa-bolt"></i></button>
+                            ${i > 0 ? `<button class="qi-btn" style="background:rgba(0,229,255,0.1); color:var(--cyan-logo); border:1px solid rgba(0,229,255,0.3);" onclick="adminReorder(${i}, -1)"><i class="fas fa-arrow-up"></i></button>` : ''}
                             ${i < localQueue.length - 1 ? `<button class="qi-btn" style="background:#222; color:var(--white);" onclick="adminReorder(${i}, 1)"><i class="fas fa-arrow-down"></i></button>` : ''}
                             <button class="qi-btn" style="background:transparent; color:var(--danger); border:1px solid var(--danger); box-shadow:var(--glow-red);" onclick="adminKickQueue('${q.plat}')"><i class="fas fa-times"></i></button>
                         </div>
@@ -707,8 +713,8 @@
             if(localQueue.length === 0) body.innerHTML = "<p style='text-align:center; color:#94A3B8;'>Antrian Kosong</p>";
             localQueue.forEach((q, i) => {
                 let b = q.batre || q.battery;
-                let batreInfo = (b && b !== '-' && b !== 'undefined') ? ` <span style="color:var(--gold); font-size:11px; text-shadow:0 0 5px rgba(212,175,55,0.4);"><i class="fas fa-bolt"></i> ${b}</span>` : '';
-                body.innerHTML += `<div class="q-item"><div><div style="font-family:'Space Grotesk'; font-size:18px; font-weight:900; color:var(--royal-blue);">${q.plat}</div><div style="font-size:11px; font-weight:700; color:var(--text-muted);">${q.userName}${batreInfo}</div></div><div style="font-family:'Space Grotesk'; font-size:14px; background:var(--royal-blue); color:#000; padding:5px 12px; border-radius:10px; box-shadow:var(--glow-blue); font-weight:900;">#${i+1}</div></div>`;
+                let batreInfo = (b && b !== '-' && b !== 'undefined') ? ` <span style="color:var(--yellow-logo); font-size:11px; text-shadow:0 0 5px rgba(255,255,0,0.4);"><i class="fas fa-bolt"></i> ${b}</span>` : '';
+                body.innerHTML += `<div class="q-item"><div><div style="font-family:'Space Grotesk'; font-size:18px; font-weight:900; color:var(--cyan-logo);">${q.plat}</div><div style="font-size:11px; font-weight:700; color:var(--text-muted);">${q.userName}${batreInfo}</div></div><div style="font-family:'Space Grotesk'; font-size:14px; background:var(--cyan-logo); color:#000; padding:5px 12px; border-radius:10px; box-shadow:var(--shadow-cyan); font-weight:900;">#${i+1}</div></div>`;
             });
         };
 

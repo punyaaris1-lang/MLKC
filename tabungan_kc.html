@@ -5,124 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC - Secure Savings</title>
     
+    <script>
+        // ==========================================
+        // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
+        // ==========================================
+        const TABUNGAN_VERSION = "2.8"; // TEMA CYBER NAVY & KODE UNIK HIERARKI
+        if (localStorage.getItem('maka_tabungan_v') !== TABUNGAN_VERSION) {
+            if ('caches' in window) {
+                caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
+            }
+            localStorage.setItem('maka_tabungan_v', TABUNGAN_VERSION);
+            window.location.reload(true); 
+        }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@700;800;900&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
     <style>
-        /* === TEMA KARTIKA CHANDRA (DARK NEON) === */
+        /* === TEMA CYBER NAVY & CYAN === */
         :root { 
-            --royal-blue: #D4FF00; /* Neon Lime */
-            --electric-blue: #10B981; 
-            --gold-lux: #D4FF00; 
-            --bg-surface: #050505; 
+            --cyan-logo: #00E5FF;     
+            --cyan-dark: #0077B6;     
+            --yellow-logo: #FFFF00;   
+            --yellow-dark: #D4AF37;   
+            --navy-bg: #050B14;       
+            --bg-surface: #000000;    
+            
             --text-main: #FFFFFF; 
-            --white: #FFFFFF; 
+            --text-muted: #94A3B8; 
             --danger: #EF4444; 
-            --success: #10B981; 
+            --success: #10B981;
             --warning: #F59E0B;
-            --text-muted: #94A3B8;
+            
+            --glass-bg: rgba(5, 11, 20, 0.75); 
+            --glass-border: rgba(0, 229, 255, 0.25);
+            --shadow-cyan: 0 10px 30px rgba(0, 229, 255, 0.15);
         }
-        body { margin:0; background:var(--bg-surface); font-family:'Inter',sans-serif; color:var(--text-main); overflow-x:hidden; user-select:none; -webkit-tap-highlight-color: transparent;}
+        
+        body { margin:0; background-color:var(--bg-surface); background-image: radial-gradient(circle at top right, var(--navy-bg) 0%, var(--bg-surface) 70%); font-family:'Inter',sans-serif; color:var(--text-main); overflow-x:hidden; user-select:none; -webkit-tap-highlight-color: transparent; min-height: 100vh;}
         * { box-sizing: border-box; outline: none; }
         
-        /* SECURITY UI */
-        #securityScreen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; transition: opacity 0.5s; }
-        .sec-icon-box { width: 90px; height: 90px; border-radius: 50%; background: #111; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px rgba(212,255,0,0.15); margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid #333;}
-        .sec-icon-box i { font-size: 35px; color: var(--royal-blue); z-index: 2; }
-        .scan-laser { position: absolute; width: 100%; height: 3px; background: var(--success); top: 0; animation: scanDown 1.5s infinite; opacity: 0.7; box-shadow: 0 0 15px var(--success); z-index: 1; }
+        /* AMBIENT LIGHTS */
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.25; animation: floatLight 10s infinite alternate; }
+        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: var(--cyan-dark); }
+        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: var(--cyan-logo); animation-delay: 2s; opacity: 0.15; }
+        @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
+
+        /* SECURITY UI (FACE & PIN) */
+        #securityScreen { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; transition: opacity 0.5s; }
+        .sec-icon-box { width: 90px; height: 90px; border-radius: 50%; background: #050B14; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-cyan); margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid rgba(0,229,255,0.3);}
+        .sec-icon-box i { font-size: 35px; color: var(--cyan-logo); z-index: 2; }
+        .scan-laser { position: absolute; width: 100%; height: 3px; background: var(--cyan-logo); top: 0; animation: scanDown 1.5s infinite; opacity: 0.7; box-shadow: 0 0 15px var(--cyan-logo); z-index: 1; }
         @keyframes scanDown { 0% {top:0;} 50% {top:100%;} 100% {top:0;} }
         
-        .camera-container { width: 220px; height: 220px; border-radius: 40px; overflow: hidden; position: relative; border: 4px solid #222; box-shadow: 0 20px 60px rgba(0,0,0,0.8); background: #000; display: none; margin-bottom: 20px; }
+        .camera-container { width: 220px; height: 220px; border-radius: 40px; overflow: hidden; position: relative; border: 4px solid #111; box-shadow: 0 20px 60px rgba(0,0,0,0.9); background: #000; display: none; margin-bottom: 20px; }
         #videoInput { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         
-        /* ANIMASI FRAME VERMUK ALA GOJEK */
         .face-frame { position: absolute; inset: 15px; border: 3px dashed rgba(255,255,255,0.4); border-radius: 30px; transition: all 0.3s; pointer-events: none; }
-        .face-frame.scanning { border: 4px solid var(--royal-blue); box-shadow: 0 0 30px rgba(212,255,0,0.5), inset 0 0 30px rgba(212,255,0,0.5); animation: facePulse 0.8s infinite alternate; }
+        .face-frame.scanning { border: 4px solid var(--cyan-logo); box-shadow: 0 0 30px rgba(0,229,255,0.5), inset 0 0 30px rgba(0,229,255,0.5); animation: facePulse 0.8s infinite alternate; }
         @keyframes facePulse { 0% { transform: scale(0.98); opacity: 0.7;} 100% { transform: scale(1.02); opacity: 1;} }
 
-        .btn-action { width: 100%; max-width: 250px; padding: 16px; border: none; border-radius: 16px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 10px 30px rgba(212,255,0,0.2); background: var(--royal-blue); color: black; transition: 0.2s;}
+        .btn-action { width: 100%; max-width: 250px; padding: 16px; border: none; border-radius: 16px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: var(--shadow-cyan); background: var(--cyan-logo); color: black; transition: 0.2s;}
         .btn-action:active { transform: scale(0.95); }
-        .btn-outline { background: rgba(212,255,0,0.05); color: var(--royal-blue); border: 2px solid var(--royal-blue); box-shadow: none; padding: 14px; }
+        .btn-outline { background: rgba(0,229,255,0.05); color: var(--cyan-logo); border: 2px solid var(--cyan-logo); box-shadow: none; padding: 14px; }
         .btn-ghost { background: transparent; color: var(--text-muted); box-shadow: none; font-size: 12px; margin-top: 5px; }
 
         /* PIN PAD */
         .pin-area { display: none; width: 100%; max-width: 280px; flex-direction: column; align-items: center; }
         .pin-display { display: flex; gap: 10px; margin-bottom: 30px; }
-        .pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--royal-blue); }
-        .pin-dot.filled { background: var(--royal-blue); box-shadow: 0 0 10px var(--royal-blue); }
+        .pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--cyan-logo); transition: 0.2s; }
+        .pin-dot.filled { background: var(--cyan-logo); box-shadow: 0 0 10px var(--cyan-logo); }
         .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
-        .pin-key { width: 65px; height: 65px; border-radius: 50%; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 800; color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s;}
-        .pin-key:active { background: #222; transform: scale(0.95); border-color: var(--royal-blue);}
+        .pin-key { width: 65px; height: 65px; border-radius: 50%; background: rgba(5,11,20,0.8); border: 1px solid rgba(0,229,255,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 22px; font-weight: 800; color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s;}
+        .pin-key:active { background: rgba(0,229,255,0.2); transform: scale(0.95); border-color: var(--cyan-logo); color: var(--cyan-logo);}
 
         /* APP UI */
         #mainApp { display: none; padding-bottom: 90px; }
-        .header-main { background: linear-gradient(160deg, #111 0%, #050505 100%); padding: 35px 20px 80px; border-bottom-left-radius:30px; border-bottom-right-radius:30px; color:white; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8); border-bottom: 1px solid #222;}
-        .main-title { font-family:'Outfit'; font-size:24px; font-weight:900; margin:0; color: var(--royal-blue);}
-        .sub-tag { font-size:11px; opacity:0.8; font-weight:600; display:block; margin-top:5px; font-family:'Space Grotesk'; letter-spacing:2px; color: var(--text-muted);}
+        .header-main { background: linear-gradient(160deg, var(--navy-bg) 0%, #000 100%); padding: 35px 20px 80px; border-bottom-left-radius:30px; border-bottom-right-radius:30px; color:white; text-align:center; box-shadow: var(--shadow-cyan); border-bottom: 1px solid rgba(0,229,255,0.2);}
+        .main-title { font-family:'Outfit'; font-size:24px; font-weight:900; margin:0; color: var(--cyan-logo); letter-spacing: 1px; text-shadow: 0 0 15px rgba(0,229,255,0.3);}
+        .sub-tag { font-size:10px; font-weight:800; display:block; margin-top:5px; font-family:'Space Grotesk'; letter-spacing:3px; color: var(--text-muted); text-transform: uppercase;}
 
         .tab-container { display:flex; justify-content:center; gap:10px; margin-top:-40px; padding:0 20px; position:relative; z-index:10; }
-        .tab-btn { background:#111; border:1px solid #333; padding:12px 15px; border-radius:25px; font-weight:800; font-size:11px; color:var(--text-muted); box-shadow:0 5px 15px rgba(0,0,0,0.5); cursor:pointer; flex:1; transition:0.3s; }
-        .tab-btn.active { background:var(--royal-blue); color:black; box-shadow:0 5px 20px rgba(212,255,0,0.3); transform:scale(1.05); border-color: var(--royal-blue);}
+        .tab-btn { background: rgba(5,11,20,0.9); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.1); padding:14px 15px; border-radius:20px; font-weight:800; font-size:11px; color:var(--text-muted); box-shadow:0 10px 20px rgba(0,0,0,0.8); cursor:pointer; flex:1; transition:0.3s; }
+        .tab-btn.active { background:var(--cyan-logo); color:black; box-shadow:0 10px 25px rgba(0,229,255,0.3); transform:scale(1.05); border-color: var(--cyan-logo);}
         .content-area { padding:20px; display:none; margin-top: 10px;}
         .content-area.active { display:block; }
         
-        .saldo-card { background: linear-gradient(135deg, #111 0%, #0a0a0a 100%); padding: 25px; border-radius: 24px; color: white; text-align: center; margin-bottom: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid #333;}
+        /* SALDO PRIBADI */
+        .saldo-card { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; color: white; text-align: center; margin-bottom: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--glass-border);}
+        .saldo-val { font-family:'Space Grotesk'; font-size:36px; font-weight:900; margin:10px 0; color: var(--cyan-logo); text-shadow: 0 0 15px rgba(0,229,255,0.4);}
+        .btn-nabung { background: var(--yellow-logo); border: none; color: black; padding: 12px 20px; border-radius: 50px; font-size: 13px; font-weight: 800; font-family: 'Space Grotesk'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto 0; width: 100%; box-shadow: 0 10px 25px rgba(255,255,0,0.25); transition: 0.2s; letter-spacing: 1px;}
+        .btn-nabung:active { transform: scale(0.96); box-shadow: 0 5px 15px rgba(255,255,0,0.3); }
         
         /* KOTAK TOTAL GLOBAL */
-        .global-vault-card { background: #0f0f0f; border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #222; color: white; display: none; /* Default Hidden */}
-        .gvc-icon { width: 45px; height: 45px; border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--warning); border: 1px solid rgba(255,255,255,0.1); }
+        .global-vault-card { background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: white; display: none; }
+        .gvc-icon { width: 45px; height: 45px; border-radius: 14px; background: rgba(0,229,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--cyan-logo); border: 1px solid rgba(0,229,255,0.3); }
 
-        .trx-item { background: #0f0f0f; padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid #222; }
+        .trx-item { background: rgba(5,11,20,0.8); backdrop-filter: blur(10px); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); }
         
-        .member-row { background:#0f0f0f; padding:15px; border-radius:16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid #222; box-shadow:0 5px 15px rgba(0,0,0,0.3); transition: 0.3s background;}
+        .member-row { background: rgba(5,11,20,0.8); backdrop-filter: blur(10px); padding:15px; border-radius:16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(255,255,255,0.05); box-shadow:0 5px 15px rgba(0,0,0,0.3); transition: 0.3s;}
         .member-row.updated { background: rgba(16,185,129,0.1); border-color: var(--success); } 
         
-        .btn-plus { width:40px; height:40px; background:linear-gradient(135deg, var(--royal-blue), #8DAA00); color:black; border-radius:12px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; font-size:16px; box-shadow:0 5px 15px rgba(212,255,0,0.2);}
+        .btn-plus { width:40px; height:40px; background:var(--yellow-logo); color:black; border-radius:12px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; font-size:16px; box-shadow:0 5px 15px rgba(255,255,0,0.3);}
         .btn-reset { width:40px; height:40px; background:rgba(245,158,11,0.1); color:var(--warning); border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(245,158,11,0.3); cursor:pointer; font-size:16px; margin-right: 8px;}
         
-        .app-card { background:#0f0f0f; padding:15px; border-radius:16px; margin-bottom:12px; box-shadow:0 5px 15px rgba(0,0,0,0.3); display:flex; justify-content:space-between; align-items:center; border: 1px solid #222;}
+        .app-card { background:rgba(5,11,20,0.8); backdrop-filter: blur(10px); padding:15px; border-radius:16px; margin-bottom:12px; box-shadow:0 5px 15px rgba(0,0,0,0.3); display:flex; justify-content:space-between; align-items:center; border: 1px solid rgba(255,255,255,0.05);}
         
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
-        .modal-box { background: #111; width: 100%; max-width: 380px; border-radius: 25px; padding: 30px 25px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); max-height: 85vh; overflow-y: auto; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #333;}
+        /* MODALS */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-box { background: var(--navy-bg); width: 100%; max-width: 380px; border-radius: 25px; padding: 30px 25px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.9); max-height: 85vh; overflow-y: auto; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--cyan-logo);}
         @keyframes zoomIn { from {transform:scale(0.8); opacity:0;} to {transform:scale(1); opacity:1;} }
 
         .form-group { margin-bottom:20px; text-align: left;}
         .form-label { display:block; font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;}
         .form-input { width:100%; padding:15px; border:1px solid #333; border-radius:14px; font-family:'Space Grotesk'; font-weight:700; font-size:16px; background:#000; color: white; outline:none; transition: 0.2s;}
-        .form-input:focus { border-color: var(--royal-blue); box-shadow: 0 0 10px rgba(212,255,0,0.1); }
-        .btn-submit { width:100%; padding:16px; border:none; border-radius:16px; font-weight:800; color:black; cursor:pointer; margin-top:10px; font-family:'Space Grotesk'; font-size:13px; transition: 0.2s;}
+        .form-input:focus { border-color: var(--cyan-logo); box-shadow: 0 0 10px rgba(0,229,255,0.1); }
+        
+        .btn-submit { width:100%; padding:16px; border:none; border-radius:16px; font-weight:900; color:black; cursor:pointer; margin-top:10px; font-family:'Space Grotesk'; font-size:13px; transition: 0.2s; letter-spacing: 1px;}
         .btn-submit:active { transform: scale(0.95); }
-        .bg-sukses { background:var(--royal-blue); box-shadow: 0 10px 25px rgba(212,255,0,0.2); } 
-        .bg-cancel { background:#222; color:#fff; border: 1px solid #333; box-shadow:none; }
+        .bg-sukses { background:var(--cyan-logo); box-shadow: var(--shadow-cyan); } 
+        .bg-cancel { background:#111; color:#fff; border: 1px solid #333; box-shadow:none; }
         
         /* ADMIN TRX LIST ITEM */
         .admin-hist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px dashed #222; text-align: left; }
         .admin-hist-item:last-child { border-bottom: none; }
-        .btn-edit { background: #1a1a1a; border: 1px solid #333; color: var(--royal-blue); cursor: pointer; width: 35px; height: 35px; border-radius: 10px; font-size: 14px; display:flex; align-items:center; justify-content:center; transition:0.2s;}
+        .btn-edit { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--cyan-logo); cursor: pointer; width: 35px; height: 35px; border-radius: 10px; font-size: 14px; display:flex; align-items:center; justify-content:center; transition:0.2s;}
         .btn-edit:active { transform:scale(0.9); }
         
-        .btn-nabung { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 50px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 15px auto 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; }
-        .btn-nabung:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-
         .btn-danger-reset { display: none; width: 100%; padding: 15px; margin-top: 30px; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 11px; letter-spacing: 1px; }
 
-        .back-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 100;}
-        .btn-premium-back { background: #111; border: 1px solid #333; padding: 16px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--royal-blue); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .back-nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 350px; z-index: 1000;}
+        .btn-premium-back { background: rgba(10, 15, 25, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); padding: 14px 25px; border-radius: 50px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 13px; color: var(--cyan-logo); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--shadow-cyan); }
     </style>
 </head>
 <body>
 
-    <div id="loaderOverlay" style="position:fixed; inset:0; background:#000; z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <div style="width:40px; height:40px; border:4px solid #222; border-top:4px solid var(--royal-blue); border-radius:50%; animation:spin 1s infinite linear;"></div>
-        <div style="margin-top:15px; font-weight:800; color:var(--royal-blue); font-size:12px;">MEMUAT SISTEM...</div>
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <div id="loaderOverlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); backdrop-filter:blur(10px); z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="width:50px; height:50px; border:4px solid #222; border-top:4px solid var(--cyan-logo); border-radius:50%; animation:spin 1s infinite linear;"></div>
+        <div style="margin-top:20px; font-weight:900; color:var(--cyan-logo); font-size:12px; letter-spacing: 2px;">MEMUAT DATABASE...</div>
         <style>@keyframes spin{100%{transform:rotate(360deg)}}</style>
     </div>
 
     <div id="securityScreen">
         <div class="sec-icon-box"><div class="scan-laser"></div><i class="fas fa-wallet" id="secIcon"></i></div>
-        <div class="sec-title" id="secTitle" style="font-family:'Outfit'; font-weight:900; font-size:22px; color:var(--royal-blue);">DOMPET TABUNGAN</div>
-        <div class="sec-desc" id="secDesc" style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Keamanan 6 Digit PIN KC.</div>
+        <div class="sec-title" id="secTitle" style="font-family:'Outfit'; font-weight:900; font-size:24px; color:var(--cyan-logo); letter-spacing:1px; text-shadow:0 0 15px rgba(0,229,255,0.5);">DOMPET TABUNGAN</div>
+        <div class="sec-desc" id="secDesc" style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">Keamanan Berlapis KC.</div>
         
         <div class="camera-container" id="camWrap">
             <video id="videoInput" autoplay muted playsinline></video>
@@ -130,7 +162,7 @@
         </div>
 
         <button class="btn-action" id="btnMainAction" style="display:none;" onclick="handleAction()">MULAI SCAN</button>
-        <div id="scanStatus" style="font-size:12px; font-weight:800; color:var(--royal-blue); height:20px;"></div>
+        <div id="scanStatus" style="font-size:12px; font-weight:800; color:var(--cyan-logo); height:20px; letter-spacing:1px;"></div>
         
         <div class="pin-area" id="pinArea">
             <div class="pin-display"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
@@ -138,60 +170,60 @@
                 <div class="pin-key" onclick="pressPin(1)">1</div><div class="pin-key" onclick="pressPin(2)">2</div><div class="pin-key" onclick="pressPin(3)">3</div>
                 <div class="pin-key" onclick="pressPin(4)">4</div><div class="pin-key" onclick="pressPin(5)">5</div><div class="pin-key" onclick="pressPin(6)">6</div>
                 <div class="pin-key" onclick="pressPin(7)">7</div><div class="pin-key" onclick="pressPin(8)">8</div><div class="pin-key" onclick="pressPin(9)">9</div>
-                <div class="pin-key" style="color:var(--danger);" onclick="clearPin()">C</div>
+                <div class="pin-key" style="color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="clearPin()">C</div>
                 <div class="pin-key" onclick="pressPin(0)">0</div>
-                <div class="pin-key" style="color:var(--danger);" onclick="delPin()"><i class="fas fa-backspace"></i></div>
+                <div class="pin-key" style="color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="delPin()"><i class="fas fa-backspace"></i></div>
             </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:5px; width:100%; max-width:250px; margin-top:20px;" id="btnBawahKamera">
+        <div style="display:flex; flex-direction:column; gap:8px; width:100%; max-width:250px; margin-top:20px;" id="btnBawahKamera">
             <button class="btn-action btn-outline" id="btnSwitch" onclick="switchMode()">Gunakan PIN (6 Digit)</button>
-            <button class="btn-action btn-ghost" onclick="window.location.href='dashboard_kc.html'">BATAL / KEMBALI</button>
+            <button class="btn-action btn-ghost" onclick="window.location.href='dashboard_kc.html'">BATAL / KEMBALI KE DASHBOARD</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="customAlertModal" style="z-index: 30000;">
-        <div class="modal-box" style="padding: 30px;">
-            <div id="camTitle" style="font-family:'Outfit'; font-size:20px; color:var(--royal-blue); margin-bottom:10px; font-weight:900;"></div>
+        <div class="modal-box">
+            <div id="camTitle" style="font-family:'Outfit'; font-size:20px; color:var(--cyan-logo); margin-bottom:15px; font-weight:900; letter-spacing:1px;"></div>
             <div id="camMsg" style="font-size:13px; color:var(--text-main); margin-bottom:25px; line-height:1.6;"></div>
             <input type="password" id="camInput" class="form-input" style="display:none; margin-bottom:20px; text-align:center; font-size:20px; letter-spacing:5px;" placeholder="Password">
             <div style="display:flex; gap:10px;">
                 <button class="btn-submit bg-cancel" id="camBtnCancel">BATAL</button>
-                <button class="btn-submit bg-sukses" id="camBtnOk" style="background:var(--royal-blue); color:black;">OK</button>
+                <button class="btn-submit bg-sukses" id="camBtnOk">OK</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="agreeModal">
         <div class="modal-box">
-            <div style="font-family:'Outfit'; font-weight:900; font-size:18px; color:var(--royal-blue); margin-bottom:15px;">AKTIVASI DOMPET KC</div>
-            <div style="height:150px; overflow-y:auto; text-align:left; font-size:11px; color:#ccc; margin-bottom:20px; background:#000; border:1px solid #333; padding:15px; border-radius:12px;">
-                <b>PENTING:</b><br><br>1. PIN KHUSUS TABUNGAN (6 Digit).<br>2. BEDA DENGAN PIN LOGIN (4 Digit).<br>3. Wajah direkam sebagai kunci ganda.<br>4. Saldo Anda Dijamin Aman.
+            <div style="font-family:'Outfit'; font-weight:900; font-size:20px; color:var(--cyan-logo); margin-bottom:15px;">AKTIVASI DOMPET KC</div>
+            <div style="height:160px; overflow-y:auto; text-align:left; font-size:12px; color:#cbd5e1; margin-bottom:25px; background:#000; border:1px solid #333; padding:15px; border-radius:12px; line-height: 1.6;">
+                <b>PENTING:</b><br><br>1. PIN ini KHUSUS TABUNGAN (6 Digit).<br>2. BERBEDA DENGAN PIN LOGIN Aplikasi (4 Digit).<br>3. Wajah Anda akan direkam sebagai kunci ganda biometrik.<br>4. Sistem ini dikunci dan Saldo Anda Dijamin Aman 100%.
             </div>
-            <button class="btn-submit" style="background:var(--success); color:black;" onclick="acceptAgreement()">BUAT KUNCI SEKARANG</button>
+            <button class="btn-submit" style="background:var(--cyan-logo); color:black;" onclick="acceptAgreement()">BUAT KUNCI SEKARANG</button>
         </div>
     </div>
 
     <div id="mainApp">
         <div class="header-main">
             <h1 class="main-title">DOMPET TABUNGAN</h1>
-            <span class="sub-tag">Kelola masa depan finansialmu</span>
+            <span class="sub-tag">KARTIKA CHANDRA ASSETS</span>
         </div>
 
         <div class="tab-container">
             <button class="tab-btn active" onclick="switchTab('member')">SAYA</button>
-            <button class="tab-btn" onclick="switchTab('admin')" id="btnTabAdmin" style="display:none; color:var(--royal-blue); border:1px solid var(--royal-blue);">INPUT SETORAN</button>
-            <button class="tab-btn" onclick="switchTab('approval')" id="btnTabApprove" style="display:none; color:var(--warning); border:1px solid var(--warning);">VALIDASI</button>
+            <button class="tab-btn" onclick="switchTab('admin')" id="btnTabAdmin" style="display:none; color:var(--cyan-logo); border-color:rgba(0,229,255,0.3);">INPUT SETORAN</button>
+            <button class="tab-btn" onclick="switchTab('approval')" id="btnTabApprove" style="display:none; color:var(--yellow-logo); border-color:rgba(255,255,0,0.3);">VALIDASI</button>
         </div>
 
         <div id="viewMember" class="content-area active">
             
             <div class="saldo-card">
-                <button onclick="changePinSelf()" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); color:white; padding:5px 10px; border-radius:12px; font-size:9px; font-weight:800; cursor:pointer; border:1px solid rgba(255,255,255,0.2);">GANTI PIN</button>
-                <div style="font-size:10px; opacity:0.8; letter-spacing:2px; color:var(--text-muted);">SALDO PRIBADI SAYA</div>
-                <div class="saldo-val" id="myBalance" style="font-family:'Space Grotesk'; font-size:36px; font-weight:900; margin:10px 0; color: white;">Rp 0</div>
-                <div style="font-size:10px; font-weight:700; background:rgba(16,185,129,0.2); color:var(--success); padding:5px 10px; border-radius:20px; display:inline-block; border: 1px solid rgba(16,185,129,0.3);">
-                    <i class="fas fa-shield-alt"></i> TERVERIFIKASI
+                <button onclick="changePinSelf()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.1); color:white; padding:6px 12px; border-radius:8px; font-size:9px; font-weight:800; cursor:pointer; border:1px solid rgba(255,255,255,0.2); transition:0.2s;">GANTI KUNCI</button>
+                <div style="font-size:10px; opacity:0.8; letter-spacing:2px; color:var(--text-muted); font-weight: 800;">SALDO PRIBADI SAYA</div>
+                <div class="saldo-val" id="myBalance">Rp 0</div>
+                <div style="font-size:10px; font-weight:800; background:rgba(16,185,129,0.1); color:var(--success); padding:6px 12px; border-radius:8px; display:inline-block; border: 1px solid rgba(16,185,129,0.3); letter-spacing: 1px;">
+                    <i class="fas fa-shield-check"></i> SECURED ASSET
                 </div>
                 
                 <button class="btn-nabung" onclick="document.getElementById('modalQris').style.display='flex'">
@@ -202,9 +234,9 @@
             <div class="global-vault-card" id="globalVaultCard">
                 <div>
                     <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 5px;">
-                        <i class="fas fa-globe" style="color: var(--royal-blue);"></i> TOTAL ASET KC
+                        <i class="fas fa-globe" style="color: var(--cyan-logo);"></i> TOTAL ASET KC (GLOBAL)
                     </div>
-                    <div id="globalBalance" style="font-family: 'Space Grotesk'; font-size: 22px; font-weight: 900; color: var(--success); letter-spacing: 0.5px;">
+                    <div id="globalBalance" style="font-family: 'Space Grotesk'; font-size: 24px; font-weight: 900; color: var(--success); letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(16,185,129,0.3);">
                         <i class="fas fa-spinner fa-spin" style="font-size:16px;"></i> Menghitung...
                     </div>
                 </div>
@@ -213,21 +245,21 @@
                 </div>
             </div>
 
-            <button onclick="document.getElementById('videoModal').style.display='flex'" style="width: 100%; margin-bottom: 20px; padding: 15px; border-radius: 16px; border: 1px solid #333; font-family: 'Outfit'; font-weight: 800; font-size: 13px; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; background: #111; cursor: pointer; transition: 0.2s;">
-                <i class="fab fa-tiktok" style="font-size: 20px; color: #fff; filter: drop-shadow(2px 0px 0px #00f2fe) drop-shadow(-2px 0px 0px #fe0979);"></i> LIHAT TUTORIAL MENABUNG
+            <button onclick="document.getElementById('videoModal').style.display='flex'" style="width: 100%; margin-bottom: 20px; padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Outfit'; font-weight: 800; font-size: 13px; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(5,11,20,0.8); box-shadow: 0 10px 20px rgba(0,0,0,0.5); cursor: pointer; transition: 0.2s;">
+                <i class="fab fa-tiktok" style="font-size: 20px; color: #fff; filter: drop-shadow(2px 0px 0px var(--cyan-logo)) drop-shadow(-2px 0px 0px #fe0979);"></i> LIHAT TUTORIAL MENABUNG
             </button>
             
-            <div style="font-family:'Outfit'; font-size:16px; font-weight:800; color:white; margin-bottom:15px; padding-left:5px;">Mutasi Terakhir</div>
+            <div style="font-family:'Outfit'; font-size:16px; font-weight:800; color:var(--cyan-logo); margin-bottom:15px; padding-left:5px; border-left: 3px solid var(--cyan-logo);">Mutasi Terakhir</div>
             <div class="trx-list" id="historyList">
                 <div style="text-align:center; padding:30px; color:#94A3B8; font-size:12px;">Memuat riwayat...</div>
             </div>
         </div>
 
         <div id="viewAdmin" class="content-area">
-            <div style="background:rgba(212,255,0,0.1); padding:15px; border-radius:16px; border:1px solid rgba(212,255,0,0.2); font-size:11px; color:var(--royal-blue); margin-bottom:20px;">
-                <b>AREA PENGURUS:</b> Gunakan tombol IKON KUNCI untuk melakukan Reset PIN / Wajah member.
+            <div style="background:rgba(0,229,255,0.05); padding:15px; border-radius:16px; border:1px dashed rgba(0,229,255,0.3); font-size:11px; color:var(--cyan-logo); margin-bottom:20px; line-height: 1.5;">
+                <b>AREA PENGURUS:</b> Gunakan tombol IKON KUNCI untuk melakukan Reset Keamanan (PIN/Face ID) member yang lupa sandi.
             </div>
-            <input type="text" id="searchMem" class="form-input" placeholder="Cari Nama / Plat Anggota..." style="margin-bottom:15px;" onkeyup="filterMembers()">
+            <input type="text" id="searchMem" class="form-input" placeholder="Cari Nama / Plat Anggota..." style="margin-bottom:15px; background: rgba(0,0,0,0.5);" onkeyup="filterMembers()">
             <div id="adminMemberList"></div>
 
             <button id="btnResetData" class="btn-danger-reset" onclick="resetAllSystem()">
@@ -246,8 +278,8 @@
 
     <div class="modal-overlay" id="modalDeposit">
         <div class="modal-box">
-            <h3 style="margin-top:0; color:var(--royal-blue); font-family:'Outfit'; font-size:20px; margin-bottom:5px;">INPUT SETORAN</h3>
-            <p id="depMemberName" style="font-size:12px; color:var(--text-muted); margin-bottom:25px; font-weight:700; border-bottom:1px solid #333; padding-bottom:10px;"></p>
+            <h3 style="margin-top:0; color:var(--cyan-logo); font-family:'Outfit'; font-size:20px; margin-bottom:5px;">INPUT SETORAN MANUAL</h3>
+            <p id="depMemberName" style="font-size:12px; color:white; margin-bottom:25px; font-weight:800; border-bottom:1px dashed #333; padding-bottom:10px;"></p>
             <input type="hidden" id="depMemberId">
             <div class="form-group"><label class="form-label">Nominal (Rp)</label><input type="number" id="depAmount" class="form-input" placeholder="Contoh: 20000"></div>
             <div style="display:flex; gap:10px;"><button class="btn-submit bg-cancel" onclick="document.getElementById('modalDeposit').style.display='none'">BATAL</button><button class="btn-submit bg-sukses" onclick="processDeposit()">SIMPAN DATA</button></div>
@@ -260,29 +292,32 @@
     </div>
 
     <div class="modal-overlay" id="modalEditTrx" style="z-index: 20000;">
-        <div class="modal-box">
+        <div class="modal-box" style="border-color: var(--warning);">
             <h3 style="margin-top:0; color:var(--warning); font-family:'Outfit'; font-size:18px;">KOREKSI NOMINAL</h3>
             <input type="hidden" id="editTrxId"><input type="hidden" id="editOldAmount">
-            <div class="form-group"><label class="form-label">Nominal Baru (Rp)</label><input type="number" id="editNewAmount" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Nominal Baru (Rp)</label><input type="number" id="editNewAmount" class="form-input" style="border-color: rgba(245,158,11,0.5);"></div>
             <div style="display:flex; gap:10px;"><button class="btn-submit bg-cancel" onclick="document.getElementById('modalEditTrx').style.display='none'">BATAL</button><button class="btn-submit" style="background:var(--warning); color:black;" onclick="saveEditTrx()">UPDATE</button></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalQris">
         <div class="modal-box" style="text-align:left;">
-            <h3 style="margin-top:0; font-family:'Outfit'; color:var(--royal-blue); text-align:center;">FORM PENGAJUAN SETORAN</h3>
+            <h3 style="margin-top:0; font-family:'Outfit'; color:var(--cyan-logo); text-align:center;">FORM PENGAJUAN SETORAN</h3>
             <div class="form-group">
-                <label class="form-label">1. Masukkan Nominal (Bulat)</label>
+                <label class="form-label">1. Masukkan Nominal Pokok (Bulat)</label>
                 <input type="number" id="inputNabungBase" class="form-input" placeholder="Contoh: 50000" onkeyup="calcTotalTransfer()" onchange="calcTotalTransfer()">
             </div>
-            <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:15px; border-radius:12px; text-align:center; margin-bottom:15px;">
-                <div style="font-size:11px; color:var(--success); font-weight:800;">JUMLAH YANG HARUS DI TRANSFER:</div>
-                <div id="totalNabungTxt" style="font-family:'Space Grotesk'; font-size:32px; font-weight:900; color:white; margin:5px 0;">Rp 0</div>
-                <div style="font-size:10px; color:var(--success);">(Sudah termasuk Kode Unik Anda: <b id="kodeUnikTxt">***</b>)</div>
+            
+            <div style="background:rgba(0,229,255,0.05); border:1px dashed rgba(0,229,255,0.3); padding:15px; border-radius:16px; text-align:center; margin-bottom:20px;">
+                <div style="font-size:11px; color:var(--text-muted); font-weight:800;">JUMLAH YANG HARUS DI TRANSFER:</div>
+                <div id="totalNabungTxt" style="font-family:'Space Grotesk'; font-size:36px; font-weight:900; color:white; margin:8px 0; text-shadow: 0 0 15px rgba(0,229,255,0.3);">Rp 0</div>
+                <div style="font-size:10px; color:var(--cyan-logo);">(Sudah termasuk Kode Unik Anda: <b id="kodeUnikTxt">***</b>)</div>
             </div>
-            <div style="border:2px dashed #333; padding:10px; border-radius:10px; margin-bottom:15px; background: #000;">
-                <img src="qris_kc.jpg" style="width:100%; border-radius:5px;" alt="QRIS KC" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:20px; color:#EF4444; font-weight:bold; text-align:center;\'>qris_kc.jpg tidak ditemukan.</div>'">
+            
+            <div style="border:1px solid #333; padding:15px; border-radius:16px; margin-bottom:20px; background: #000;">
+                <img src="qris_kc.jpg" style="width:100%; border-radius:8px;" alt="QRIS KC" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:20px; color:#EF4444; font-weight:bold; text-align:center;\'>Gambar qris_kc.jpg tidak ditemukan.</div>'">
             </div>
+            
             <div style="display:flex; gap:10px;">
                 <button class="btn-submit bg-cancel" onclick="document.getElementById('modalQris').style.display='none'">BATAL</button>
                 <button class="btn-submit bg-sukses" onclick="submitKlaimNabung()">KONFIRMASI TRANSFER</button>
@@ -293,10 +328,10 @@
     <div class="modal-overlay" id="videoModal" style="z-index: 25000;">
         <div class="modal-box" style="padding: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <div style="font-family:'Outfit'; font-weight:900; color:var(--royal-blue); font-size: 16px;"><i class="fab fa-tiktok"></i> TUTORIAL SETORAN</div>
-                <button onclick="document.getElementById('videoModal').style.display='none'" style="background:rgba(239,68,68,0.1); color:var(--danger); border:none; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer;"><i class="fas fa-times"></i></button>
+                <div style="font-family:'Outfit'; font-weight:900; color:white; font-size: 16px;"><i class="fab fa-tiktok" style="color:var(--cyan-logo);"></i> TUTORIAL SETORAN</div>
+                <button onclick="document.getElementById('videoModal').style.display='none'" style="background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid rgba(239,68,68,0.3); width:35px; height:35px; border-radius:10px; font-size:16px; cursor:pointer;"><i class="fas fa-times"></i></button>
             </div>
-            <div style="position: relative; width: 100%; max-width: 320px; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 2px solid #333; background: #000;">
+            <div style="position: relative; width: 100%; max-width: 320px; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000;">
                 <iframe style="width: 100%; height: 500px; display: block;" src="https://www.tiktok.com/embed/v2/7616071100727971092" title="Tutorial Menabung MLU" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <button class="btn-submit bg-cancel" style="margin-top:15px; font-weight: 800;" onclick="document.getElementById('videoModal').style.display='none'">TUTUP VIDEO</button>
@@ -328,49 +363,27 @@
         const cleanPlat = myPlat.replace(/\s+/g, '').toUpperCase();
 
         // ==============================================================
+        // SISTEM HIERARKI KEPENGURUSAN UNTUK KODE UNIK & SORTING
+        // ==============================================================
+        const hierarchy = { "KETUA UMUM": 1, "WAKIL KETUA": 2, "PEMBINA": 3, "PENASEHAT": 4, "SEKRETARIS": 5, "BENDAHARA": 6, "HUMAS INTERNAL": 7, "HUMAS EKSTERNAL": 8, "KREATOR": 9, "URC KC": 10, "URC": 10, "MEMBER": 11 };
+        const getRank = (role) => { if(!role) return 11; const r = role.toUpperCase(); return hierarchy[r] || 12; };
+
+        // ==============================================================
         // SISTEM KEAMANAN DEWA (STRICT WHITELIST)
-        // Hanya 4 plat ini yang diizinkan untuk melihat, mengedit, 
-        // dan menyetujui tabungan seluruh member.
+        // Hanya plat ini yang diizinkan untuk mengelola / memvalidasi
         // ==============================================================
         const theGods = [
-            "B4124SWI", // Agus Sukmana
+            "B4124SWI", // Agus Sukmana (Ketua)
             "B4426SWF", // Rifky alfiansyah
             "B4959SWF", // Alfian
-            "B4248SWF"  // Super Admin
+            "B4248SWF"  // Super Admin Ghost
         ];
 
-        const isTrueAdmin = theGods.includes(cleanPlat);
-        const isSuperAdmin = (cleanPlat === "B4248SWF");
-        // isViewAdminVisible tidak diperlukan lagi untuk fitur "Stealth", 
-        // admin selalu melihat menu admin jika platnya valid.
+        const isTrueAdmin = theGods.includes(cleanPlat) || uData.id === "ghost_admin";
+        const isSuperAdmin = (cleanPlat === "B4248SWF" || uData.id === "ghost_admin");
         
         let userFaceDesc = null; let userPinTabungan = null; let isSetupMode = false; let isFaceMode = true; let stream = null; let videoEl = document.getElementById('videoInput'); let detectInterval = null; let currentPinInput = "";
-        window.myKodeUnik = 0;
-
-        // UI Helpers
-        window.showConfirm = (title, msg, isPrompt = false) => {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('customAlertModal');
-                document.getElementById('camTitle').innerHTML = title; document.getElementById('camMsg').innerHTML = msg;
-                const input = document.getElementById('camInput'); const btnCancel = document.getElementById('camBtnCancel'); const btnOk = document.getElementById('camBtnOk');
-                if(isPrompt) { input.style.display = 'block'; input.value = ''; input.focus(); } else { input.style.display = 'none'; }
-                btnCancel.style.display = 'block'; btnOk.style.background = 'var(--royal-blue)'; btnOk.style.color = 'black';
-                modal.style.display = 'flex';
-                btnCancel.onclick = () => { modal.style.display = 'none'; resolve(false); };
-                btnOk.onclick = () => { modal.style.display = 'none'; resolve(isPrompt ? input.value : true); };
-            });
-        };
-
-        window.showAlert = (title, msg) => {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('customAlertModal');
-                document.getElementById('camTitle').innerHTML = title; document.getElementById('camMsg').innerHTML = msg;
-                document.getElementById('camInput').style.display = 'none'; document.getElementById('camBtnCancel').style.display = 'none';
-                document.getElementById('camBtnOk').style.background = 'var(--success)'; document.getElementById('camBtnOk').style.color = 'white';
-                modal.style.display = 'flex';
-                document.getElementById('camBtnOk').onclick = () => { modal.style.display = 'none'; resolve(true); };
-            });
-        };
+        window.myKodeUnik = 999; // Default Fallback
 
         // Failsafe Loading Face API
         Promise.all([
@@ -383,10 +396,10 @@
             if(isTrueAdmin) listenGlobalSaldo(); 
         }).catch((err) => { 
             document.getElementById('loaderOverlay').style.display = 'none';
-            showAlert("ERROR", "Gagal memuat sistem Keamanan Wajah. Coba gunakan koneksi WiFi atau refresh ulang."); 
+            showCustomAlert("ERROR", "Gagal memuat sistem Keamanan Wajah. Coba gunakan koneksi WiFi atau refresh ulang.", "error"); 
         });
 
-        // ------------------ ISOLASI DATA (KHUSUS DEWA) ------------------
+        // ------------------ ISOLASI DATA GLOBAL (KHUSUS DEWA) ------------------
         function listenGlobalSaldo() {
             document.getElementById('globalVaultCard').style.display = 'flex';
             onSnapshot(collection(db, "anggota"), (snap) => {
@@ -396,17 +409,47 @@
             });
         }
 
+        // ==============================================================
+        // LOGIKA KODE UNIK DINAMIS BERDASARKAN HIERARKI
+        // ==============================================================
+        async function calculateKodeUnik() {
+            try {
+                const snap = await getDocs(collection(db, "anggota"));
+                let allM = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    // Abaikan Ghost Admin dari perhitungan nomor urut
+                    if(data.plat && data.plat.replace(/\s+/g, '').toUpperCase() !== "B4248SWF") {
+                        allM.push({id: d.id, ...data});
+                    }
+                });
+
+                // Urutkan berdasarkan Jabatan lalu Nama
+                allM.sort((a,b) => {
+                    const rankA = getRank(a.role); const rankB = getRank(b.role);
+                    if (rankA !== rankB) return rankA - rankB;
+                    return (a.namaKtp || a.nama || "").localeCompare(b.namaKtp || b.nama || "");
+                });
+                
+                let idx = allM.findIndex(m => m.id === userId);
+                if(idx === -1) idx = allM.length; // Jika tidak ada, taruh di paling bawah
+                
+                window.myKodeUnik = idx + 1; // Index 0 jadi 1 (Agus Ketum = 001)
+                document.getElementById('kodeUnikTxt').innerText = window.myKodeUnik.toString().padStart(3, '0');
+            } catch(e) {
+                console.log("Gagal hitung kode unik: ", e);
+                window.myKodeUnik = 999;
+                document.getElementById('kodeUnikTxt').innerText = "999";
+            }
+        }
+
         function checkUserStatus() {
-            onSnapshot(doc(db, "anggota", userId), (docSnap) => {
+            onSnapshot(doc(db, "anggota", userId), async (docSnap) => {
                 if(docSnap.exists()) {
                     const d = docSnap.data();
-                    if(d.kodeUnik === undefined) {
-                        const newCode = Math.floor(Math.random() * 899) + 100;
-                        updateDoc(doc(db, "anggota", userId), { kodeUnik: newCode });
-                        return;
-                    }
-                    window.myKodeUnik = d.kodeUnik;
-                    document.getElementById('kodeUnikTxt').innerText = myKodeUnik;
+                    
+                    // Hitung dan dapatkan Kode Unik Dinamis berdasarkan Hierarki
+                    await calculateKodeUnik();
 
                     // HIDE LOADER KARENA DATA BERHASIL DITEMUKAN
                     document.getElementById('loaderOverlay').style.display = 'none';
@@ -417,7 +460,7 @@
                     if(isTrueAdmin) {
                         document.getElementById('btnTabAdmin').style.display = 'block';
                         document.getElementById('btnTabApprove').style.display = 'block';
-                        document.getElementById('adminIndicator').style.display = 'block';
+                        document.getElementById('adminIndicator') ? document.getElementById('adminIndicator').style.display = 'block' : null;
                         initAdminData();
                     }
                     if(isSuperAdmin) document.getElementById('btnResetData').style.display = 'block';
@@ -430,17 +473,14 @@
                     } else { isSetupMode = true; showActivationScreen(); }
                 } else {
                     document.getElementById('loaderOverlay').style.display = 'none';
-                    showAlert("AKUN TIDAK DITEMUKAN", "Sistem tidak dapat menemukan data tabungan Anda. Silakan hubungi pengurus.");
+                    showCustomAlert("AKUN TIDAK DITEMUKAN", "Sistem tidak dapat menemukan data tabungan Anda. Silakan hubungi pengurus.", "error");
                 }
             }, (error) => {
                 document.getElementById('loaderOverlay').style.display = 'none';
-                showAlert("KONEKSI GAGAL", "Gagal menyambung ke server database KC.");
+                showCustomAlert("KONEKSI GAGAL", "Gagal menyambung ke server database KC.", "error");
             });
         }
 
-        // ==============================================================
-        // SISA FUNGSI STANDAR (TIDAK BERUBAH)
-        // ==============================================================
         window.calcTotalTransfer = () => {
             let base = parseInt(document.getElementById('inputNabungBase').value) || 0;
             if(base === 0) { document.getElementById('totalNabungTxt').innerText = "Rp 0"; return; }
@@ -449,27 +489,27 @@
 
         window.submitKlaimNabung = async () => {
             let base = parseInt(document.getElementById('inputNabungBase').value);
-            if(!base || base < 5000) return showAlert("PERHATIAN", "Setoran minimal Rp 5.000");
+            if(!base || base < 5000) return showCustomAlert("PERHATIAN", "Setoran minimal Rp 5.000", "error");
             let total = base + window.myKodeUnik;
 
-            const konfirm = await showConfirm("KONFIRMASI", `Apakah Anda sudah berhasil transfer dana sebesar <b style="color:var(--success);">Rp ${total.toLocaleString('id-ID')}</b> ke QRIS KC?<br><br><span style='color:var(--danger); font-size:11px;'>*Bukti palsu akan otomatis ditolak oleh sistem Admin.</span>`);
+            const konfirm = await showCustomConfirm("KONFIRMASI TRANSFER", `Apakah Anda sudah berhasil transfer dana sebesar <b style="color:var(--cyan-logo);">Rp ${total.toLocaleString('id-ID')}</b> ke QRIS KC?<br><br><span style='color:var(--danger); font-size:11px;'>*Bukti palsu akan otomatis ditolak dan dapat diberikan sanksi.</span>`);
             if(konfirm) {
                 await addDoc(collection(db, "tabungan_trx"), {
                     memberId: userId, memberName: myName,
                     type: 'IN', amount: total, desc: 'Pengajuan Setoran (App)', timestamp: Date.now(), status: 'PENDING'
                 });
-                await showAlert("SUKSES", "Pengajuan berhasil dikirim! Saldo akan masuk setelah divalidasi oleh Admin.");
+                await showCustomAlert("SUKSES", "Pengajuan berhasil dikirim! Saldo akan masuk setelah divalidasi oleh Admin.", "success");
                 document.getElementById('modalQris').style.display = 'none';
                 document.getElementById('inputNabungBase').value = ''; calcTotalTransfer();
             }
         }
 
         window.resetAllSystem = async () => {
-            const konf1 = await showConfirm("⚠️ PERINGATAN KERAS", "Anda akan <b style='color:var(--danger);'>MENGHAPUS SEMUA DATA SALDO & RIWAYAT MUTASI</b> seluruh member. Tindakan ini tidak bisa di-undo.");
+            const konf1 = await showCustomConfirm("⚠️ PERINGATAN KERAS", "Anda akan <b style='color:var(--danger);'>MENGHAPUS SEMUA DATA SALDO & RIWAYAT MUTASI</b> seluruh member. Tindakan ini tidak bisa di-undo.");
             if(!konf1) return;
             
-            let pass = await showConfirm("OTORISASI", "MASUKKAN PASSWORD KONFIRMASI:", true);
-            if(pass !== "KC2026") return showAlert("GAGAL", "Password Akses Salah!");
+            let pass = await showCustomConfirm("OTORISASI DEWA", "Masukkan Password Master Super Admin:", true);
+            if(pass !== "KC2026") return showCustomAlert("AKSES DITOLAK", "Password Akses Salah!", "error");
 
             document.getElementById('loaderOverlay').style.display = 'flex';
             try {
@@ -479,8 +519,9 @@
                 const trxSnap = await getDocs(collection(db, "tabungan_trx"));
                 trxSnap.forEach(doc => { promises.push(deleteDoc(doc.ref)); });
                 await Promise.all(promises);
-                await showAlert("SUKSES", "Seluruh Saldo dan Riwayat Mutasi telah di-reset ke Nol."); location.reload();
-            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showAlert("ERROR", e.message); }
+                await showCustomAlert("SUKSES", "Seluruh Saldo dan Riwayat Mutasi KC telah di-reset ke Nol.", "success"); 
+                location.reload();
+            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showCustomAlert("ERROR", e.message, "error"); }
         }
 
         function showActivationScreen() { document.getElementById('agreeModal').style.display = 'flex'; }
@@ -522,7 +563,25 @@
         };
 
         function stopCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); if (detectInterval) clearInterval(detectInterval); document.getElementById('faceFrame').classList.remove('scanning'); }
-        window.switchMode = () => { isFaceMode = !isFaceMode; if (isFaceMode) { startCamera(); document.getElementById('btnSwitch').innerText = "Gunakan PIN (6 Digit)"; document.getElementById('btnSwitch').classList.add('btn-outline'); document.getElementById('btnSwitch').style.background='rgba(212,255,0,0.05)'; document.getElementById('btnSwitch').style.color='var(--royal-blue)'; } else { stopCamera(); document.getElementById('camWrap').style.display = 'none'; document.getElementById('pinArea').style.display = 'flex'; document.getElementById('btnSwitch').innerText = "Gunakan Face ID"; document.getElementById('btnSwitch').classList.remove('btn-outline'); document.getElementById('btnSwitch').style.background='var(--royal-blue)'; document.getElementById('btnSwitch').style.color='black'; } };
+        window.switchMode = () => { 
+            isFaceMode = !isFaceMode; 
+            if (isFaceMode) { 
+                startCamera(); 
+                document.getElementById('btnSwitch').innerText = "Gunakan PIN (6 Digit)"; 
+                document.getElementById('btnSwitch').classList.add('btn-outline'); 
+                document.getElementById('btnSwitch').style.background='rgba(0,229,255,0.05)'; 
+                document.getElementById('btnSwitch').style.color='var(--cyan-logo)'; 
+            } else { 
+                stopCamera(); 
+                document.getElementById('camWrap').style.display = 'none'; 
+                document.getElementById('pinArea').style.display = 'flex'; 
+                document.getElementById('btnSwitch').innerText = "Gunakan Face ID"; 
+                document.getElementById('btnSwitch').classList.remove('btn-outline'); 
+                document.getElementById('btnSwitch').style.background='var(--cyan-logo)'; 
+                document.getElementById('btnSwitch').style.color='black'; 
+            } 
+        };
+        
         window.pressPin = (n) => { if (currentPinInput.length < 6) { currentPinInput += n; updatePinDots(); if (currentPinInput.length === 6) window.processPin(); } };
         window.delPin = () => { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); };
         window.clearPin = () => { currentPinInput = ""; updatePinDots(); };
@@ -530,13 +589,14 @@
         
         window.processPin = async () => {
             if (isSetupMode) {
-                const conf = await showConfirm("SIMPAN PIN", `Jadikan <b style="color:var(--royal-blue);">${currentPinInput}</b> sebagai PIN Tabungan KC Anda?`);
+                const conf = await showCustomConfirm("SIMPAN PIN", `Jadikan <b style="color:var(--cyan-logo);">${currentPinInput}</b> sebagai PIN Tabungan KC Anda?`);
                 if(conf) {
                     const faceObj = { ...userFaceDesc }; 
                     updateDoc(doc(db, "anggota", userId), { faceDescriptor: faceObj, pin_tabungan: currentPinInput }).then(() => { unlockApp(); });
                 } else { window.clearPin(); }
             } else {
-                if (currentPinInput === userPinTabungan) unlockApp(); else { await showAlert("AKSES DITOLAK", "PIN yang Anda masukkan Salah!"); window.clearPin(); }
+                if (currentPinInput === userPinTabungan) unlockApp(); 
+                else { await showCustomAlert("AKSES DITOLAK", "PIN yang Anda masukkan Salah!", "error"); window.clearPin(); }
             }
         }
         function unlockApp() { document.getElementById('securityScreen').style.opacity = 0; setTimeout(() => { document.getElementById('securityScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }, 500); }
@@ -544,7 +604,14 @@
         function initAdminData() {
             onSnapshot(query(collection(db, "anggota")), (snap) => {
                 let allMembers = []; snap.forEach(d => allMembers.push({id:d.id, ...d.data()}));
-                allMembers.sort((a,b) => ((a.namaKtp||a.nama||'').localeCompare(b.namaKtp||b.nama||'')));
+                
+                // Sorting Anggota Admin juga menyesuaikan dengan Hierarki Jabatan
+                allMembers.sort((a,b) => {
+                    const rankA = getRank(a.role); const rankB = getRank(b.role);
+                    if (rankA !== rankB) return rankA - rankB;
+                    return (a.namaKtp||a.nama||'').localeCompare(b.namaKtp||b.nama||'');
+                });
+                
                 window.allMembersCache = allMembers;
                 
                 const searchKey = document.getElementById('searchMem').value;
@@ -564,14 +631,14 @@
                     cont.innerHTML += `
                     <div class="app-card" style="border-left:5px solid ${color}">
                         <div><div style="font-size:10px; color:#64748B;">${new Date(data.timestamp).toLocaleString('id-ID')}</div><h4 style="margin:5px 0; color:white;">${data.memberName}</h4><div style="font-size:11px; color:#64748B;">${titleText}</div><div style="font-family:'Space Grotesk'; font-weight:900; font-size:16px; color:${color};">Rp ${data.amount.toLocaleString('id-ID')}</div></div>
-                        <div style="display:flex; flex-direction:column; gap:5px;"><button class="btn-submit" style="background:${color}; color:${isNabung?'white':'white'}; padding:8px 15px; margin:0;" onclick="window.approveKlaim('${data.id}', '${data.type}', ${data.amount}, '${data.memberId}')">VALIDASI</button><button class="btn-submit bg-cancel" style="padding:8px 15px; margin:0;" onclick="window.rejectKlaim('${data.id}')">TOLAK</button></div>
+                        <div style="display:flex; flex-direction:column; gap:5px;"><button class="btn-submit" style="background:${color}; color:${isNabung?'white':'white'}; padding:8px 15px; margin:0;" onclick="window.approveKlaim('${data.id}', '${data.type}', ${data.amount}, '${data.memberId}')">VALIDASI</button><button class="btn-submit bg-cancel" style="padding:8px 15px; margin:0; border:1px solid #333;" onclick="window.rejectKlaim('${data.id}')">TOLAK</button></div>
                     </div>`;
                 });
             });
         }
 
         window.approveKlaim = async (trxId, type, amount, memberId) => {
-            const konf = await showConfirm("VALIDASI TRANSAKSI", "Anda yakin dana sudah berhasil masuk ke rekening/QRIS KC dan sesuai nominal?");
+            const konf = await showCustomConfirm("VALIDASI TRANSAKSI", "Anda yakin dana sudah berhasil masuk ke rekening/QRIS KC dan sesuai nominal?");
             if(!konf) return;
             await runTransaction(db, async(t) => {
                 const r = doc(db, "tabungan_trx", trxId);
@@ -581,36 +648,48 @@
                 if (type === 'IN') currentSaldo += amount; else if (type === 'OUT') currentSaldo -= amount; 
                 t.update(mRef, { tabungan: currentSaldo }); t.update(r, { status: 'SUCCESS' });
             });
-            showAlert("BERHASIL", "Setoran divalidasi. Saldo tabungan member telah bertambah otomatis.");
+            showCustomAlert("BERHASIL", "Setoran divalidasi. Saldo tabungan member telah bertambah otomatis.", "success");
         }
 
         window.rejectKlaim = async (trxId) => {
-            const konf = await showConfirm("TOLAK PENGAJUAN", "Tolak pengajuan setoran ini? Data pengajuan akan dihapus secara permanen.");
+            const konf = await showCustomConfirm("TOLAK PENGAJUAN", "Tolak pengajuan setoran ini? Data pengajuan akan dihapus secara permanen.");
             if(!konf) return;
             await deleteDoc(doc(db, "tabungan_trx", trxId));
-            showAlert("INFO", "Pengajuan setoran telah ditolak dan dihapus dari antrean.");
+            showCustomAlert("INFO", "Pengajuan setoran telah ditolak dan dihapus dari antrean.", "success");
         }
 
         window.renderMembers = (arr) => {
             const cont = document.getElementById('adminMemberList'); cont.innerHTML = "";
-            arr.forEach(m => {
+            arr.forEach((m, i) => {
                 const namaTampil = m.namaKtp || m.nama || 'TANPA NAMA';
                 const saldoMember = m.tabungan ? m.tabungan.toLocaleString('id-ID') : '0';
+                
+                // Urutan index (i) ini persis merepresentasikan Kode Unik!
+                const noUrut = String(i + 1).padStart(3, '0');
+                
                 cont.innerHTML += `
                 <div class="member-row">
-                    <div><div class="m-name" style="font-family:'Outfit'; font-size:14px; font-weight:800;">${namaTampil}</div><div class="m-plat" style="font-size:11px; color:#94A3B8; margin-top:2px;">${m.plat||'-'}</div><div style="font-size:12px; color:var(--success); font-weight:900; font-family:'Space Grotesk'; margin-top:4px;">Rp ${saldoMember}</div></div>
-                    <div style="display:flex;"><button class="btn-reset" onclick="window.resetMember('${m.id}', '${namaTampil}')"><i class="fas fa-key"></i></button><button class="btn-plus" onclick="document.getElementById('modalDeposit').style.display='flex'; document.getElementById('depMemberId').value='${m.id}'; document.getElementById('depMemberName').innerText='${namaTampil}'; window.loadAdminRecentTrx('${m.id}');"><i class="fas fa-plus"></i></button></div>
+                    <div>
+                        <div class="m-name" style="font-family:'Outfit'; font-size:14px; font-weight:800; color:var(--text-main);">${namaTampil}</div>
+                        <div style="font-size:10px; color:var(--cyan-logo); margin-top:2px;">[ Kode Unik: ${noUrut} ]</div>
+                        <div class="m-plat" style="font-size:11px; color:#94A3B8; margin-top:2px;">${m.plat||'-'}</div>
+                        <div style="font-size:12px; color:var(--success); font-weight:900; font-family:'Space Grotesk'; margin-top:4px;">Rp ${saldoMember}</div>
+                    </div>
+                    <div style="display:flex;">
+                        <button class="btn-reset" onclick="window.resetMember('${m.id}', '${namaTampil}')"><i class="fas fa-key"></i></button>
+                        <button class="btn-plus" onclick="document.getElementById('modalDeposit').style.display='flex'; document.getElementById('depMemberId').value='${m.id}'; document.getElementById('depMemberName').innerText='${namaTampil}'; window.loadAdminRecentTrx('${m.id}');"><i class="fas fa-plus"></i></button>
+                    </div>
                 </div>`;
             });
         }
 
         window.resetMember = async (id, name) => {
-            const konf = await showConfirm("RESET KEAMANAN", `Anda yakin ingin me-reset Wajah (Face ID) & PIN milik <b style="color:var(--royal-blue);">${name}</b>?`);
-            if(konf) updateDoc(doc(db, "anggota", id), { pin_tabungan: null, faceDescriptor: null }).then(() => showAlert("SUKSES", "Keamanan akun tersebut berhasil di-reset."));
+            const konf = await showCustomConfirm("RESET KEAMANAN", `Anda yakin ingin me-reset Wajah (Face ID) & PIN milik <b style="color:var(--cyan-logo);">${name}</b>?`);
+            if(konf) updateDoc(doc(db, "anggota", id), { pin_tabungan: null, faceDescriptor: null }).then(() => showCustomAlert("SUKSES", "Keamanan akun tersebut berhasil di-reset.", "success"));
         };
 
         window.changePinSelf = async () => {
-            const konf = await showConfirm("UBAH SISTEM KEAMANAN", "Anda akan menghapus Data Wajah & PIN lama. Anda akan diminta untuk mendaftarkan Wajah/PIN baru pada saat login berikutnya. Lanjutkan?");
+            const konf = await showCustomConfirm("UBAH SISTEM KEAMANAN", "Anda akan menghapus Data Wajah & PIN lama. Anda akan diminta untuk mendaftarkan ulang pada saat login berikutnya. Lanjutkan?");
             if(konf) updateDoc(doc(db, "anggota", userId), { pin_tabungan: null, faceDescriptor: null }).then(() => location.reload());
         }
 
@@ -618,7 +697,7 @@
         
         window.loadAdminRecentTrx = async (memberId) => {
             const cont = document.getElementById('adminRecentTrx');
-            cont.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin" style="font-size:24px; color:var(--royal-blue);"></i></div>';
+            cont.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin" style="font-size:24px; color:var(--cyan-logo);"></i></div>';
             
             const q = query(collection(db, "tabungan_trx"), where("memberId", "==", memberId));
             const snap = await getDocs(q);
@@ -664,11 +743,11 @@
         }
 
         window.deleteTrx = async (trxId, amount, type, memberId) => {
-            const konf1 = await showConfirm("HAPUS MUTASI", "Yakin ingin menghapus data transaksi ini secara permanen?<br><br><span style='color:var(--danger);'>Peringatan: Saldo tabungan member akan otomatis disesuaikan (dikurangi/ditambah).</span>");
+            const konf1 = await showCustomConfirm("HAPUS MUTASI", "Yakin ingin menghapus data transaksi ini secara permanen?<br><br><span style='color:var(--danger);'>Peringatan: Saldo tabungan member akan otomatis disesuaikan.</span>");
             if(!konf1) return;
 
-            const pass = await showConfirm("OTORISASI ADMIN", "Masukkan Password Admin (Wajib):", true);
-            if(pass !== "KC2026") return showAlert("AKSES DITOLAK", "Password Administrator Salah!");
+            const pass = await showCustomConfirm("OTORISASI ADMIN", "Masukkan Password Master Admin (Wajib):", true);
+            if(pass !== "KC2026") return showCustomAlert("AKSES DITOLAK", "Password Administrator Salah!", "error");
 
             document.getElementById('loaderOverlay').style.display = 'flex';
             try {
@@ -685,9 +764,9 @@
                     t.delete(trxRef);
                 });
                 document.getElementById('loaderOverlay').style.display = 'none';
-                await showAlert("BERHASIL", "Data Transaksi berhasil dihapus dan Saldo member telah dikoreksi secara otomatis.");
+                await showCustomAlert("BERHASIL", "Data Transaksi berhasil dihapus dan Saldo member telah dikoreksi.", "success");
                 window.loadAdminRecentTrx(memberId); 
-            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showAlert("ERROR SISTEM", e.message); }
+            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showCustomAlert("ERROR SISTEM", e.message, "error"); }
         }
 
         window.processDeposit = async () => {
@@ -732,3 +811,4 @@
     </script>
 </body>
 </html>
+v

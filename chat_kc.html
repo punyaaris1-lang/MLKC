@@ -5,79 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KC Chat Room</title>
     
+    <script>
+        // ==========================================
+        // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
+        // ==========================================
+        const CHAT_VERSION = "3.2"; // Swipe to Reply & Cyber Navy Theme
+        if (localStorage.getItem('maka_chat_kc_v') !== CHAT_VERSION) {
+            if ('caches' in window) {
+                caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
+            }
+            localStorage.setItem('maka_chat_kc_v', CHAT_VERSION);
+            window.location.reload(true); 
+        }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* === TEMA HITAM PEKAT (KC) === */
+        /* === TEMA CYBER NAVY & CYAN === */
         :root { 
-            --kc-yellow: #D4FF00; 
-            --kc-green: #10B981; 
-            --bg-black: #000000;
-            --bubble-other: #1e293b;
-            --bubble-mine: linear-gradient(135deg, #10B981 0%, #047857 100%);
+            --cyan-logo: #00E5FF;     
+            --cyan-dark: #0077B6;     
+            --yellow-kc: #FFFF00;   
+            --navy-bg: #050B14;       
+            --bg-surface: #000000;    
+            
+            --bubble-other: rgba(10, 15, 25, 0.9);
+            --bubble-mine: linear-gradient(135deg, var(--cyan-dark) 0%, var(--cyan-logo) 100%);
+            --glass-border: rgba(0, 229, 255, 0.2);
+            --shadow-cyan: 0 5px 15px rgba(0, 229, 255, 0.15);
         }
         
         /* FIX LAYAR TENGGELAM DI BROWSER HP */
-        body { margin: 0; background: var(--bg-black); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; -webkit-tap-highlight-color: transparent;}
+        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; -webkit-tap-highlight-color: transparent;}
         * { box-sizing: border-box; text-decoration: none; outline: none; }
 
         /* WRAPPER MUTLAK AGAR PAS DI LAYAR */
-        .app-wrapper { position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column; }
+        .app-wrapper { position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column; background-image: radial-gradient(circle at top right, var(--navy-bg) 0%, var(--bg-surface) 70%);}
 
         /* HEADER */
-        .header { background: rgba(15,15,15,0.95); backdrop-filter: blur(20px); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;}
+        .header { background: rgba(5, 11, 20, 0.85); backdrop-filter: blur(20px); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 100; border-bottom: 1px solid var(--glass-border); flex-shrink: 0; box-shadow: var(--shadow-cyan);}
         .header-left { display: flex; align-items: center; gap: 15px; }
-        .btn-back { color: white; font-size: 20px; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .btn-back { color: var(--cyan-logo); font-size: 20px; width: 40px; height: 40px; background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .btn-back:active { transform: scale(0.9); background: var(--cyan-logo); color: black;}
+        
         .header-title { display: flex; flex-direction: column; }
-        .header-title h1 { margin: 0; font-family: 'Space Grotesk'; font-size: 18px; color: var(--kc-yellow); letter-spacing: 1px; display: flex; align-items: center; gap: 6px;}
+        .header-title h1 { margin: 0; font-family: 'Space Grotesk'; font-size: 18px; color: var(--cyan-logo); letter-spacing: 1px; display: flex; align-items: center; gap: 6px; text-shadow: 0 0 10px rgba(0,229,255,0.3);}
         .header-title p { margin: 0; font-size: 10px; color: #94a3b8; font-weight: 600; letter-spacing: 1px; }
 
         /* AREA CHAT */
-        .chat-container { flex: 1; padding: 20px 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%); scroll-behavior: smooth;}
+        .chat-container { flex: 1; padding: 20px 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth;}
         
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; animation: fadeIn 0.3s ease-out; }
-        .msg-wrapper.mine { align-self: flex-end; align-items: flex-end; }
-        .msg-wrapper.other { align-self: flex-start; align-items: flex-start; }
+        /* MSG WRAPPER DIBIKIN RELATIF UNTUK SWIPE */
+        .msg-container { position: relative; display: flex; flex-direction: column; max-width: 85%; animation: fadeIn 0.3s ease-out; }
+        .msg-container.mine { align-self: flex-end; align-items: flex-end; }
+        .msg-container.other { align-self: flex-start; align-items: flex-start; }
+
+        /* ICON REPLY MUNCUL SAAT DI-SWIPE */
+        .swipe-reply-icon { position: absolute; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--cyan-logo); opacity: 0; transition: opacity 0.2s; pointer-events: none;}
+        .msg-container.other .swipe-reply-icon { right: -35px; }
+        .msg-container.mine .swipe-reply-icon { left: -35px; }
+
+        /* WRAPPER BUBBLE BISA DIGESER */
+        .swipe-wrapper { display: flex; flex-direction: column; width: 100%; transition: transform 0.2s ease-out; }
 
         .sender-info { font-size: 10px; color: #94a3b8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; font-weight: 600;}
-        .msg-wrapper.mine .sender-info { flex-direction: row-reverse; color: var(--kc-yellow); }
-        .role-badge { font-size: 8px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: white; font-family: 'Space Grotesk'; font-weight: 900; letter-spacing: 0.5px;}
-        .msg-wrapper.mine .role-badge { background: rgba(212,255,0,0.2); color: var(--kc-yellow); }
+        .msg-container.mine .sender-info { flex-direction: row-reverse; color: var(--cyan-logo); }
+        .role-badge { font-size: 8px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: white; font-family: 'Space Grotesk'; font-weight: 900; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.05);}
+        .msg-container.mine .role-badge { background: rgba(0,229,255,0.1); color: var(--cyan-logo); border-color: rgba(0,229,255,0.3);}
 
-        .bubble { padding: 12px 16px; border-radius: 20px; font-size: 13px; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
-        .msg-wrapper.other .bubble { background: var(--bubble-other); color: #f8fafc; border-top-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-        .msg-wrapper.mine .bubble { background: var(--bubble-mine); color: white; border-top-right-radius: 4px; }
+        .bubble { padding: 12px 16px; border-radius: 20px; font-size: 13px; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
+        .msg-container.other .bubble { background: var(--bubble-other); color: #f8fafc; border-top-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .msg-container.mine .bubble { background: var(--bubble-mine); color: black; font-weight: 600; border-top-right-radius: 4px; box-shadow: var(--shadow-cyan);}
 
         /* KOTAK KUTIPAN REPLY DI DALAM CHAT */
-        .quote-box { background: rgba(0,0,0,0.25); border-left: 3px solid var(--kc-yellow); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; color: #cbd5e1; display: flex; flex-direction: column;}
-        .quote-name { font-weight: 700; color: var(--kc-yellow); margin-bottom: 2px; font-size: 10px;}
-        .msg-wrapper.other .quote-box { border-left-color: var(--kc-green); }
-        .msg-wrapper.other .quote-name { color: var(--kc-green); }
+        .quote-box { background: rgba(0,0,0,0.4); border-left: 3px solid var(--yellow-kc); padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 11px; color: #cbd5e1; display: flex; flex-direction: column; font-weight: 500;}
+        .msg-container.mine .quote-box { background: rgba(0,0,0,0.2); border-left-color: #000; color: #111;}
+        .quote-name { font-weight: 800; color: var(--yellow-kc); margin-bottom: 2px; font-size: 10px;}
+        .msg-container.mine .quote-name { color: #000; }
+        
+        .msg-container.other .quote-box { border-left-color: var(--cyan-logo); }
+        .msg-container.other .quote-name { color: var(--cyan-logo); }
 
-        .bubble-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; gap: 15px; }
-        .btn-reply-chat { font-size: 10px; color: rgba(255,255,255,0.5); cursor: pointer; font-weight: 600; }
-        .btn-reply-chat:active { color: white; }
+        .bubble-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 5px; gap: 15px; }
         .timestamp { font-size: 9px; opacity: 0.6; font-family: monospace;}
+        .msg-container.mine .timestamp { color: rgba(0,0,0,0.6); }
 
         /* PREVIEW REPLY SEBELUM DIKIRIM */
-        .reply-preview-area { background: #1e293b; padding: 10px 20px; display: none; justify-content: space-between; align-items: center; border-top: 1px solid #334155; flex-shrink: 0; }
-        .reply-preview-content { display: flex; flex-direction: column; flex: 1; border-left: 3px solid var(--kc-yellow); padding-left: 10px; }
-        .rp-title { font-size: 10px; color: var(--kc-yellow); font-weight: 700; margin-bottom: 2px;}
-        .rp-text { font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;}
+        .reply-preview-area { background: rgba(5,11,20,0.95); padding: 10px 20px; display: none; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); flex-shrink: 0; backdrop-filter: blur(10px);}
+        .reply-preview-content { display: flex; flex-direction: column; flex: 1; border-left: 3px solid var(--cyan-logo); padding-left: 10px; }
+        .rp-title { font-size: 10px; color: var(--cyan-logo); font-weight: 800; margin-bottom: 2px;}
+        .rp-text { font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; font-weight: 500;}
         .btn-cancel-reply { background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; padding: 5px; }
 
-        /* INPUT AREA YANG NIKMAT */
-        .input-area { background: rgba(15,15,15,1); padding: 10px 15px; display: flex; gap: 10px; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
-        .chat-input { flex: 1; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 15px; color: white; font-family: 'Inter'; font-size: 13px; resize: none; outline: none; max-height: 100px; min-height: 42px; line-height: 1.4;}
-        .chat-input:focus { border-color: var(--kc-yellow); }
+        /* INPUT AREA */
+        .input-area { background: #000; padding: 10px 15px; display: flex; gap: 10px; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
+        .chat-input { flex: 1; background: #0A0F1A; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 15px; color: white; font-family: 'Inter'; font-size: 13px; resize: none; outline: none; max-height: 100px; min-height: 42px; line-height: 1.4; transition: 0.2s;}
+        .chat-input:focus { border-color: var(--cyan-logo); background: #000;}
         .chat-input::placeholder { color: #64748b; }
         
-        .btn-send { width: 42px; height: 42px; border-radius: 50%; background: var(--kc-yellow); color: black; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; transition: 0.2s;}
-        .btn-send:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+        .btn-send { width: 42px; height: 42px; border-radius: 50%; background: var(--cyan-logo); color: black; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; transition: 0.2s; box-shadow: 0 0 15px rgba(0,229,255,0.3);}
+        .btn-send:disabled { background: #111; color: #333; cursor: not-allowed; box-shadow: none; border: 1px solid #222;}
+        .btn-send:active:not(:disabled) { transform: scale(0.9); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #loader { text-align: center; color: #64748b; font-size: 11px; padding: 10px; font-weight: 600; font-family: 'Space Grotesk'; letter-spacing: 1px;}
+        #loader { text-align: center; color: var(--cyan-logo); font-size: 11px; padding: 10px; font-weight: 800; font-family: 'Space Grotesk'; letter-spacing: 1px;}
     </style>
 </head>
 <body>
@@ -88,15 +121,15 @@
             <a href="dashboard_kc.html" class="btn-back"><i class="fas fa-arrow-left"></i></a>
             <div class="header-title">
                 <h1><i class="fas fa-comments"></i> TONGKRONGAN KC</h1>
-                <p>INTERNAL LINTAS KARTIKA CHANDRA</p>
+                <p>KARTIKA CHANDRA SECURE CHAT</p>
             </div>
         </div>
-        <div style="color: var(--kc-yellow); opacity: 0.5;"><i class="fas fa-shield-alt"></i></div>
+        <div style="color: var(--cyan-logo); opacity: 0.8; font-size: 20px;"><i class="fas fa-shield-alt"></i></div>
     </div>
 
     <div class="chat-container" id="chatBox">
         <div id="loader"><i class="fas fa-circle-notch fa-spin"></i> MENGHUBUNGKAN...</div>
-        </div>
+    </div>
 
     <div class="reply-preview-area" id="replyPreviewArea">
         <div class="reply-preview-content">
@@ -107,8 +140,8 @@
     </div>
 
     <div class="input-area">
-        <textarea id="msgInput" class="chat-input" placeholder="Ketik pesan..." rows="1"></textarea>
-        <button id="btnSend" class="btn-send" onclick="kirimPesan()"><i class="fas fa-paper-plane"></i></button>
+        <textarea id="msgInput" class="chat-input" placeholder="Ketik pesan... (Geser chat ke kanan untuk membalas)" rows="1"></textarea>
+        <button id="btnSend" class="btn-send" onclick="kirimPesan()" disabled><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
@@ -116,7 +149,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // DATABASE MLU
+        // DATABASE MLU (TETAP PAKAI MLU SESUAI SCRIPT LAMA)
         const firebaseConfig = { apiKey: "AIzaSyAk3G5aQUBVe_g7_peVu1F6xllP_RejGq0", authDomain: "rtomaka-e67b5.firebaseapp.com", projectId: "rtomaka-e67b5" };
         const app = initializeApp(firebaseConfig); 
         const db = getFirestore(app);
@@ -129,15 +162,13 @@
         const myName = uData.namaKtp || uData.namaWa || "Member KC";
         const myPlat = uData.plat || "B XXXX XX";
         
-        // Cek Bypass Dewa (B4248SWF)
         let myRole = uData.role || "MEMBER";
-        if(myPlat.replace(/\s+/g, '').toUpperCase() === "B4248SWF") myRole = "PA BOS";
+        if(myPlat.replace(/\s+/g, '').toUpperCase() === "B4248SWF" || uData.id === "ghost_admin") myRole = "PA BOS";
 
         const chatBox = document.getElementById('chatBox');
         const msgInput = document.getElementById('msgInput');
         const btnSend = document.getElementById('btnSend');
         
-        // Variabel untuk menyimpan data pesan yang sedang di-reply
         let currentReplyData = null;
 
         // Auto-resize textarea
@@ -147,7 +178,7 @@
             btnSend.disabled = this.value.trim() === '';
         });
 
-        // FUNGSI SIAPKAN BALASAN (REPLY)
+        // FUNGSI SIAPKAN BALASAN
         window.siapkanBalasan = (encName, encText) => {
             const name = decodeURIComponent(encName);
             const text = decodeURIComponent(encText);
@@ -158,15 +189,14 @@
             document.getElementById('rpText').innerText = text;
             document.getElementById('replyPreviewArea').style.display = 'flex';
             msgInput.focus();
+            scrollToBottom();
         };
 
-        // FUNGSI BATAL BALAS
         window.batalBalas = () => {
             currentReplyData = null;
             document.getElementById('replyPreviewArea').style.display = 'none';
         };
 
-        // FUNGSI KIRIM PESAN
         window.kirimPesan = async () => {
             const text = msgInput.value.trim();
             if (!text) return;
@@ -175,7 +205,6 @@
             msgInput.style.height = '42px';
             btnSend.disabled = true;
             
-            // Siapkan payload
             let payload = {
                 senderId: uData.id || myPlat,
                 senderName: myName,
@@ -185,10 +214,9 @@
                 timestamp: Date.now()
             };
 
-            // Masukkan data reply kalau ada
             if(currentReplyData) {
                 payload.replyTo = currentReplyData;
-                batalBalas(); // Tutup preview setelah kirim
+                batalBalas(); 
             }
 
             try {
@@ -198,6 +226,66 @@
                 btnSend.disabled = false;
             }
         };
+
+        // SCROLL FIX
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // SWIPE TO REPLY LOGIC
+        function attachSwipeEvents() {
+            const wrappers = document.querySelectorAll('.swipe-wrapper');
+            
+            wrappers.forEach(wrapper => {
+                let startX = 0;
+                let currentX = 0;
+                let isSwiping = false;
+                const icon = wrapper.parentElement.querySelector('.swipe-reply-icon');
+                const isOther = wrapper.parentElement.classList.contains('other');
+                const maxSwipe = 60; // Max geser pixel
+
+                wrapper.addEventListener('touchstart', e => {
+                    startX = e.touches[0].clientX;
+                    isSwiping = true;
+                    wrapper.style.transition = 'none';
+                }, {passive: true});
+
+                wrapper.addEventListener('touchmove', e => {
+                    if (!isSwiping) return;
+                    currentX = e.touches[0].clientX - startX;
+                    
+                    // Cuma bisa digeser ke kanan (nilai positif)
+                    if (currentX > 0 && currentX < maxSwipe + 20) {
+                        wrapper.style.transform = `translateX(${currentX}px)`;
+                        
+                        // Tampilkan icon perlahan
+                        let opacity = currentX / maxSwipe;
+                        if(icon) icon.style.opacity = opacity > 1 ? 1 : opacity;
+                    }
+                }, {passive: true});
+
+                wrapper.addEventListener('touchend', () => {
+                    if (!isSwiping) return;
+                    isSwiping = false;
+                    wrapper.style.transition = 'transform 0.3s ease-out';
+                    wrapper.style.transform = 'translateX(0)';
+                    
+                    if(icon) icon.style.opacity = '0';
+
+                    // Jika geseran mencapai batas, trigger reply
+                    if (currentX >= maxSwipe) {
+                        const name = wrapper.getAttribute('data-name');
+                        const text = wrapper.getAttribute('data-text');
+                        if(name && text) {
+                            window.siapkanBalasan(name, text);
+                            // Vibrate feedback (jika support)
+                            if(navigator.vibrate) navigator.vibrate(50);
+                        }
+                    }
+                    currentX = 0;
+                });
+            });
+        }
 
         // TARIK PESAN REALTIME
         const q = query(collection(db, "mlu_kc_chats"), orderBy("timestamp", "desc"), limit(100));
@@ -209,6 +297,10 @@
             });
 
             messages.reverse();
+            
+            // Simpan posisi scroll sebelum update
+            const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 50;
+
             chatBox.innerHTML = ''; 
             
             if(messages.length === 0) {
@@ -216,6 +308,7 @@
                 return;
             }
 
+            let htmlBuffer = '';
             messages.forEach(msg => {
                 const isMine = msg.senderId === (uData.id || myPlat);
                 const alignClass = isMine ? 'mine' : 'other';
@@ -226,7 +319,6 @@
                 const safeText = msg.text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
                 const safeName = msg.senderName.split(' ')[0];
 
-                // Render Box Reply jika pesan ini adalah balasan
                 let replyHtml = '';
                 if(msg.replyTo) {
                     const safeReplyText = msg.replyTo.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -238,31 +330,44 @@
                     `;
                 }
 
-                // Encrypt data buat dikirim ke fungsi JS (biar ga error kalau ada tanda petik)
                 const encName = encodeURIComponent(safeName);
                 const encText = encodeURIComponent(msg.text);
 
-                const bubbleHtml = `
-                    <div class="msg-wrapper ${alignClass}">
-                        <div class="sender-info">
-                            <span>${isMine ? 'Anda' : safeName}</span>
-                            <span class="role-badge">${msg.senderRole}</span>
-                        </div>
-                        <div class="bubble">
-                            ${replyHtml}
-                            ${safeText}
-                            <div class="bubble-footer">
-                                <span class="btn-reply-chat" onclick="siapkanBalasan('${encName}', '${encText}')"><i class="fas fa-reply"></i> Balas</span>
-                                <span class="timestamp">${timeStr}</span>
+                htmlBuffer += `
+                    <div class="msg-container ${alignClass}">
+                        <i class="fas fa-reply swipe-reply-icon"></i>
+                        <div class="swipe-wrapper" data-name="${encName}" data-text="${encText}">
+                            <div class="sender-info">
+                                <span>${isMine ? 'Anda' : safeName}</span>
+                                <span class="role-badge">${msg.senderRole}</span>
+                            </div>
+                            <div class="bubble">
+                                ${replyHtml}
+                                ${safeText}
+                                <div class="bubble-footer">
+                                    <span class="timestamp">${timeStr}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
-                chatBox.innerHTML += bubbleHtml;
             });
+            
+            chatBox.innerHTML = htmlBuffer;
+            attachSwipeEvents(); // Pasang listener swipe setelah elemen di-render
 
-            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 100);
+            // Scroll ke bawah HANYA jika sebelumnya user lagi di bawah
+            if (isScrolledToBottom) {
+                setTimeout(scrollToBottom, 50);
+            }
         });
+
+        // Jaga scroll tetap di bawah saat keyboard HP muncul
+        window.visualViewport.addEventListener("resize", scrollToBottom);
+        msgInput.addEventListener("focus", () => {
+            setTimeout(scrollToBottom, 300);
+        });
+
     </script>
 </body>
 </html>

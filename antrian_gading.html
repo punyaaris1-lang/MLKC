@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "3.8"; 
+        const DASH_VERSION = "4.1"; // TEMA CYBER NAVY & CYAN METALLIC
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -24,83 +24,101 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* === TEMA ELEGANT CYBER NAVY === */
         :root { 
-            --electric-blue: #10B981; 
-            --royal-blue: #D4FF00; 
-            --bg-surface: #050505; 
+            --cyan-bright: #00E5FF;     
+            --cyan-dark: #0077B6;     
+            --yellow-kc: #FFFF00;   
+            --navy-bg: #050B14;       
+            --bg-surface: #000000;    
+            
             --text-main: #FFFFFF; 
             --text-muted: #94A3B8; 
-            --danger: #EF4444; 
-            --kc-green: #D4FF00;
+            --danger: #FF4D4D; 
+            --success: #10B981;
         }
-        body { margin: 0; background: var(--bg-surface); font-family: 'Inter', sans-serif; color: var(--text-main); padding-bottom: 100px; -webkit-tap-highlight-color: transparent;}
-        * { box-sizing: border-box; outline: none; }
 
-        .ambient-light { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; animation: floatLight 10s infinite alternate; }
-        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: #D4FF00; }
-        .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: #10B981; animation-delay: 2s; }
+        body { 
+            margin: 0; 
+            background-color: var(--bg-surface);
+            background-image: radial-gradient(circle at top right, var(--navy-bg) 0%, var(--bg-surface) 70%);
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main); 
+            padding-bottom: 100px; 
+            overflow-x: hidden; 
+            position: relative; 
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
+
+        * { box-sizing: border-box; outline: none; text-decoration: none; }
+
+        /* AMBIENT LIGHTS (SUBTLE) */
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(150px); z-index: -1; opacity: 0.15; animation: floatLight 10s infinite alternate; }
+        .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: var(--cyan-dark); }
+        .light-2 { top: 50%; right: -20%; width: 400px; height: 400px; background: var(--cyan-bright); animation-delay: 2s; opacity: 0.1; }
         @keyframes floatLight { 0% {transform: translate(0,0);} 100% {transform: translate(20px, 40px);} }
 
-        .header { padding: 30px 20px 20px; text-align: center; position: relative; z-index: 10;}
-        .sub-title { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; color: var(--electric-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; display: block;}
-        .main-title { font-family: 'Outfit'; font-size: 28px; font-weight: 900; color: white; margin: 0; line-height: 1.1; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.2);}
+        .header { padding: 40px 20px 20px; text-align: center; position: relative; z-index: 10;}
+        .sub-title { font-family: 'Space Grotesk'; font-size: 10px; font-weight: 800; color: var(--cyan-bright); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; display: block; opacity: 0.9;}
+        .main-title { font-family: 'Outfit'; font-size: 28px; font-weight: 900; color: white; margin: 0; line-height: 1.1; text-transform: uppercase; text-shadow: 0 4px 20px rgba(0,0,0,0.5);}
         
         .container { padding: 0 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 10; }
 
         /* PORT CHARGER STATUS */
-        .grid-ports { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 5px; }
-        .port-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 15px 5px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
-        .p-num { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #555; margin-bottom: 4px;}
-        .p-plat { font-family: 'Inter'; font-size: 11px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .grid-ports { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+        .port-box { background: rgba(10, 15, 25, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 15px 5px; text-align: center; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.5);}
+        .p-num { font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #555; margin-bottom: 4px; transition: 0.3s;}
+        .p-plat { font-family: 'Inter'; font-size: 11px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.3s;}
         
-        .port-box.isi { border-color: var(--electric-blue); background: linear-gradient(180deg, rgba(16,185,129,0.1) 0%, #111 100%); }
-        .port-box.isi .p-num { color: var(--electric-blue); text-shadow: 0 0 10px rgba(16,185,129,0.5); }
+        .port-box.isi { border-color: rgba(0, 229, 255, 0.4); background: linear-gradient(180deg, rgba(0, 229, 255, 0.05) 0%, rgba(5,11,20,0.9) 100%); box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);}
+        .port-box.isi .p-num { color: var(--cyan-bright); text-shadow: 0 0 15px rgba(0,229,255,0.5); }
         
         /* HIGHLIGHT JIKA ITU SLOT SAYA */
-        .port-box.isi.is-me-slot { border-color: var(--royal-blue); background: linear-gradient(180deg, rgba(212,255,0,0.1) 0%, #111 100%); box-shadow: 0 0 15px rgba(212,255,0,0.4); }
-        .port-box.isi.is-me-slot .p-num { color: var(--royal-blue); text-shadow: 0 0 10px rgba(212,255,0,0.5); }
+        .port-box.isi.is-me-slot { border-color: var(--yellow-kc); background: linear-gradient(180deg, rgba(255,255,0,0.1) 0%, rgba(5,11,20,0.9) 100%); box-shadow: 0 0 20px rgba(255,255,0,0.2); }
+        .port-box.isi.is-me-slot .p-num { color: var(--yellow-kc); text-shadow: 0 0 15px rgba(255,255,0,0.5); }
 
-        .port-box.rusak { border-color: var(--danger); background: linear-gradient(180deg, rgba(239,68,68,0.1) 0%, #111 100%); opacity: 0.7;}
+        .port-box.rusak { border-color: var(--danger); background: linear-gradient(180deg, rgba(255,77,77,0.1) 0%, rgba(5,11,20,0.9) 100%); opacity: 0.8;}
         .port-box.rusak .p-num { color: var(--danger); }
         .port-box.rusak .p-plat { color: var(--danger); }
 
         /* DAFTAR ANTREAN */
-        .q-header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 5px;}
-        .q-title { font-family: 'Outfit'; font-size: 16px; font-weight: 800; color: var(--royal-blue); }
-        .q-count { background: rgba(212,255,0,0.1); color: var(--royal-blue); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid rgba(212,255,0,0.2);}
+        .q-header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 5px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1);}
+        .q-title { font-family: 'Outfit'; font-size: 16px; font-weight: 800; color: white; letter-spacing: 1px;}
+        .q-count { background: linear-gradient(90deg, rgba(0, 229, 255, 0.15), transparent); border-left: 2px solid var(--cyan-bright); color: var(--cyan-bright); padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 800;}
 
-        .q-list { display: flex; flex-direction: column; gap: 10px; }
-        .q-item { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
-        .q-item.is-me { background: linear-gradient(90deg, rgba(212,255,0,0.05) 0%, #0f0f0f 100%); border-left: 4px solid var(--royal-blue); border-color: rgba(212,255,0,0.3); }
+        .q-list { display: flex; flex-direction: column; gap: 12px; }
+        .q-item { background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(5, 10, 15, 0.95)); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: 0.3s;}
+        .q-item.is-me { border-left: 4px solid var(--cyan-bright); border-color: rgba(0,229,255,0.2); background: linear-gradient(145deg, rgba(0, 229, 255, 0.08), rgba(5, 10, 15, 0.95)); box-shadow: 0 8px 25px rgba(0,229,255,0.1);}
         
-        .q-number { width: 35px; height: 35px; border-radius: 10px; background: #222; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff;}
-        .q-item.is-me .q-number { background: var(--royal-blue); color: black; box-shadow: 0 0 15px rgba(212,255,0,0.4);}
+        .q-number { width: 35px; height: 35px; border-radius: 10px; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 16px; font-weight: 900; color: #fff; border: 1px solid rgba(255,255,255,0.1);}
+        .q-item.is-me .q-number { background: var(--cyan-bright); color: black; box-shadow: 0 0 15px rgba(0,229,255,0.3); border-color: var(--cyan-bright);}
         
         .q-info { flex: 1; min-width: 0; }
-        .q-name { font-family: 'Outfit'; font-size: 14px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; text-transform: uppercase;}
-        .q-plat { font-size: 10px; font-weight: 700; color: var(--text-muted); background: #1a1a1a; padding: 2px 8px; border-radius: 6px; display: inline-block; border: 1px solid #333;}
-        .q-batre { font-size: 10px; font-weight: 800; color: var(--electric-blue); float: right; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);}
+        .q-name { font-family: 'Outfit'; font-size: 15px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .q-plat { font-size: 10px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 6px; display: inline-block; border: 1px solid rgba(255,255,255,0.1);}
+        .q-batre { font-size: 10px; font-weight: 800; color: var(--success); float: right; background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);}
         
-        .q-item.is-me .q-plat { color: var(--royal-blue); border-color: rgba(212,255,0,0.3); background: rgba(212,255,0,0.05);}
+        .q-item.is-me .q-plat { color: var(--cyan-bright); border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.05);}
 
-        .empty-q { text-align: center; padding: 30px; color: #555; font-size: 12px; font-weight: 600; background: #0a0a0a; border-radius: 16px; border: 1px dashed #222;}
+        .empty-q { text-align: center; padding: 40px 20px; color: #64748B; font-size: 13px; font-weight: 600; background: rgba(10, 15, 25, 0.85); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.1);}
 
         /* BOTTOM ACTION BAR */
         .bottom-action { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; gap: 10px; z-index: 100; }
-        .btn-action { flex: 1; padding: 16px; border-radius: 16px; border: none; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; text-transform: uppercase;}
+        .btn-action { flex: 1; padding: 16px; border-radius: 16px; border: none; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-action:active { transform: scale(0.96); }
         
-        .btn-join { background: var(--royal-blue); color: black; box-shadow: 0 10px 25px rgba(212,255,0,0.4); border: 2px solid #000;}
-        .btn-leave { background: var(--danger); color: white; box-shadow: 0 10px 25px rgba(239,68,68,0.4); display: none;}
-        .btn-finish { background: var(--electric-blue); color: white; box-shadow: 0 10px 25px rgba(16,185,129,0.4); display: none;}
-        .btn-back { background: #222; color: white; border: 1px solid #444; flex: 0.3; }
+        .btn-join { background: linear-gradient(135deg, var(--cyan-bright) 0%, var(--cyan-dark) 100%); color: black; box-shadow: 0 10px 25px rgba(0,229,255,0.3); }
+        .btn-leave { background: linear-gradient(135deg, var(--danger) 0%, #991B1B 100%); color: white; box-shadow: 0 10px 25px rgba(255,77,77,0.3); display: none;}
+        .btn-finish { background: linear-gradient(135deg, var(--yellow-kc) 0%, var(--yellow-dark) 100%); color: black; box-shadow: 0 10px 25px rgba(255,255,0,0.3); display: none;}
+        .btn-back { background: rgba(15, 23, 42, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); flex: 0.3; backdrop-filter: blur(10px);}
 
         /* CUSTOM MODAL */
-        .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-glass-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px;}
         .modal-glass-overlay.show { opacity: 1; }
-        .modal-glass-box { background: #111; border-radius: 25px; padding: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(255,255,255,0.15);}
+        .modal-glass-box { background: #050B14; border-radius: 24px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.9); transform: scale(0.9); transition: 0.3s; border: 1px solid rgba(0, 229, 255, 0.2);}
         .modal-glass-overlay.show .modal-glass-box { transform: scale(1); }
-        .btn-modal { padding: 14px 25px; border-radius: 14px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; transition: 0.2s;}
+        .btn-modal { padding: 14px 25px; border-radius: 14px; font-family: 'Space Grotesk'; font-weight: 800; font-size: 14px; border: none; cursor: pointer; flex: 1; transition: 0.2s; letter-spacing: 1px;}
         .btn-modal:active { transform: scale(0.95); }
     </style>
 </head>
@@ -110,7 +128,7 @@
     <div class="ambient-light light-2"></div>
 
     <div class="header">
-        <span class="sub-tag">LINTAS SERVER</span>
+        <span class="sub-title">LINTAS SERVER</span>
         <h1 class="main-title">FC KELAPA GADING</h1>
     </div>
 
@@ -128,7 +146,7 @@
         </div>
 
         <div class="q-list" id="queueList">
-            <div class="empty-q"><i class="fas fa-spinner fa-spin"></i> Menghubungkan ke Server Gading...</div>
+            <div class="empty-q"><i class="fas fa-circle-notch fa-spin" style="font-size: 24px; margin-bottom: 10px; display: block;"></i> Menghubungkan ke Server Gading...</div>
         </div>
 
     </div>
@@ -144,27 +162,27 @@
     <div class="modal-glass-overlay" id="customAlertModal">
         <div class="modal-glass-box">
             <div id="alertIcon" style="font-size: 40px; margin-bottom: 15px;"></div>
-            <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px; color: var(--royal-blue);">TITLE</h3>
-            <p id="alertMessage" style="font-size:12px; color:#cbd5e1; margin-bottom:20px; line-height: 1.5;"></p>
+            <h3 id="alertTitle" style="font-family:'Outfit'; margin-top:0; margin-bottom:10px; font-size: 20px; color: var(--cyan-bright);">TITLE</h3>
+            <p id="alertMessage" style="font-size:13px; color:#cbd5e1; margin-bottom:25px; line-height: 1.5;"></p>
             <div style="display:flex; gap:10px;">
-                <button class="btn-modal" id="btnAlertCancel" style="background:#333; color:white; display:none;">BATAL</button>
-                <button class="btn-modal" id="btnAlertOk" style="background:var(--royal-blue); color:black; width:100%;">OK</button>
+                <button class="btn-modal" id="btnAlertCancel" style="background:#111; color:white; border: 1px solid #333; display:none;">BATAL</button>
+                <button class="btn-modal" id="btnAlertOk" style="background:var(--cyan-bright); color:black; width:100%;">OK</button>
             </div>
         </div>
     </div>
 
     <div class="modal-glass-overlay" id="batteryModal">
         <div class="modal-glass-box">
-            <h3 style="font-family:'Outfit'; color:var(--royal-blue); margin-top:0; margin-bottom:10px;">SISA BATERAI</h3>
-            <p style="font-size:12px; color:#cbd5e1; margin-bottom:15px;">Masukkan sisa persentase baterai motor Anda saat ini.</p>
-            <input type="number" id="inputBattery" placeholder="Contoh: 15" style="width:100%; padding:15px; border-radius:12px; border:1px solid #333; background:#000; color:var(--royal-blue); font-family:'Space Grotesk'; font-size:24px; text-align:center; outline:none; margin-bottom:20px; font-weight:900;">
+            <h3 style="font-family:'Outfit'; color:var(--cyan-bright); margin-top:0; margin-bottom:10px; font-size:20px;">SISA BATERAI</h3>
+            <p style="font-size:12px; color:#cbd5e1; margin-bottom:20px;">Masukkan sisa persentase baterai motor Anda saat ini.</p>
+            <input type="number" id="inputBattery" placeholder="Contoh: 15" style="width:100%; padding:15px; border-radius:14px; border:1px solid rgba(255,255,255,0.1); background:#0A0F1A; color:var(--cyan-bright); font-family:'Space Grotesk'; font-size:24px; text-align:center; outline:none; margin-bottom:20px; font-weight:900; transition:0.2s;" onfocus="this.style.borderColor='var(--cyan-bright)'; this.style.background='#000'; this.style.boxShadow='0 0 15px rgba(0,229,255,0.1)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='#0A0F1A'; this.style.boxShadow='none';">
             
             <div style="display:flex; gap:10px; margin-bottom: 10px;">
-                <button class="btn-modal" style="background:var(--royal-blue); color:black;" onclick="submitBattery('antrian')"><i class="fas fa-list-ol"></i> MASUK ANTRIAN</button>
-                <button class="btn-modal" style="background:var(--electric-blue); color:white; box-shadow:0 0 15px rgba(16,185,129,0.4);" onclick="submitBattery('slot')"><i class="fas fa-bolt"></i> NAIK SLOT</button>
+                <button class="btn-modal" style="background:linear-gradient(135deg, var(--cyan-bright) 0%, var(--cyan-dark) 100%); color:black; box-shadow:0 10px 25px rgba(0,229,255,0.2);" onclick="submitBattery('antrian')"><i class="fas fa-list-ol"></i> MASUK ANTREAN</button>
+                <button class="btn-modal" style="background:linear-gradient(135deg, var(--success) 0%, #047857 100%); color:white; box-shadow:0 10px 25px rgba(16,185,129,0.2);" onclick="submitBattery('slot')"><i class="fas fa-bolt"></i> NAIK SLOT</button>
             </div>
             <div style="display:flex;">
-                <button class="btn-modal" style="background:#222; color:#94A3B8; border: 1px solid #444;" onclick="closeBatteryModal()">BATAL</button>
+                <button class="btn-modal" style="background:#111; color:white; border: 1px solid #333;" onclick="closeBatteryModal()">BATAL</button>
             </div>
         </div>
     </div>
@@ -196,19 +214,19 @@
                 document.getElementById('alertMessage').innerHTML = message;
                 
                 if (type === 'success') {
-                    icon.innerHTML = '<i class="fas fa-check-circle" style="color: var(--electric-blue); filter: drop-shadow(0 0 10px var(--electric-blue));"></i>';
-                    titleEl.style.color = 'var(--electric-blue)';
-                    btnOk.style.background = 'var(--electric-blue)';
-                    btnOk.style.color = 'white';
+                    icon.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success); filter: drop-shadow(0 0 15px rgba(16,185,129,0.4));"></i>';
+                    titleEl.style.color = 'var(--success)';
+                    btnOk.style.background = 'var(--success)';
+                    btnOk.style.color = 'black';
                 } else if (type === 'error') {
-                    icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 10px var(--danger));"></i>';
+                    icon.innerHTML = '<i class="fas fa-times-circle" style="color: var(--danger); filter: drop-shadow(0 0 15px rgba(255,77,77,0.4));"></i>';
                     titleEl.style.color = 'var(--danger)';
                     btnOk.style.background = 'var(--danger)';
                     btnOk.style.color = 'white';
                 } else {
-                    icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--royal-blue); filter: drop-shadow(0 0 10px var(--royal-blue));"></i>';
-                    titleEl.style.color = 'var(--royal-blue)';
-                    btnOk.style.background = 'var(--royal-blue)';
+                    icon.innerHTML = '<i class="fas fa-info-circle" style="color: var(--cyan-bright); filter: drop-shadow(0 0 15px rgba(0,229,255,0.4));"></i>';
+                    titleEl.style.color = 'var(--cyan-bright)';
+                    btnOk.style.background = 'var(--cyan-bright)';
                     btnOk.style.color = 'black';
                 }
                 
@@ -317,7 +335,7 @@
             countText.innerText = `${queueData.length} Kendaraan`;
             
             if(queueData.length === 0) {
-                list.innerHTML = `<div class="empty-q"><i class="fas fa-check-circle" style="color:var(--electric-blue); font-size:24px; display:block; margin-bottom:10px;"></i> Belum ada yang antre. Langsung gas!</div>`;
+                list.innerHTML = `<div class="empty-q"><i class="fas fa-check-circle" style="color:var(--cyan-bright); font-size:30px; display:block; margin-bottom:12px; filter: drop-shadow(0 0 10px rgba(0,229,255,0.4));"></i> Belum ada yang antre. Langsung gas!</div>`;
                 return;
             }
             
@@ -345,12 +363,12 @@
             
             const btnJoin = document.getElementById('btnJoin');
             const btnLeave = document.getElementById('btnLeave');
-            const btnFinish = document.getElementById('btnFinish'); // TOMBOL BARU
+            const btnFinish = document.getElementById('btnFinish');
 
             if (inPort) {
                 btnJoin.style.display = 'none';
                 btnLeave.style.display = 'none';
-                btnFinish.style.display = 'flex'; // Munculin kalau lagi di slot
+                btnFinish.style.display = 'flex'; 
             } else if (inQueue) {
                 btnJoin.style.display = 'none';
                 btnLeave.style.display = 'flex';
@@ -382,7 +400,7 @@
             setTimeout(() => m.style.display = 'none', 300);
         };
 
-        // FUNGSI SUBMIT KE SERVER GADING DENGAN PAYLOAD LENGKAP
+        // FUNGSI SUBMIT KE SERVER GADING
         window.submitBattery = async (jalur) => {
             const batreVal = parseInt(document.getElementById('inputBattery').value);
             if (isNaN(batreVal) || batreVal < 0 || batreVal > 100) {
@@ -430,7 +448,7 @@
                     } else if (jalur === 'slot') {
                         let emptyIdx = currentSlots.findIndex(s => s === null);
                         if (emptyIdx === -1) {
-                            showCustomAlert("SLOT PENUH", "Semua slot sedang terisi. Silakan pilih MASUK ANTRIAN.", "error");
+                            showCustomAlert("SLOT PENUH", "Semua slot sedang terisi. Silakan pilih MASUK ANTREAN.", "error");
                             btnA.innerHTML = oriA; btnS.innerHTML = oriS;
                             btnA.style.opacity = '1'; btnS.style.opacity = '1';
                             return;
@@ -474,7 +492,6 @@
             }
         };
 
-        // FUNGSI BARU: KELUAR DARI SLOT (STOP CHARGING)
         window.stopCharging = async () => {
             const ok = await showCustomAlert("SELESAI CHARGING", "Pengisian baterai Anda sudah cukup dan ingin memberikan slot ke member lain?", "info", true);
             if (!ok) return;
@@ -489,7 +506,6 @@
                 if(docSnap.exists()) {
                     let currentSlots = docSnap.data().chargingSlots || [null, null, null];
                     
-                    // Cari slot ke berapa yang isinya adalah kendaraan lu
                     let mySlotIdx = currentSlots.findIndex(s => s !== null && s.id === myPlatClean);
                     
                     if (mySlotIdx > -1) {

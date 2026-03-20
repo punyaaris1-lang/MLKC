@@ -26,7 +26,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const DASH_VERSION = "5.6"; // TEMA CYBER NAVY + CYAN MENU GRID
+        const DASH_VERSION = "5.7"; // FIX RADAR BANYAK YANG NYANGKUT
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -46,25 +46,23 @@
     <style>
         /* === TEMA CYBER NAVY & CYAN (LOGO BARU MAKA LINTAS KC) === */
         :root { 
-            --cyan-logo: #00E5FF;     /* Biru Neon/Cyan terang MAKA LINTAS */
-            --cyan-dark: #0077B6;     /* Biru metallic gelap MAKA LINTAS */
-            --yellow-logo: #FFFF00;   /* Kuning terang KARTIKA CHANDRA */
-            --yellow-dark: #D4AF37;   /* Kuning emas gelap */
-            --navy-bg: #050B14;       /* Biru Navy sangat gelap untuk transisi BG */
-            --bg-surface: #000000;    /* Hitam pekat */
+            --cyan-logo: #00E5FF;     
+            --cyan-dark: #0077B6;     
+            --yellow-logo: #FFFF00;   
+            --yellow-dark: #D4AF37;   
+            --navy-bg: #050B14;       
+            --bg-surface: #000000;    
             
             --text-main: #F8FAFC; 
             --text-muted: #94A3B8; 
             --danger: #EF4444; 
             --success: #10B981;
             
-            /* Glassmorphism dengan tint Navy & Border Cyan tipis */
             --glass-bg: rgba(5, 11, 20, 0.85); 
             --glass-border: rgba(0, 229, 255, 0.25);
             --shadow-cyan: 0 10px 30px rgba(0, 229, 255, 0.15);
         }
         
-        /* Background Kombinasi Hitam & Navy */
         body { 
             margin: 0; 
             background-color: var(--bg-surface);
@@ -80,7 +78,7 @@
         
         * { box-sizing: border-box; outline: none; text-decoration: none; }
 
-        /* AMBIENT LIGHTS MENGGUNAKAN CYAN & NAVY */
+        /* AMBIENT LIGHTS */
         .ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.25; animation: floatLight 10s infinite alternate; }
         .light-1 { top: -20%; left: -20%; width: 500px; height: 500px; background: var(--cyan-dark); }
         .light-2 { top: 40%; right: -30%; width: 400px; height: 400px; background: var(--cyan-logo); animation-delay: 2s; opacity: 0.15; }
@@ -140,7 +138,6 @@
         .fc-banner.mode-kc .banner-val { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 900; color: var(--cyan-logo); text-shadow: 0 0 15px rgba(0, 229, 255, 0.5); line-height: 1;}
         .fc-banner.mode-kc .banner-lbl { font-size: 8px; font-weight: 800; color: #fff; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
         
-        /* Logo Watermark di dalam Banner */
         .fc-banner::before { content: ''; position: absolute; right: -20px; top: -20px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%); z-index: 1;}
 
         /* MODE GADING (PENGGANTI) */
@@ -175,14 +172,11 @@
         .marker-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: #111; color: var(--cyan-logo); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; white-space: nowrap; border: 1px solid var(--cyan-logo); box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
         #radarMap { width: 100%; height: 100%; }
 
-        /* ==========================================
-           LIST MENU GRID (WARNA CYAN DARI LOGO BARU) 
-           ========================================== */
+        /* LIST MENU GRID */
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .menu-btn { background: rgba(5, 11, 20, 0.6); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 24px; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .menu-btn:active { transform: scale(0.96); background: rgba(0, 229, 255, 0.05); border-color: var(--cyan-logo); }
         
-        /* Ikon Kotak pakai Gradasi Cyan Logo */
         .icon-box { width: 50px; height: 50px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; color: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.25); }
         
         .ic-anggota { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
@@ -192,9 +186,7 @@
         .ic-tabungan { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
         .ic-info { background: linear-gradient(135deg, var(--cyan-logo) 0%, var(--cyan-dark) 100%); } 
         
-        /* Menu Khusus Admin */
         .ic-urc { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); color: white;}
-        /* Broadcast dibikin Kuning KARTIKA CHANDRA buat variasi aksen */
         .ic-broadcast { background: linear-gradient(135deg, var(--yellow-logo) 0%, var(--yellow-dark) 100%); color: black; box-shadow: 0 5px 20px rgba(255, 255, 0, 0.25);}
 
         .menu-title { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: #e2e8f0; }
@@ -538,7 +530,7 @@
         let myCurrentPhoto = myPhoto;
         let myCurrentName = myName;
         let map = null, markers = {};
-        let isBannerKC = true; // Defaultnya KC yang nampil gede
+        let isBannerKC = true; 
         let statusKCHtml = "Memuat...";
         let statusGadingHtml = "Memuat...";
 
@@ -682,7 +674,8 @@
                 let distKCText = `~${distKC.toFixed(1)} KM (${Math.ceil((distKC/25)*60)} Menit)`;
                 let distGadingText = `~${distGading.toFixed(1)} KM (${Math.ceil((distGading/25)*60)} Menit)`;
 
-                if(distGading <= 1.0) {
+                // SMART BUNGLON - BERUBAH BERDASARKAN STASIUN TERDEKAT
+                if(distGading < distKC) { 
                     isBannerKC = false;
                     document.getElementById('mainFcDesc').innerHTML = `<i class="fas fa-location-arrow"></i> ${distGadingText}`;
                     document.getElementById('radarTerdekatBox').style.display = 'flex';
@@ -784,7 +777,7 @@
                 reader.onload = function(e) { 
                     const img = new Image(); 
                     img.onload = function() { 
-                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d'); 
+                        const cvs = document.createElement('canvas'); const ctx = document.getContext('2d'); 
                         let w = img.width; let h = img.height; 
                         if (w > h) { if (w > 600) { h *= 600/w; w = 600; } } else { if (h > 600) { w *= 600/h; h = 600; } } 
                         cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h); 

@@ -9,7 +9,7 @@
         // ==========================================
         // SISTEM AUTO-UPDATE PAKSA (PENGHANCUR CACHE)
         // ==========================================
-        const TABUNGAN_VERSION = "2.9"; // FIX FACE ID & SMART FALLBACK PIN
+        const TABUNGAN_VERSION = "3.0"; // FULL CYCLE PENCAIRAN DANA
         if (localStorage.getItem('maka_tabungan_v') !== TABUNGAN_VERSION) {
             if ('caches' in window) {
                 caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); });
@@ -96,7 +96,7 @@
         /* SALDO PRIBADI */
         .saldo-card { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; color: white; text-align: center; margin-bottom: 15px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--glass-border);}
         .saldo-val { font-family:'Space Grotesk'; font-size:36px; font-weight:900; margin:10px 0; color: var(--cyan-logo); text-shadow: 0 0 15px rgba(0,229,255,0.4);}
-        .btn-nabung { background: var(--yellow-logo); border: none; color: black; padding: 12px 20px; border-radius: 50px; font-size: 13px; font-weight: 800; font-family: 'Space Grotesk'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto 0; width: 100%; box-shadow: 0 10px 25px rgba(255,255,0,0.25); transition: 0.2s; letter-spacing: 1px;}
+        .btn-nabung { background: var(--yellow-logo); border: none; color: black; padding: 12px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; font-family: 'Space Grotesk'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 15px auto 0; width: 100%; box-shadow: 0 10px 25px rgba(255,255,0,0.25); transition: 0.2s; letter-spacing: 1px;}
         .btn-nabung:active { transform: scale(0.96); box-shadow: 0 5px 15px rgba(255,255,0,0.3); }
         
         /* KOTAK TOTAL GLOBAL */
@@ -120,11 +120,13 @@
 
         .form-group { margin-bottom:20px; text-align: left;}
         .form-label { display:block; font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;}
-        .form-input { width:100%; padding:15px; border:1px solid #333; border-radius:14px; font-family:'Space Grotesk'; font-weight:700; font-size:16px; background:#000; color: white; outline:none; transition: 0.2s;}
+        .form-input { width:100%; padding:15px; border:1px solid #333; border-radius:14px; font-family:'Space Grotesk'; font-weight:700; font-size:14px; background:#000; color: white; outline:none; transition: 0.2s;}
         .form-input:focus { border-color: var(--cyan-logo); box-shadow: 0 0 10px rgba(0,229,255,0.1); }
         
         .btn-submit { width:100%; padding:16px; border:none; border-radius:16px; font-weight:900; color:black; cursor:pointer; margin-top:10px; font-family:'Space Grotesk'; font-size:13px; transition: 0.2s; letter-spacing: 1px;}
         .btn-submit:active { transform: scale(0.95); }
+        .btn-outline-modal { background: rgba(0,0,0,0.5); color: var(--cyan-logo); border: 1px solid var(--cyan-logo); font-family: 'Space Grotesk'; font-weight: 800; cursor: pointer; transition: 0.2s;}
+        
         .bg-sukses { background:var(--cyan-logo); box-shadow: var(--shadow-cyan); } 
         .bg-cancel { background:#111; color:#fff; border: 1px solid #333; box-shadow:none; }
         
@@ -226,9 +228,14 @@
                     <i class="fas fa-shield-check"></i> SECURED ASSET
                 </div>
                 
-                <button class="btn-nabung" onclick="document.getElementById('modalQris').style.display='flex'">
-                    <i class="fas fa-qrcode" style="font-size:18px;"></i> TAMBAH SETORAN (NABUNG)
-                </button>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="btn-nabung" style="flex:1; margin:0;" onclick="document.getElementById('modalQris').style.display='flex'">
+                        <i class="fas fa-qrcode" style="font-size:14px;"></i> SETOR DANA
+                    </button>
+                    <button class="btn-nabung" style="flex:1; margin:0; background:var(--danger); border:1px solid var(--danger); color:white; box-shadow: 0 5px 15px rgba(239,68,68,0.2);" onclick="bukaModalTarik()">
+                        <i class="fas fa-hand-holding-usd" style="font-size:14px;"></i> TARIK DANA
+                    </button>
+                </div>
             </div>
 
             <div class="global-vault-card" id="globalVaultCard">
@@ -246,7 +253,7 @@
             </div>
 
             <button onclick="document.getElementById('videoModal').style.display='flex'" style="width: 100%; margin-bottom: 20px; padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Outfit'; font-weight: 800; font-size: 13px; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(5,11,20,0.8); box-shadow: 0 10px 20px rgba(0,0,0,0.5); cursor: pointer; transition: 0.2s;">
-                <i class="fab fa-tiktok" style="font-size: 20px; color: #fff; filter: drop-shadow(2px 0px 0px var(--cyan-logo)) drop-shadow(-2px 0px 0px #fe0979);"></i> LIHAT TUTORIAL MENABUNG
+                <i class="fab fa-tiktok" style="font-size: 20px; color: #fff; filter: drop-shadow(2px 0px 0px var(--cyan-logo)) drop-shadow(-2px 0px 0px #fe0979);"></i> LIHAT TUTORIAL
             </button>
             
             <div style="font-family:'Outfit'; font-size:16px; font-weight:800; color:var(--cyan-logo); margin-bottom:15px; padding-left:5px; border-left: 3px solid var(--cyan-logo);">Mutasi Terakhir</div>
@@ -274,6 +281,79 @@
         </div>
 
         <div class="back-nav"><a href="dashboard_kc.html" class="btn-premium-back"><i class="fas fa-arrow-left"></i> KEMBALI KE DASHBOARD</a></div>
+    </div>
+
+    <div class="modal-overlay" id="modalTarik">
+        <div class="modal-box" style="text-align:left;">
+            <h3 style="margin-top:0; font-family:'Outfit'; color:var(--danger); text-align:center; margin-bottom: 20px;">PENARIKAN DANA</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Nominal Penarikan (Rp)</label>
+                <input type="number" id="inputTarikAmount" class="form-input" placeholder="Contoh: 100000">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Metode Pencairan</label>
+                <select id="inputTarikMetode" class="form-input">
+                    <option value="TUNAI">TUNAI / CASH</option>
+                    <option value="BCA">BANK BCA</option>
+                    <option value="MANDIRI">BANK MANDIRI</option>
+                    <option value="BRI">BANK BRI</option>
+                    <option value="BNI">BANK BNI</option>
+                    <option value="DANA">E-WALLET DANA</option>
+                    <option value="GOPAY">E-WALLET GOPAY</option>
+                    <option value="OVO">E-WALLET OVO</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">No Rekening / No HP E-Wallet</label>
+                <input type="text" id="inputTarikRek" class="form-input" placeholder="Kosongkan jika Tunai">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tujuan / Keperluan</label>
+                <input type="text" id="inputTarikDesc" class="form-input" placeholder="Isi keperluan penarikan...">
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn-submit bg-cancel" onclick="document.getElementById('modalTarik').style.display='none'">BATAL</button>
+                <button class="btn-submit" style="background:var(--danger); color:white; box-shadow: 0 10px 25px rgba(239,68,68,0.3);" onclick="submitTarikDana()">AJUKAN PENARIKAN</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalUploadBukti">
+        <div class="modal-box">
+            <h3 style="margin-top:0; color:var(--cyan-logo); font-family:'Outfit'; font-size:18px; margin-bottom:15px;">UPLOAD BUKTI TRANSFER</h3>
+            <p style="font-size:11px; color:var(--text-muted); margin-bottom:20px;">Pastikan Anda sudah men-transfer dana ke rekening member sebelum mengunggah bukti.</p>
+            
+            <input type="hidden" id="uploadBuktiTrxId">
+            <input type="hidden" id="uploadBuktiMemberId">
+            
+            <div style="border:2px dashed var(--cyan-logo); border-radius:18px; padding:20px; text-align:center; background:rgba(0,229,255,0.05); cursor:pointer; position:relative; margin-bottom:20px;">
+                <i class="fas fa-camera" style="font-size:24px; color:var(--cyan-logo); margin-bottom:5px; display:block;"></i>
+                <div style="font-size:11px; font-weight:700; color:var(--text-muted);">Tap untuk Upload Bukti / Resi</div>
+                <input type="file" id="inputBuktiFile" accept="image/*" style="position:absolute; inset:0; opacity:0; cursor:pointer;" onchange="processBuktiFoto(this)">
+                <img id="previewBuktiFoto" style="width:100%; max-height:200px; border-radius:12px; object-fit:contain; display:none; margin-top:10px; border:2px solid var(--cyan-logo);">
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn-submit bg-cancel" onclick="document.getElementById('modalUploadBukti').style.display='none'">BATAL</button>
+                <button class="btn-submit bg-sukses" id="btnSimpanBukti" onclick="simpanBuktiTransfer()">KIRIM BUKTI</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalViewBukti" style="z-index: 105000;">
+        <div class="modal-box" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-family:'Outfit'; font-weight:900; color:var(--cyan-logo); font-size: 16px;"><i class="fas fa-receipt"></i> BUKTI TRANSFER</div>
+                <button onclick="document.getElementById('modalViewBukti').style.display='none'" style="background:transparent; border:none; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer; color:var(--text-muted);"><i class="fas fa-times"></i></button>
+            </div>
+            <img id="imgBukti" src="" style="width:100%; border-radius:12px; border:1px solid #333; margin-bottom:15px; max-height: 50vh; object-fit: contain;">
+            <button class="btn-submit bg-cancel" style="margin-top:0;" onclick="document.getElementById('modalViewBukti').style.display='none'">TUTUP</button>
+        </div>
     </div>
 
     <div class="modal-overlay" id="modalDeposit">
@@ -340,7 +420,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, collection, query, where, getDocs, runTransaction, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, collection, query, where, getDocs, runTransaction, deleteDoc, addDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // === MURNI KONEKSI KE DATABASE KC (antriankcnew) ===
         const firebaseConfig = {
@@ -362,6 +442,47 @@
         const userId = uData.id || myPlat.replace(/\s+/g, '').toUpperCase();
         const cleanPlat = myPlat.replace(/\s+/g, '').toUpperCase();
 
+        // Custom Modals System
+        window.showCustomConfirm = (title, msg, isPrompt = false) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                document.getElementById('camTitle').innerHTML = title;
+                document.getElementById('camMsg').innerHTML = msg;
+                const input = document.getElementById('camInput');
+                const btnCancel = document.getElementById('camBtnCancel');
+                const btnOk = document.getElementById('camBtnOk');
+                
+                if(isPrompt) { input.style.display = 'block'; input.value = ''; input.focus(); }
+                else { input.style.display = 'none'; }
+                
+                btnCancel.style.display = 'block';
+                btnOk.style.background = 'var(--cyan-logo)';
+                btnOk.style.color = 'black';
+                modal.style.display = 'flex';
+
+                btnCancel.onclick = () => { modal.style.display = 'none'; resolve(false); };
+                btnOk.onclick = () => { modal.style.display = 'none'; resolve(isPrompt ? input.value : true); };
+            });
+        };
+
+        window.showCustomAlert = (title, msg, type = 'info') => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                document.getElementById('camTitle').innerHTML = title;
+                document.getElementById('camMsg').innerHTML = msg;
+                document.getElementById('camInput').style.display = 'none';
+                document.getElementById('camBtnCancel').style.display = 'none';
+                const btnOk = document.getElementById('camBtnOk');
+                
+                if(type === 'success') { btnOk.style.background = 'var(--success)'; btnOk.style.color = 'white'; }
+                else if (type === 'error') { btnOk.style.background = 'var(--danger)'; btnOk.style.color = 'white'; }
+                else { btnOk.style.background = 'var(--cyan-logo)'; btnOk.style.color = 'black'; }
+
+                modal.style.display = 'flex';
+                btnOk.onclick = () => { modal.style.display = 'none'; resolve(true); };
+            });
+        };
+
         // ==============================================================
         // SISTEM HIERARKI KEPENGURUSAN UNTUK KODE UNIK & SORTING
         // ==============================================================
@@ -378,16 +499,18 @@
             "B4248SWF"  // Super Admin Ghost
         ];
 
-        const isTrueAdmin = theGods.includes(cleanPlat) || uData.id === "ghost_admin";
+        const roleUpper = uData.role ? uData.role.toUpperCase() : "";
+        const isKetum = roleUpper.includes("KETUM") || roleUpper === "KETUA UMUM" || roleUpper === "KETUA";
+        const isWaketum = roleUpper.includes("WAKETUM") || roleUpper.includes("WAKIL");
         const isSuperAdmin = (cleanPlat === "B4248SWF" || uData.id === "ghost_admin");
+        
+        const isTrueAdmin = theGods.includes(cleanPlat) || isSuperAdmin;
+        let isViewAdminVisible = isTrueAdmin;
         
         let userFaceDesc = null; let userPinTabungan = null; let isSetupMode = false; let isFaceMode = true; let stream = null; let videoEl = document.getElementById('videoInput'); let detectInterval = null; let currentPinInput = "";
         window.myKodeUnik = 999; 
         
-        // STATUS API WAJAH (SMART FALLBACK SYSTEM)
         let faceApiLoaded = false;
-
-        // Failsafe Loading Face API (Server Resmi GitHub Pages anti-blokir)
         const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
         
         Promise.all([
@@ -400,15 +523,12 @@
             if(isTrueAdmin) listenGlobalSaldo(); 
         }).catch((err) => { 
             console.error("Face API Error:", err);
-            // JIKA FACE ID GAGAL LOAD, OTOMATIS LANJUT KE MODE PIN!
             faceApiLoaded = false; 
             checkUserStatus(); 
             if(isTrueAdmin) listenGlobalSaldo(); 
-            // Sembunyikan pesan error kalau nggak mau terlalu ganggu, atau tampilkan kecil
             setTimeout(() => { document.getElementById('loaderOverlay').style.display = 'none'; }, 500);
         });
 
-        // ------------------ ISOLASI DATA GLOBAL (KHUSUS DEWA) ------------------
         function listenGlobalSaldo() {
             document.getElementById('globalVaultCard').style.display = 'flex';
             onSnapshot(collection(db, "anggota"), (snap) => {
@@ -418,9 +538,6 @@
             });
         }
 
-        // ==============================================================
-        // LOGIKA KODE UNIK DINAMIS BERDASARKAN HIERARKI
-        // ==============================================================
         async function calculateKodeUnik() {
             try {
                 const snap = await getDocs(collection(db, "anggota"));
@@ -456,32 +573,24 @@
                     const d = docSnap.data();
                     await calculateKodeUnik();
 
-                    // HIDE LOADER
                     setTimeout(() => { document.getElementById('loaderOverlay').style.display = 'none'; }, 300);
                     
                     document.getElementById('myBalance').innerText = `Rp ${(d.tabungan||0).toLocaleString('id-ID')}`;
                     loadHistory();
                     
-                    if(isTrueAdmin) {
-                        document.getElementById('btnTabAdmin').style.display = 'block';
-                        document.getElementById('btnTabApprove').style.display = 'block';
-                        document.getElementById('adminIndicator') ? document.getElementById('adminIndicator').style.display = 'block' : null;
-                        initAdminData();
-                    }
+                    updateAdminView();
+                    if(isTrueAdmin) initAdminData();
                     if(isSuperAdmin) document.getElementById('btnResetData').style.display = 'block';
 
-                    // SISTEM LOGIN WAJAH/PIN (DENGAN SMART FALLBACK)
                     if (d.pin_tabungan) {
                         userPinTabungan = d.pin_tabungan; isSetupMode = false; 
-                        // Cek apakah Face API berhasil diload dan member punya data wajah
                         if(d.faceDescriptor && faceApiLoaded) { 
                             userFaceDesc = new Float32Array(Object.values(d.faceDescriptor)); 
                             showLoginScreen(); 
                         } else { 
-                            // OTOMATIS BUKA PIN MODE JIKA FACE API ERROR / BELUM SET WAJAH
                             document.getElementById('btnBawahKamera').style.display = 'none'; 
-                            isFaceMode = true; // Set true dulu buat trigger toggle
-                            window.switchMode(true); // Force ke mode PIN
+                            isFaceMode = true; 
+                            window.switchMode(true); 
                         }
                     } else { 
                         isSetupMode = true; 
@@ -520,24 +629,80 @@
             }
         }
 
-        window.resetAllSystem = async () => {
-            const konf1 = await showCustomConfirm("⚠️ PERINGATAN KERAS", "Anda akan <b style='color:var(--danger);'>MENGHAPUS SEMUA DATA SALDO & RIWAYAT MUTASI</b> seluruh member. Tindakan ini tidak bisa di-undo.");
-            if(!konf1) return;
+        // =====================================
+        // FUNGSI PENARIKAN DANA (USER REQUEST)
+        // =====================================
+        window.bukaModalTarik = () => {
+            const saldoStr = document.getElementById('myBalance').innerText.replace(/[^0-9]/g, '');
+            const saldo = parseInt(saldoStr) || 0;
+            if(saldo <= 0) return showCustomAlert("DITOLAK", "Saldo Anda masih kosong!", "error");
             
-            let pass = await showCustomConfirm("OTORISASI DEWA", "Masukkan Password Master Super Admin:", true);
-            if(pass !== "KC2026") return showCustomAlert("AKSES DITOLAK", "Password Akses Salah!", "error");
+            document.getElementById('inputTarikAmount').value = '';
+            document.getElementById('inputTarikMetode').value = 'TUNAI';
+            document.getElementById('inputTarikRek').value = '';
+            document.getElementById('inputTarikDesc').value = '';
+            document.getElementById('modalTarik').style.display = 'flex';
+        }
 
-            document.getElementById('loaderOverlay').style.display = 'flex';
-            try {
-                const membersSnap = await getDocs(collection(db, "anggota"));
-                const promises = [];
-                membersSnap.forEach(doc => { promises.push(updateDoc(doc.ref, { tabungan: 0 })); });
-                const trxSnap = await getDocs(collection(db, "tabungan_trx"));
-                trxSnap.forEach(doc => { promises.push(deleteDoc(doc.ref)); });
-                await Promise.all(promises);
-                await showCustomAlert("SUKSES", "Seluruh Saldo dan Riwayat Mutasi KC telah di-reset ke Nol.", "success"); 
-                location.reload();
-            } catch (e) { document.getElementById('loaderOverlay').style.display = 'none'; showCustomAlert("ERROR", e.message, "error"); }
+        window.submitTarikDana = async () => {
+            let amount = parseInt(document.getElementById('inputTarikAmount').value);
+            let metode = document.getElementById('inputTarikMetode').value;
+            let rek = document.getElementById('inputTarikRek').value;
+            let desc = document.getElementById('inputTarikDesc').value;
+            
+            if(!amount || amount < 10000) return showCustomAlert("PERHATIAN", "Penarikan minimal Rp 10.000", "error");
+            if(metode !== 'TUNAI' && !rek) return showCustomAlert("PERHATIAN", "Harap isi Nomor Rekening atau Nomor HP E-Wallet.", "error");
+            if(!desc) return showCustomAlert("PERHATIAN", "Harap isi Tujuan / Keperluan penarikan.", "error");
+
+            const mRef = doc(db, "anggota", userId);
+            const mDoc = await getDoc(mRef);
+            let currentSaldo = mDoc.data().tabungan || 0;
+            
+            if(amount > currentSaldo) return showCustomAlert("DITOLAK", "Saldo tabungan Anda tidak mencukupi!", "error");
+
+            const konfirm = await showCustomConfirm("KONFIRMASI", `Ajukan penarikan dana sebesar <b style="color:var(--cyan-logo);">Rp ${amount.toLocaleString('id-ID')}</b>?<br><br><span style='color:var(--danger); font-size:11px;'>*Pencairan membutuhkan validasi KETUM dan WAKETUM. Saldo akan otomatis ditahan.</span>`);
+            if(konfirm) {
+                await addDoc(collection(db, "tabungan_trx"), {
+                    memberId: userId, memberName: myName,
+                    type: 'OUT', amount: amount, 
+                    metodeTransfer: metode, noRekening: rek,
+                    desc: 'Tarik: ' + desc, timestamp: Date.now(), 
+                    status: 'PENDING_APPROVAL', apprKetum: false, apprWaketum: false
+                });
+                await showCustomAlert("SUKSES", "Pengajuan berhasil dikirim! Menunggu ACC Ketum & Waketum.", "success");
+                document.getElementById('modalTarik').style.display = 'none';
+            }
+        }
+
+        // =====================================
+        // FUNGSI KONFIRMASI TERIMA DANA (USER)
+        // =====================================
+        window.lihatBukti = (url) => {
+            document.getElementById('imgBukti').src = url;
+            document.getElementById('modalViewBukti').style.display = 'flex';
+        }
+
+        window.konfirmasiTerimaDana = async (trxId) => {
+            const konfirm = await showCustomConfirm("TERIMA DANA", "Apakah Anda sudah mengecek dan memastikan bahwa dana benar-benar sudah masuk ke rekening/tangan Anda?");
+            if(konfirm) {
+                await updateDoc(doc(db, "tabungan_trx", trxId), { status: 'SUCCESS' });
+                showCustomAlert("SELESAI", "Transaksi selesai. Terima kasih!", "success");
+            }
+        }
+
+        window.toggleStealthAdmin = () => {
+            if(!isTrueAdmin) return;
+            isViewAdminVisible = !isViewAdminVisible;
+            updateAdminView();
+            if(navigator.vibrate) navigator.vibrate(50);
+            if(!isViewAdminVisible) window.switchTab('member');
+        }
+
+        function updateAdminView() {
+            const display = isViewAdminVisible ? 'block' : 'none';
+            document.getElementById('btnTabAdmin').style.display = display;
+            document.getElementById('btnTabApprove').style.display = display;
+            document.getElementById('adminIndicator').style.display = display;
         }
 
         function showActivationScreen() { document.getElementById('agreeModal').style.display = 'flex'; }
@@ -552,7 +717,6 @@
                 document.getElementById('btnBawahKamera').style.display = 'none'; 
                 startCamera(); 
             } else {
-                // JIKA FACE API MATI, LANGSUNG LOMPAT KE PEMBUATAN PIN
                 document.getElementById('secTitle').innerText = "BUAT PIN 6 DIGIT"; 
                 document.getElementById('camWrap').style.display = 'none'; 
                 document.getElementById('pinArea').style.display = 'flex'; 
@@ -601,7 +765,7 @@
         function stopCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); if (detectInterval) clearInterval(detectInterval); document.getElementById('faceFrame').classList.remove('scanning'); }
         
         window.switchMode = (forcePin = false) => { 
-            if (forcePin) isFaceMode = true; // Biar ke-toggle jadi false di baris bawah
+            if (forcePin) isFaceMode = true; 
             isFaceMode = !isFaceMode; 
             
             if (isFaceMode) { 
@@ -622,7 +786,6 @@
                     document.getElementById('btnSwitch').classList.remove('btn-outline'); 
                     document.getElementById('btnSwitch').style.background='var(--cyan-logo)'; 
                     document.getElementById('btnSwitch').style.color='black'; 
-                    // Sembunyikan opsi Face ID kalau emang dari awal API-nya gagal load
                     if(!faceApiLoaded) document.getElementById('btnSwitch').style.display = 'none';
                 }
             } 
@@ -653,58 +816,201 @@
         function initAdminData() {
             onSnapshot(query(collection(db, "anggota")), (snap) => {
                 let allMembers = []; snap.forEach(d => allMembers.push({id:d.id, ...d.data()}));
-                
-                // Sorting Anggota Admin juga menyesuaikan dengan Hierarki Jabatan
                 allMembers.sort((a,b) => {
                     const rankA = getRank(a.role); const rankB = getRank(b.role);
                     if (rankA !== rankB) return rankA - rankB;
                     return (a.namaKtp||a.nama||'').localeCompare(b.namaKtp||b.nama||'');
                 });
-                
                 window.allMembersCache = allMembers;
-                
                 const searchKey = document.getElementById('searchMem').value;
                 if(searchKey) window.filterMembers(); else window.renderMembers(allMembers);
             });
 
-            const qApp = query(collection(db, "tabungan_trx"), where("status", "==", "PENDING"));
+            // LISTENER ANTRIAN PERSETUJUAN (IN & OUT & UPLOAD)
+            const qApp = query(collection(db, "tabungan_trx"), where("status", "in", ["PENDING", "PENDING_APPROVAL", "WAITING_TRANSFER", "WAITING_CONFIRMATION"]));
             onSnapshot(qApp, (snap) => {
                 const cont = document.getElementById('approvalList'); cont.innerHTML = "";
                 if(snap.empty) { cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8; font-size:11px;">Tidak ada antrean validasi pengajuan.</div>`; return;}
                 let arrApp = []; snap.forEach(d => arrApp.push({id: d.id, ...d.data()}));
                 arrApp.sort((a,b) => a.timestamp - b.timestamp);
+                
                 arrApp.forEach(data => {
                     const isNabung = data.type === 'IN';
                     const titleText = isNabung ? "Setoran Tabungan" : "Penarikan Dana";
                     const color = isNabung ? "var(--success)" : "var(--danger)";
+                    
+                    let infoTransferHtml = '';
+                    if(!isNabung) {
+                        infoTransferHtml = `<div style="font-size:11px; color:#94A3B8; margin-top:4px; background:rgba(0,0,0,0.5); padding:5px; border-radius:6px; display:inline-block; border:1px solid #333;"><b>Metode:</b> ${data.metodeTransfer || '-'} | <b>Rek:</b> ${data.noRekening || '-'}</div>`;
+                    }
+
+                    let actionHtml = '';
+
+                    if(isNabung) {
+                        actionHtml = `
+                        <div style="display:flex; flex-direction:column; gap:5px; margin-top:10px;">
+                            <button class="btn-submit" style="background:${color}; padding:8px 15px; margin:0; color:black;" onclick="window.approveKlaim('${data.id}', '${data.type}', ${data.amount}, '${data.memberId}')">VALIDASI SETORAN</button>
+                            <button class="btn-submit bg-cancel" style="padding:8px 15px; margin:0; border:1px solid #333;" onclick="window.rejectKlaim('${data.id}')">TOLAK</button>
+                        </div>`;
+                    } else {
+                        if (data.status === 'PENDING_APPROVAL') {
+                            let statusKetum = data.apprKetum ? `<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Ketum</span>` : `<span style="color:var(--danger)"><i class="fas fa-clock"></i> Ketum</span>`;
+                            let statusWaketum = data.apprWaketum ? `<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Waketum</span>` : `<span style="color:var(--danger)"><i class="fas fa-clock"></i> Waketum</span>`;
+                            
+                            let btnKetum = (!data.apprKetum && (isKetum || isSuperAdmin)) ? `<button class="btn-submit" style="background:var(--cyan-logo); color:black; padding:8px; margin:0; font-size:11px;" onclick="window.approveTarik('${data.id}', 'KETUM', ${data.amount}, '${data.memberId}')">ACC KETUM</button>` : '';
+                            let btnWaketum = (!data.apprWaketum && (isWaketum || isSuperAdmin)) ? `<button class="btn-submit" style="background:var(--warning); color:black; padding:8px; margin:0; font-size:11px;" onclick="window.approveTarik('${data.id}', 'WAKETUM', ${data.amount}, '${data.memberId}')">ACC WAKETUM</button>` : '';
+                            let btnTolak = `<button class="btn-submit bg-cancel" style="padding:8px; margin:0; font-size:11px; flex:0.5; border:1px solid #333;" onclick="window.rejectKlaim('${data.id}')">TOLAK</button>`;
+
+                            actionHtml = `
+                            <div style="font-size:11px; background:rgba(0,0,0,0.5); padding:8px; border-radius:8px; margin-top:10px; margin-bottom:8px; border:1px solid #333; text-align:center; color:white;">
+                                <b>Status Persetujuan:</b><br> ${statusKetum} &nbsp;|&nbsp; ${statusWaketum}
+                            </div>
+                            <div style="display:flex; gap:5px; width:100%;">
+                                ${btnKetum} ${btnWaketum} ${btnTolak}
+                            </div>`;
+                        } 
+                        else if (data.status === 'WAITING_TRANSFER') {
+                            actionHtml = `
+                            <div style="margin-top:10px;">
+                                <button class="btn-submit" style="background:var(--cyan-logo); color:black; padding:10px; font-size:12px; box-shadow: var(--shadow-cyan);" onclick="window.bukaUploadBukti('${data.id}', '${data.memberId}')">
+                                    <i class="fas fa-upload"></i> UPLOAD BUKTI TRANSFER
+                                </button>
+                            </div>`;
+                        }
+                        else if (data.status === 'WAITING_CONFIRMATION') {
+                            actionHtml = `
+                            <div style="margin-top:10px; font-size:11px; text-align:center; padding:8px; background:rgba(245,158,11,0.1); color:var(--warning); border-radius:8px; border:1px dashed var(--warning); font-weight:800;">
+                                <i class="fas fa-spinner fa-spin"></i> MENUNGGU USER KONFIRMASI TERIMA DANA
+                            </div>`;
+                        }
+                    }
+
                     cont.innerHTML += `
-                    <div class="app-card" style="border-left:5px solid ${color}">
-                        <div><div style="font-size:10px; color:#64748B;">${new Date(data.timestamp).toLocaleString('id-ID')}</div><h4 style="margin:5px 0; color:white;">${data.memberName}</h4><div style="font-size:11px; color:#64748B;">${titleText}</div><div style="font-family:'Space Grotesk'; font-weight:900; font-size:16px; color:${color};">Rp ${data.amount.toLocaleString('id-ID')}</div></div>
-                        <div style="display:flex; flex-direction:column; gap:5px;"><button class="btn-submit" style="background:${color}; color:${isNabung?'white':'white'}; padding:8px 15px; margin:0;" onclick="window.approveKlaim('${data.id}', '${data.type}', ${data.amount}, '${data.memberId}')">VALIDASI</button><button class="btn-submit bg-cancel" style="padding:8px 15px; margin:0; border:1px solid #333;" onclick="window.rejectKlaim('${data.id}')">TOLAK</button></div>
+                    <div class="app-card" style="border-left:5px solid ${color}; display:flex; flex-direction:column; align-items:stretch;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                            <div>
+                                <div style="font-size:10px; color:#64748B;">${new Date(data.timestamp).toLocaleString('id-ID')}</div>
+                                <h4 style="margin:5px 0; color:white; font-family:'Outfit'; font-size:16px;">${data.memberName}</h4>
+                                <div style="font-size:11px; color:#64748B;">${titleText}</div>
+                                ${infoTransferHtml}
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-family:'Space Grotesk'; font-weight:900; font-size:18px; color:${color};">Rp ${data.amount.toLocaleString('id-ID')}</div>
+                            </div>
+                        </div>
+                        ${actionHtml}
                     </div>`;
                 });
             });
         }
 
+        // =====================================
+        // LOGIKA ADMIN TRANSFER BUKTI DANA
+        // =====================================
+        let currentBuktiBase64 = "";
+        window.bukaUploadBukti = (trxId, memberId) => {
+            document.getElementById('uploadBuktiTrxId').value = trxId;
+            document.getElementById('uploadBuktiMemberId').value = memberId;
+            document.getElementById('previewBuktiFoto').style.display = 'none';
+            currentBuktiBase64 = "";
+            document.getElementById('modalUploadBukti').style.display = 'flex';
+        }
+
+        window.processBuktiFoto = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
+                        let w = img.width; let h = img.height;
+                        if (w > h) { if (w > 600) { h *= 600/w; w = 600; } } else { if (h > 600) { w *= 600/h; h = 600; } }
+                        cvs.width = w; cvs.height = h; ctx.drawImage(img, 0, 0, w, h);
+                        currentBuktiBase64 = cvs.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('previewBuktiFoto').src = currentBuktiBase64;
+                        document.getElementById('previewBuktiFoto').style.display = 'block';
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.simpanBuktiTransfer = async () => {
+            if(!currentBuktiBase64) return showCustomAlert("PERHATIAN", "Harap upload foto bukti transfer terlebih dahulu!", "error");
+            const trxId = document.getElementById('uploadBuktiTrxId').value;
+            
+            const btn = document.getElementById('btnSimpanBukti');
+            btn.innerText = "MENGIRIM..."; btn.style.opacity = '0.7';
+
+            try {
+                await updateDoc(doc(db, "tabungan_trx", trxId), {
+                    buktiTransfer: currentBuktiBase64,
+                    status: 'WAITING_CONFIRMATION'
+                });
+                document.getElementById('modalUploadBukti').style.display = 'none';
+                showCustomAlert("BERHASIL", "Bukti transfer telah dikirim ke User.", "success");
+            } catch(e) {
+                showCustomAlert("GAGAL", e.message, "error");
+            } finally {
+                btn.innerText = "KIRIM BUKTI"; btn.style.opacity = '1';
+            }
+        }
+
+
         window.approveKlaim = async (trxId, type, amount, memberId) => {
-            const konf = await showCustomConfirm("VALIDASI TRANSAKSI", "Anda yakin dana sudah berhasil masuk ke rekening/QRIS KC dan sesuai nominal?");
+            const konf = await showCustomConfirm("VALIDASI TRANSAKSI", "Anda yakin dana setor sudah berhasil diverifikasi?");
             if(!konf) return;
             await runTransaction(db, async(t) => {
                 const r = doc(db, "tabungan_trx", trxId);
                 const mRef = doc(db, "anggota", memberId);
                 const mDoc = await t.get(mRef);
                 let currentSaldo = mDoc.data().tabungan || 0;
-                if (type === 'IN') currentSaldo += amount; else if (type === 'OUT') currentSaldo -= amount; 
+                if (type === 'IN') currentSaldo += amount;
                 t.update(mRef, { tabungan: currentSaldo }); t.update(r, { status: 'SUCCESS' });
             });
             showCustomAlert("BERHASIL", "Setoran divalidasi. Saldo tabungan member telah bertambah otomatis.", "success");
         }
 
+        window.approveTarik = async (trxId, roleAcc, amount, memberId) => {
+            const konf = await showCustomConfirm("VALIDASI PENARIKAN", `Anda menyetujui penarikan ini sebagai <b style="color:var(--cyan-logo);">${roleAcc}</b>?`);
+            if(!konf) return;
+
+            await runTransaction(db, async(t) => {
+                const rRef = doc(db, "tabungan_trx", trxId);
+                const mRef = doc(db, "anggota", memberId);
+                
+                const rDoc = await t.get(rRef);
+                const mDoc = await t.get(mRef);
+                
+                let currentSaldo = mDoc.data().tabungan || 0;
+                let dataTrx = rDoc.data();
+
+                let isKetumNow = dataTrx.apprKetum;
+                let isWaketumNow = dataTrx.apprWaketum;
+
+                if(roleAcc === 'KETUM') isKetumNow = true;
+                if(roleAcc === 'WAKETUM') isWaketumNow = true;
+
+                if(isKetumNow && isWaketumNow) {
+                    if (currentSaldo < amount) throw "Saldo tabungan member tidak mencukupi untuk dicairkan!";
+                    t.update(mRef, { tabungan: currentSaldo - amount });
+                    t.update(rRef, { apprKetum: true, apprWaketum: true, status: 'WAITING_TRANSFER' });
+                } else {
+                    t.update(rRef, { apprKetum: isKetumNow, apprWaketum: isWaketumNow });
+                }
+            }).then(() => {
+                showCustomAlert("BERHASIL", `Persetujuan ${roleAcc} berhasil dicatat.`, "success");
+            }).catch((err) => {
+                showCustomAlert("GAGAL", err, "error");
+            });
+        };
+
         window.rejectKlaim = async (trxId) => {
-            const konf = await showCustomConfirm("TOLAK PENGAJUAN", "Tolak pengajuan setoran ini? Data pengajuan akan dihapus secara permanen.");
+            const konf = await showCustomConfirm("TOLAK PENGAJUAN", "Tolak pengajuan ini? Data pengajuan akan dihapus permanen.");
             if(!konf) return;
             await deleteDoc(doc(db, "tabungan_trx", trxId));
-            showCustomAlert("INFO", "Pengajuan setoran telah ditolak dan dihapus dari antrean.", "success");
+            showCustomAlert("INFO", "Pengajuan telah ditolak dan dihapus.", "success");
         }
 
         window.renderMembers = (arr) => {
@@ -841,18 +1147,37 @@
             const list = document.getElementById('historyList');
             const qHist = query(collection(db, "tabungan_trx"), where("memberId", "==", userId));
             onSnapshot(qHist, (snap) => {
-                list.innerHTML = ""; let arr = []; snap.forEach(d => arr.push(d.data())); arr.sort((a,b) => b.timestamp - a.timestamp);
+                list.innerHTML = ""; let arr = []; snap.forEach(d => arr.push({id: d.id, ...d.data()})); arr.sort((a,b) => b.timestamp - a.timestamp);
                 if(arr.length===0) { list.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8; font-size:12px;">Belum ada Riwayat Mutasi Rekening.</div>`; return; }
+                
                 arr.forEach(d => {
                     const color = d.type === 'IN' ? 'var(--success)' : 'var(--danger)'; 
                     const sign = d.type === 'IN' ? '+' : '-';
                     const dateStr = new Date(d.timestamp).toLocaleDateString('id-ID', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-                    const pendingTag = d.status === 'PENDING' ? `<span style="background:var(--warning); color:black; padding:2px 5px; border-radius:5px; font-size:8px; margin-left:5px; font-weight:900;">TUNGGU VALIDASI</span>` : '';
+                    
+                    let pendingTag = '';
+                    let actionBtn = '';
+
+                    if (d.status === 'PENDING' || d.status === 'PENDING_APPROVAL') pendingTag = 'MENUNGGU ACC';
+                    else if (d.status === 'WAITING_TRANSFER') pendingTag = 'PROSES TRANSFER';
+                    else if (d.status === 'WAITING_CONFIRMATION') {
+                        pendingTag = 'DANA DIKIRIM';
+                        actionBtn = `
+                        <div style="display:flex; gap:5px; margin-top:10px; border-top:1px dashed #333; padding-top:10px;">
+                            <button class="btn-outline-modal" style="padding:6px; font-size:10px; border-radius:8px; flex:1;" onclick="window.lihatBukti('${d.buktiTransfer}')"><i class="fas fa-image"></i> LIHAT BUKTI</button>
+                            <button class="btn-submit bg-sukses" style="padding:6px; margin:0; font-size:10px; border-radius:8px; flex:1; color:black;" onclick="window.konfirmasiTerimaDana('${d.id}')"><i class="fas fa-check-circle"></i> TERIMA DANA</button>
+                        </div>`;
+                    }
+
+                    const tagHtml = pendingTag ? `<span style="background:var(--warning); color:black; padding:2px 5px; border-radius:5px; font-size:8px; margin-left:5px; font-weight:900;">${pendingTag}</span>` : '';
 
                     list.innerHTML += `
-                    <div class="trx-item">
-                        <div><div style="font-weight:800; font-size:13px; color:var(--text-main);">${d.desc} ${pendingTag}</div><div style="font-size:10px; color:var(--text-muted); margin-top:3px;">${dateStr}</div></div>
-                        <div style="font-family:'Space Grotesk'; font-weight:900; font-size:14px; color:${d.status==='PENDING'?'#64748B':color};">${sign} Rp ${d.amount.toLocaleString('id-ID')}</div>
+                    <div class="trx-item" style="flex-direction:column; align-items:stretch;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div><div style="font-weight:800; font-size:13px; color:var(--text-main);">${d.desc} ${tagHtml}</div><div style="font-size:10px; color:var(--text-muted); margin-top:3px;">${dateStr}</div></div>
+                            <div style="font-family:'Space Grotesk'; font-weight:900; font-size:14px; color:${d.status.includes('PENDING')?'#94A3B8':color};">${sign} Rp ${d.amount.toLocaleString('id-ID')}</div>
+                        </div>
+                        ${actionBtn}
                     </div>`;
                 });
             });

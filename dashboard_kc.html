@@ -11,8 +11,8 @@
             document.documentElement.classList.add('theme-soft-blue');
         }
 
-        // VERSI UDAH GW NAIKIN BIAR CACHE LAMA ILANG & ICON MUNCUL
-        const DASH_VERSION = "19.1_KOPGAB_SOS"; 
+        // VERSI DINAIIKIN KE 19.2 BIAR CACHE LAMA LANGSUNG HANCUR
+        const DASH_VERSION = "19.2_FINAL_KOPGAB"; 
         if (localStorage.getItem('maka_dash_kc_v') !== DASH_VERSION) {
             if ('caches' in window) { caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }); }); }
             localStorage.setItem('maka_dash_kc_v', DASH_VERSION); window.location.reload(true); 
@@ -867,6 +867,7 @@
 
             if (snap.empty) { listBody.innerHTML = `<div style="text-align:center; padding:30px 20px; color:var(--text-muted); font-size:12px; font-weight:600;">Belum ada pesan masuk.</div>`; document.getElementById('inboxBadge').style.display = 'none'; return; }
 
+            // DETEKSI PESAN BARU UNTUK HP PUSH NOTIFICATION
             if (!isFirstLoadInfo) {
                 snap.docChanges().forEach((change) => {
                     if (change.type === "added") {
@@ -928,6 +929,7 @@
             let unreadCount = 0;
             let lastReadTime = parseInt(localStorage.getItem('maka_last_read_chat') || '0');
             
+            // DETEKSI CHAT BARU UNTUK HP PUSH NOTIFICATION
             if (!isFirstLoadChat) {
                 snap.docChanges().forEach((change) => {
                     if (change.type === "added") {

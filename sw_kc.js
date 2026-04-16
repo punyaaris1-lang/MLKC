@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kc-super-cache-v3'; // NANTI KALAU ADA UPDATE LAGI, GANTI JADI v3, v4, dst.
+const CACHE_NAME = 'kc-super-cache-v4'; // NANTI KALAU ADA UPDATE LAGI, GANTI JADI v3, v4, dst.
 
 // Install langsung tanpa nunggu
 self.addEventListener('install', (event) => {
